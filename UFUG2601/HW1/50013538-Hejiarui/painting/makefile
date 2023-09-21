@@ -5,7 +5,7 @@ SOURCE := main.cpp
 EXECUTABLE := painting
 
 $(EXECUTABLE) : $(SOURCE)
-	$(CXX) -o $@ $ <
+	$(CXX) -o $@ $<
 clean: 
 	rm -f $(EXECUTABLE)
 .PHONY : clean
