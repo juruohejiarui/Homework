@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "unordered_map": "cpp",
+        "cstdio": "cpp",
+        "regex": "cpp",
+        "cmath": "cpp",
+        "cstring": "cpp",
+        "iosfwd": "cpp"
+    }
+}
