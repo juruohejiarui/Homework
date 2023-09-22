@@ -10,7 +10,10 @@ using namespace std;
 typedef long long LL;
 LL getval(string& str, LL B) {
     LL res = 0;
-    for (int i = 0; i < str.size(); i++)  res = res * B + (str[i] - '0');
+    for (int i = 0; i < str.size(); i++) {
+        res = res * B + (str[i] - '0');
+        if (str[i] - '0' >= B) return -1;
+    }
     return res;
 }
 int main() {
