@@ -5,6 +5,7 @@
         "regex": "cpp",
         "cmath": "cpp",
         "cstring": "cpp",
-        "iosfwd": "cpp"
+        "iosfwd": "cpp",
+        "random": "cpp"
     }
 }
