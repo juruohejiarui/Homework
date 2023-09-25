@@ -23,6 +23,7 @@ int main() {
     cin >> p >> q >> r;
     for (LL B = 2; B <= 16; B++) {
         LL vp = getval(p, B), vq = getval(q, B), vr = getval(r, B);
+        if (vp < 0 || vq < 0 || vr < 0) continue;
         if (vp * vq == vr) { cout << B << endl; return 0; }
     }
     cout << 0 << endl;
