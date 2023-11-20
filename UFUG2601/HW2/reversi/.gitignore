@@ -1,0 +1,6 @@
+# This file is used to ignore files which are generated
+# ----------------------------------------------------------------------------
+
+/build-reversi-Desktop_x86_darwin_generic_mach_o_64bit-Debug
+/build-reversi-Desktop_x86_darwin_generic_mach_o_64bit-Release
+/build-reversi-Desktop_x86_darwin_generic_mach_o_64bit-Profile

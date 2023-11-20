@@ -10,6 +10,10 @@ enum class PositionState {
     None, Player1, Player2
 };
 
+enum class GUIState {
+    Playing, End,
+};
+
 typedef std::vector< std::vector<PositionState> > Board;
 
 void SwitchPlayer(PositionState &_state);
@@ -28,6 +32,25 @@ public slots:
     void mouseClicked();
 public:
     explicit SBoard(QWidget *parent = nullptr);
+    GUIState GetGUIState();
+    // try to abort the current game and return if it is successful.
+    bool tryAbort();
+
+    // setters
+
+    void setPromptVisibility(bool _data);
+    bool getPromptVisibility();
+
+    // try to set the size and return if it is successful.
+    bool trySetSize(int _row, int _column);
+    bool trySetSize(std::pair<int, int> _size);
+    std::pair<int, int> GetSize();
+
+    Board getBoard();
+
+    PositionState getCurrentPlayer();
+
+    GameResult getCurrentResult();
 protected:
     void paintEvent(QPaintEvent *event) Q_DECL_OVERRIDE; //绘图
     void mousePressEvent(QMouseEvent *ev) Q_DECL_OVERRIDE;
@@ -46,9 +69,10 @@ private:
     PositionState currentPlayer;
     GameResult lastResult;
 
-    enum class GUIState {
-        Playing, End,
-    } guiState;
+    GUIState guiState;
+
+    bool promptVisibility;
+
 
     void initBoard();
 };

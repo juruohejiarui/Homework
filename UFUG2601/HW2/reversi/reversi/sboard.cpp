@@ -9,6 +9,12 @@ SBoard::SBoard(QWidget *parent)
 
 }
 
+GUIState SBoard::GetGUIState() { return guiState; }
+
+bool ensureAbort() {
+
+}
+
 void SBoard::initBoard() {
     guiState = GUIState::Playing;
     states.resize(8), valid.resize(8);
@@ -32,6 +38,7 @@ void SBoard::paintEvent(QPaintEvent *event) {
     // calculate the size
     sboardHeight = fmin(this->height() - 50, 600);
     sboardWidth = fmin(this->width(), 600);
+    sboardHeight = sboardWidth = fmin(sboardHeight, sboardWidth);
     sboardX = fmax(0, (this->height() - sboardHeight - 50) >> 1) + 50, sboardY = fmax((this->width() - sboardWidth) >> 1, 0);
     // set Color
     static QColor
@@ -58,23 +65,29 @@ void SBoard::paintEvent(QPaintEvent *event) {
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 if (valid[i][j] != PositionState::None)
-                    _drawrect(_colv, QRect(sboardY + j * plaidWidth, sboardX + i * plaidHeight, plaidWidth, plaidHeight));
-                else _drawrect(_coliv, QRect(sboardY + j * plaidWidth, sboardX + i * plaidHeight, plaidWidth, plaidHeight));
+                    _drawrect((currentPlayer == PositionState::Player1 ? _col1 : _col2),
+                            QRect(sboardY + j * plaidWidth + 5, sboardX + i * plaidHeight + 5, plaidWidth - 10, plaidHeight - 10));
+                _qpainter.setPen(_col0);
+                _qpainter.setBrush(_col0);
+                _qpainter.drawRect(QRect(sboardY + j * plaidWidth + 5, sboardX + i * plaidHeight + 5, plaidWidth - 10, plaidHeight - 10));
                 switch (states[i][j]) {
                 case PositionState::None:
-                    _qpainter.setPen(_col0);
-                    _qpainter.setBrush(_col0);
+
+
                     break;
                 case PositionState::Player1:
                     _qpainter.setPen(_col1);
                     _qpainter.setBrush(_col1);
+                    _qpainter.drawEllipse(QRect(sboardY + j * plaidWidth + 10, sboardX + i * plaidHeight + 10, plaidWidth - 20, plaidHeight - 20));
+
                     break;
                 case PositionState::Player2:
                     _qpainter.setPen(_col2);
                     _qpainter.setBrush(_col2);
+                    _qpainter.drawEllipse(QRect(sboardY + j * plaidWidth + 10, sboardX + i * plaidHeight + 10, plaidWidth - 20, plaidHeight - 20));
+
                     break;
                 }
-                _qpainter.drawRect(QRect(sboardY + j * plaidWidth + 5, sboardX + i * plaidHeight + 5, plaidWidth - 10, plaidHeight - 10));
 
             }
         }
