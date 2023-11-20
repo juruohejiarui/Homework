@@ -42,6 +42,7 @@ public:
     bool getPromptVisibility();
 
     // try to set the size and return if it is successful.
+    bool tryCreateNewGame();
     bool trySetSize(int _row, int _column);
     bool trySetSize(std::pair<int, int> _size);
     std::pair<int, int> GetSize();

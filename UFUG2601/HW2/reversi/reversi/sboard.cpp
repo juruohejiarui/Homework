@@ -1,5 +1,6 @@
 #include "sboard.h"
 #include <QPainter>
+#include <QMessageBox>
 
 SBoard::SBoard(QWidget *parent)
     : QWidget{parent}
@@ -12,7 +13,13 @@ SBoard::SBoard(QWidget *parent)
 GUIState SBoard::GetGUIState() { return guiState; }
 
 bool ensureAbort() {
-
+    QMessageBox msgbx;
+    msgbx.setText("This operation will abort this game, continue?");
+    msgbx.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+    msgbx.setDefaultButton(QMessageBox::Ok);
+    int res = msgbx.exec();
+    if (res == QMessageBox::Ok) return true;
+    else return false;
 }
 
 void SBoard::initBoard() {
@@ -28,6 +35,14 @@ void SBoard::initBoard() {
     UpdateValid(states, valid, currentPlayer);
     update();
 }
+
+
+bool SBoard::tryCreateNewGame() {
+    if (!ensureAbort()) return false;
+    initBoard();
+    return true;
+}
+
 void SBoard::resizeEvent(QResizeEvent *ev) {
     printf("resized\n");
     update();
@@ -54,8 +69,14 @@ void SBoard::paintEvent(QPaintEvent *event) {
         // draw the state
         // format: current player, score 1 : score 2
         auto _result = GetResult(states);
+        if (currentPlayer == PositionState::Player1)
+            _qpainter.setPen(_col1);
+        else _qpainter.setPen(_col2);
+        sprintf(_text, "Active Player : %d\n", (int)currentPlayer);
+        _qpainter.drawText(0, 0, this->width(), 50, Qt::AlignCenter, _text);
+
         _qpainter.setPen(_colt);
-        sprintf(_text, "Active Player : %d\n%d : %d", (int)currentPlayer, std::get<1>(_result), std::get<2>(_result));
+        sprintf(_text, "\n%d : %d", std::get<1>(_result), std::get<2>(_result));
         _qpainter.drawText(0, 0, this->width(), 50, Qt::AlignCenter, _text);
         auto _drawrect = [&_qpainter](const QColor &_col, const QRect &_rect) {
             _qpainter.setPen(_col);
@@ -67,13 +88,13 @@ void SBoard::paintEvent(QPaintEvent *event) {
                 if (valid[i][j] != PositionState::None)
                     _drawrect((currentPlayer == PositionState::Player1 ? _col1 : _col2),
                             QRect(sboardY + j * plaidWidth + 5, sboardX + i * plaidHeight + 5, plaidWidth - 10, plaidHeight - 10));
+                else _drawrect(_col0,
+                              QRect(sboardY + j * plaidWidth + 5, sboardX + i * plaidHeight + 5, plaidWidth - 10, plaidHeight - 10));
                 _qpainter.setPen(_col0);
                 _qpainter.setBrush(_col0);
-                _qpainter.drawRect(QRect(sboardY + j * plaidWidth + 5, sboardX + i * plaidHeight + 5, plaidWidth - 10, plaidHeight - 10));
+                _qpainter.drawRect(QRect(sboardY + j * plaidWidth + 7, sboardX + i * plaidHeight + 7, plaidWidth - 14, plaidHeight - 14));
                 switch (states[i][j]) {
                 case PositionState::None:
-
-
                     break;
                 case PositionState::Player1:
                     _qpainter.setPen(_col1);
@@ -92,9 +113,12 @@ void SBoard::paintEvent(QPaintEvent *event) {
             }
         }
     } else {
-        _qpainter.setPen(_colt);
+        if (std::get<0>(lastResult) == PositionState::Player1)
+            _qpainter.setPen(_col1);
+        else _qpainter.setPen(_col2);
         sprintf(_text, "Winner : %d", (int)std::get<0>(lastResult));
         _qpainter.drawText(0, 0, this->width(), 50, Qt::AlignCenter, _text);
+        _qpainter.setPen(_colt);
         sprintf(_text, "Score : %d : %d", std::get<1>(lastResult), std::get<2>(lastResult));
         _qpainter.drawText(0, 50, this->width(), 50, Qt::AlignCenter, _text);
         sprintf(_text, "Click this window to start a new game");

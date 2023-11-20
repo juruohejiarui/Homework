@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QAction>
 #include <sboard.h>
 
 QT_BEGIN_NAMESPACE
@@ -22,5 +23,7 @@ private:
     Ui::MainWindow *ui;
     QWidget *centralWidget;
     SBoard *sboard;
+
+    QAction *newGameItem;
 };
 #endif // MAINWINDOW_H

@@ -13,6 +13,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     centralWidget = findChild<QWidget *>("centralwidget");
     sboard = findChild<SBoard *>("sboard");
+    newGameItem = findChild<QAction *>("actionNew_Game");
 }
 
 void MainWindow::resizeEvent(QResizeEvent *ev) {
