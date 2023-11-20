@@ -19,11 +19,18 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+private slots:
+    void newGameItemClicked();
+    void changeSize8_8ItemClicked();
+    void changeSize8_16ItemClicked();
+    void changeSize16_16ItemClicked();
 private:
     Ui::MainWindow *ui;
     QWidget *centralWidget;
     SBoard *sboard;
 
     QAction *newGameItem;
+
+    QAction *changeSize8_8Item, *changeSize8_16Item, *changeSize16_16Item;
 };
 #endif // MAINWINDOW_H

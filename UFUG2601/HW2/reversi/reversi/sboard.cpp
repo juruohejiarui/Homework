@@ -6,6 +6,7 @@ SBoard::SBoard(QWidget *parent)
     : QWidget{parent}
 {
     connect(this, SIGNAL(clicked()), this, SLOT(mouseClicked()));
+    this->Row = this->Column = 8;
     initBoard();
 
 }
@@ -24,13 +25,13 @@ bool ensureAbort() {
 
 void SBoard::initBoard() {
     guiState = GUIState::Playing;
-    states.resize(8), valid.resize(8);
-    for (int i = 0; i < 8; i++) {
-        states[i].resize(8), valid[i].resize(8);
-        for (int j = 0; j < 8; j++) states[i][j] = valid[i][j] = PositionState::None;
+    states.resize(this->Row), valid.resize(this->Row);
+    for (int i = 0; i < this->Row; i++) {
+        states[i].resize(this->Column), valid[i].resize(this->Column);
+        for (int j = 0; j < this->Column; j++) states[i][j] = valid[i][j] = PositionState::None;
     }
-    states[3][4] = states[4][3] = PositionState::Player1;
-    states[3][3] = states[4][4] = PositionState::Player2;
+    states[this->Row / 2 - 1][this->Column / 2] = states[this->Row / 2][this->Column / 2 - 1] = PositionState::Player1;
+    states[this->Row / 2 - 1][this->Column / 2 - 1] = states[this->Row / 2][this->Column / 2] = PositionState::Player2;
     currentPlayer = PositionState::Player1;
     UpdateValid(states, valid, currentPlayer);
     update();
@@ -38,10 +39,19 @@ void SBoard::initBoard() {
 
 
 bool SBoard::tryCreateNewGame() {
-    if (!ensureAbort()) return false;
+    if (guiState == GUIState::Playing && !ensureAbort()) return false;
     initBoard();
     return true;
 }
+
+bool SBoard::trySetSize(int _row, int _column) {
+    if (guiState == GUIState::Playing && !ensureAbort()) return false;
+    this->Row = _row, this->Column = _column;
+    SBoard::initBoard();
+    return true;
+}
+bool SBoard::trySetSize(std::pair<int, int> _size) { return trySetSize(_size.first, _size.second); }
+std::pair<int, int> SBoard::GetSize() { return std::make_pair(this->Row, this->Column); }
 
 void SBoard::resizeEvent(QResizeEvent *ev) {
     printf("resized\n");
@@ -51,19 +61,19 @@ void SBoard::resizeEvent(QResizeEvent *ev) {
 void SBoard::paintEvent(QPaintEvent *event) {
     QPainter _qpainter = QPainter(this);
     // calculate the size
-    sboardHeight = fmin(this->height() - 50, 600);
-    sboardWidth = fmin(this->width(), 600);
-    sboardHeight = sboardWidth = fmin(sboardHeight, sboardWidth);
+    if ((this->height() - 50) * this->Column < this->width() * this->Row)
+        sboardHeight = this->height() - 50, sboardWidth = sboardHeight * this->Column / this->Row;
+    else sboardWidth = this->width(), sboardHeight = sboardWidth * this->Row / this->Column;
     sboardX = fmax(0, (this->height() - sboardHeight - 50) >> 1) + 50, sboardY = fmax((this->width() - sboardWidth) >> 1, 0);
     // set Color
-    static QColor
+    static const QColor
         // the color of plaids
         _col0 = QColor(0xff, 0xff, 0xff), _col1 = QColor(0xff, 0, 0), _col2 = QColor(0, 0, 0xff),
         _coliv = QColor(0xcc,0xcc, 0xcc), _colv = QColor(0xee, 0xee, 0),
         // the color of text
         _colt = QColor(0, 0, 0);
     static char _text[105];
-    plaidHeight = sboardHeight >> 3, plaidWidth = sboardWidth >> 3;
+    plaidHeight = sboardHeight / this->Row, plaidWidth = sboardWidth / this->Column;
 
     if (guiState == GUIState::Playing) {
         // draw the state
@@ -83,29 +93,37 @@ void SBoard::paintEvent(QPaintEvent *event) {
             _qpainter.setBrush(_col);
             _qpainter.drawRect(_rect);
         };
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
+
+        const int _board_size = fmin(2.0, ceil(plaidWidth * 0.1));
+
+        for (int i = 0; i < this->Row; i++) {
+            for (int j = 0; j < this->Column; j++) {
+                const QRect _inner_rect = QRect(sboardY + j * plaidWidth + _board_size, sboardX + i * plaidHeight + _board_size,
+                                                plaidWidth - 2 * _board_size, plaidHeight - 2 * _board_size),
+                            _prompt_rect = QRect(sboardY + j * plaidWidth + _board_size * 2, sboardX + i * plaidHeight + _board_size * 2,
+                                                 plaidWidth - _board_size * 4, plaidHeight - _board_size * 4),
+                            _chess_rect = QRect(sboardY + j * plaidWidth + _board_size * 4, sboardX + i * plaidHeight + _board_size * 4,
+                                                plaidWidth - _board_size * 8, plaidHeight - _board_size * 8);
+                _drawrect(_coliv, QRect(sboardY + j * plaidWidth, sboardX + i * plaidHeight, plaidWidth, plaidHeight));
                 if (valid[i][j] != PositionState::None)
-                    _drawrect((currentPlayer == PositionState::Player1 ? _col1 : _col2),
-                            QRect(sboardY + j * plaidWidth + 5, sboardX + i * plaidHeight + 5, plaidWidth - 10, plaidHeight - 10));
-                else _drawrect(_col0,
-                              QRect(sboardY + j * plaidWidth + 5, sboardX + i * plaidHeight + 5, plaidWidth - 10, plaidHeight - 10));
+                    _drawrect((currentPlayer == PositionState::Player1 ? _col1 : _col2), _inner_rect);
+                else _drawrect(_col0, _inner_rect);
                 _qpainter.setPen(_col0);
                 _qpainter.setBrush(_col0);
-                _qpainter.drawRect(QRect(sboardY + j * plaidWidth + 7, sboardX + i * plaidHeight + 7, plaidWidth - 14, plaidHeight - 14));
+                _qpainter.drawRect(_prompt_rect);
                 switch (states[i][j]) {
                 case PositionState::None:
                     break;
                 case PositionState::Player1:
                     _qpainter.setPen(_col1);
                     _qpainter.setBrush(_col1);
-                    _qpainter.drawEllipse(QRect(sboardY + j * plaidWidth + 10, sboardX + i * plaidHeight + 10, plaidWidth - 20, plaidHeight - 20));
+                    _qpainter.drawEllipse(_chess_rect);
 
                     break;
                 case PositionState::Player2:
                     _qpainter.setPen(_col2);
                     _qpainter.setBrush(_col2);
-                    _qpainter.drawEllipse(QRect(sboardY + j * plaidWidth + 10, sboardX + i * plaidHeight + 10, plaidWidth - 20, plaidHeight - 20));
+                    _qpainter.drawEllipse(_chess_rect);
 
                     break;
                 }

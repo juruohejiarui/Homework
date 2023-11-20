@@ -50,7 +50,16 @@
     <property name="title">
      <string>Operations</string>
     </property>
+    <widget class="QMenu" name="menuChange_Size">
+     <property name="title">
+      <string>Change Size</string>
+     </property>
+     <addaction name="action8_8"/>
+     <addaction name="action8_16"/>
+     <addaction name="action16_16"/>
+    </widget>
     <addaction name="actionNew_Game"/>
+    <addaction name="menuChange_Size"/>
    </widget>
    <widget class="QMenu" name="menuConfigs">
     <property name="title">
@@ -88,6 +97,21 @@
   <action name="actionGenshin_Mode">
    <property name="text">
     <string>Genshin Mode</string>
+   </property>
+  </action>
+  <action name="action8_8">
+   <property name="text">
+    <string>8 * 8</string>
+   </property>
+  </action>
+  <action name="action8_16">
+   <property name="text">
+    <string>8 * 16</string>
+   </property>
+  </action>
+  <action name="action16_16">
+   <property name="text">
+    <string>16 * 16</string>
    </property>
   </action>
  </widget>

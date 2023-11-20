@@ -62,6 +62,7 @@ signals:
 private:
     QPoint mousePos, plaidPos;
 
+    int Row, Column;
     int sboardX, sboardY, sboardWidth, sboardHeight;
     int plaidWidth, plaidHeight;
 
