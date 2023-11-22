@@ -2,9 +2,9 @@
 
 using namespace std;
 
-bool OutOfRange(int x, int y) { ... }
+bool OutOfRange(int x, int y) { return false; }
 
-void Search(vector< vector<int> > &arr, int x, int y) {
+void Search(const vector< vector<int> > &arr, int x, int y) {
     if (OutOfRange(x, y)) return ;
     Search(arr, x + 1, y);
     Search(arr, x, y + 1);

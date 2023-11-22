@@ -68,7 +68,7 @@ void SBoard::paintEvent(QPaintEvent *event) {
     // set Color
     static const QColor
         // the color of plaids
-        _col0 = QColor(0xff, 0xff, 0xff), _col1 = QColor(0xff, 0, 0), _col2 = QColor(0, 0, 0xff),
+        _col0 = QColor(0xff, 0xff, 0xff), _col1 = QColor(0xff, 0x4c, 0x22), _col2 = QColor(0x22, 0x91, 0xff),
         _coliv = QColor(0xcc,0xcc, 0xcc), _colv = QColor(0xee, 0xee, 0),
         // the color of text
         _colt = QColor(0, 0, 0);
