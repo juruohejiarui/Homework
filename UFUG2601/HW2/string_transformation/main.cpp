@@ -1,28 +1,34 @@
-#include <iostream>
-#include <cstring>
-#include <cstdio>
-#include <cmath>
-#include <algorithm>
+#include <bits/stdc++.h>
+
 using namespace std;
-int p1,p2,p3,i=0,k;
-char ch[300],be,af,f,j,p;//p用于输出; 
-int main() {
-	scanf("%d%d%d%s",&p1,&p2,&p3,ch);//输入;
-	while(ch[i]){//当ch[i]有值时;
-		be=ch[i-1];af=ch[i+1];f=ch[i];//f存储ch[i],便于判断; 
-		if(f=='-'&&af>be&&(be>='0'&&af<='9'||be>='a'&&af<='z')){//意思是ch[i]若为'-',就判断其前后是否满足条件，满足进入循环; 
-			for(p3==1?j=be+1:j=af-1; p3==1?j<af:j>be; p3==1?j++:j--){
-				p=j;//j是整形变量，p是字符型变量，这样是将p赋值为ASCII码为j的字符; 
-				if(p1==2)//是否大写; 
-					p=(p>='a')?p-32:p;//如果是字母就转成大写 
-				else if(p1==3) p='*';//是否输出'*' 
-				for(k=0; k<p2; k++)//输出p2个 
-					printf("%c",p);
+
+const int maxn = 1e5 + 5;
+char str[maxn]; int len, p1, p2, p3;
+
+inline char is_number(char ch) { return ch >= '0' && ch <= '9'; }
+inline char is_letter(char ch) { return ch >= 'a' && ch <= 'z'; }
+void print_rep(char ch, int x) { while (x--) putchar(ch); }
+
+int main()
+{
+	scanf("%d%d%d\n%s", &p1, &p2, &p3, str + 1);
+	len = strlen(str + 1);
+	putchar(str[1]);
+	for (int i = 2; i <= len; i++) {
+		if (str[i] == '-') {
+			if (i == len) putchar('-');
+			else {
+				char lst = str[i - 1], nxt = str[i + 1];
+				if ((is_number(lst) && is_number(nxt)) || (is_letter(lst) && is_letter(lst))) {
+					if (lst < nxt) {
+						if (p3 == 1) for (char ch = lst + 1; ch < nxt; ch++)
+							print_rep((p1 == 3 ? '*' : (is_number(ch) ? ch : (p1 == 2 ? ch - 'a' + 'A' : ch))), p2);
+						else for (char ch = nxt - 1; ch > lst; ch--)
+							print_rep((p1 == 3 ? '*' : (is_number(ch) ? ch : (p1 == 2 ? ch - 'a' + 'A' : ch))), p2);
+					} else putchar('-');
+				} else putchar('-');
 			}
-		} 
-		else
-			printf("%c",f);//如果ch[i]是非'-'或者其前后不满足条件，就原样输出;
-		i++;//一定要放在后面，不然会出错QAQ;
+		} else putchar(str[i]);
 	}
 	return 0;
 }
