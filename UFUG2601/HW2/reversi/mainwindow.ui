@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>763</width>
+    <height>650</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>600</width>
+    <height>600</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <widget class="SBoard" name="sboard" native="true">
+    <property name="geometry">
+     <rect>
+      <x>-1</x>
+      <y>-1</y>
+      <width>761</width>
+      <height>241</height>
+     </rect>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>763</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuConfig">
+    <property name="title">
+     <string>Operations</string>
+    </property>
+    <widget class="QMenu" name="menuChange_Size">
+     <property name="title">
+      <string>Change Size</string>
+     </property>
+     <addaction name="action8_8"/>
+     <addaction name="action8_16"/>
+     <addaction name="action16_16"/>
+    </widget>
+    <addaction name="actionNew_Game"/>
+    <addaction name="menuChange_Size"/>
+   </widget>
+   <widget class="QMenu" name="menuConfigs">
+    <property name="title">
+     <string>Configs</string>
+    </property>
+    <widget class="QMenu" name="menuThemes">
+     <property name="title">
+      <string>Themes</string>
+     </property>
+     <addaction name="actionDark_Mode"/>
+     <addaction name="actionLight_Mode"/>
+     <addaction name="actionGenshin_Mode"/>
+    </widget>
+    <addaction name="menuThemes"/>
+   </widget>
+   <addaction name="menuConfig"/>
+   <addaction name="menuConfigs"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionNew_Game">
+   <property name="text">
+    <string>New Game</string>
+   </property>
+  </action>
+  <action name="actionDark_Mode">
+   <property name="text">
+    <string>Dark Mode</string>
+   </property>
+  </action>
+  <action name="actionLight_Mode">
+   <property name="text">
+    <string>Light Mode</string>
+   </property>
+  </action>
+  <action name="actionGenshin_Mode">
+   <property name="text">
+    <string>Genshin Mode</string>
+   </property>
+  </action>
+  <action name="action8_8">
+   <property name="text">
+    <string>8 * 8</string>
+   </property>
+  </action>
+  <action name="action8_16">
+   <property name="text">
+    <string>8 * 16</string>
+   </property>
+  </action>
+  <action name="action16_16">
+   <property name="text">
+    <string>16 * 16</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>SBoard</class>
+   <extends>QWidget</extends>
+   <header location="global">sboard.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
