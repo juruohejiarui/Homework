@@ -8,8 +8,10 @@ GameResult::GameResult(int _score, time_t _time, std::pair<int, int> _size, cons
 }
 Configuration::Configuration()
 {
-    load("config.dt");
+    load("default.config");
 }
+
+void Configuration::initState() { statePackage.init(); }
 
 std::string readString(std::ifstream &ifs) {
     std::string _res = ""; char _ch;
@@ -31,6 +33,7 @@ void Configuration::load(const std::string &path) {
     // create this file if it does not exist
     if (!ifs.good()) {
         player = "Default Player";
+        themePath = "light.theme";
         statePackage = GameStatePackage(path + ".state");
         std::ofstream ofs(path, std::ios::binary);
         ofs.close();
@@ -39,6 +42,7 @@ void Configuration::load(const std::string &path) {
     }
 
     player = readString(ifs);
+    themePath = readString(ifs);
     statePackage.load(path + ".state");
 
     int _rk_len; ifs.read((char *)&_rk_len, sizeof(int));
@@ -57,6 +61,7 @@ void Configuration::load(const std::string &path) {
 void Configuration::save() {
     std::ofstream ofs(filePath, std::ios::binary);
     writeString(ofs, player);
+    writeString(ofs, themePath);
     statePackage.save();
     int _rk_len = rankList.size();
     ofs.write((char *)&_rk_len, sizeof(int));
@@ -68,7 +73,6 @@ void Configuration::save() {
     ofs.close();
 }
 
-void Configuration::initState() { statePackage.init(); }
 void Configuration::setRow(int _row) {
     statePackage.setRow(_row);
 }
@@ -79,6 +83,9 @@ void Configuration::setColumn(int _column) {
 
 int Configuration::getRow() { return statePackage.getRow(); }
 int Configuration::getColumn() { return statePackage.getColumn(); }
+
+void Configuration::setThemePath(const std::string &_path) { themePath = _path; }
+const std::string &Configuration::getThemePath() { return themePath; }
 
 const std::string &Configuration::getPlayer() { return player; }
 void Configuration::setPlayer(const std::string &_player) { player = _player; }

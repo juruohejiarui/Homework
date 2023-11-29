@@ -21,9 +21,15 @@ private:
     int currentPressedKey;
 
     int scrollPosition;
+    QPoint mousePos;
+    QFont tileFont, textFont;
+    GUIState currentView;
+    int tileColor[15], backgroundColor, boardColor, textColor, tileTextColor;
+
+
 
     Configuration configuration;
-    GUIState currentView;
+
 
     void initBoard();
 
@@ -42,29 +48,32 @@ private:
     int loadConfig();
 
 protected:
-    virtual void keyPressEvent(QKeyEvent *ev);
-    virtual void keyReleaseEvent(QKeyEvent *ev);
-
+    void paintEvent(QPaintEvent *event) Q_DECL_OVERRIDE;
+    void mousePressEvent(QMouseEvent *ev) Q_DECL_OVERRIDE;
+    void mouseReleaseEvent(QMouseEvent *ev) Q_DECL_OVERRIDE;
+    void keyPressEvent(QKeyEvent *ev) Q_DECL_OVERRIDE;
+    void keyReleaseEvent(QKeyEvent *ev) Q_DECL_OVERRIDE;
+public slots:
+    void mouseClicked();
 public:
     explicit GameBoard(QWidget *parent = nullptr);
 
-    // set the default config path
-    void setConfig(std::string _path);
 
+    void changeTheme(const std::string &_path);
     void switchView(GUIState _gui_state);
     GUIState getCurrentGUIState();
 
     // try to abort the current game and create a new game
-    bool tryAbort();
-    bool tryResizeBoard(int _row, int _col);
-
+    bool tryNewGame();
+    
+    // set the default config path
+    void setConfig(std::string _path);
     int getRow();
     int getColumn();
-
-    void Undo();
-    void Operator(GameOperation _o);
+    bool tryResizeBoard(int _row, int _col);
 
 signals:
+    void clicked();
 };
 
 #endif // GAMEBOARD_H

@@ -13,8 +13,12 @@ private:
     int row, column, score;
     std::vector< std::vector<int> > data;
 
-    // the operations
+    bool checkValidLeft();
+    bool checkValidRight();
+    bool checkValidUp();
+    bool checkValidDown();
 
+    // the operations
     void updateStateLeft();
     void updateStateRight();
     void updateStateUp();

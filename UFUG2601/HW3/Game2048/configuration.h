@@ -20,10 +20,13 @@ class Configuration {
     std::vector<GameResult> rankList;
 
     std::string filePath;
+    std::string themePath;
 
 public:
 
     Configuration();
+
+    void initState();
 
     // load the configuration from file
     void load(const std::string &path);
@@ -36,7 +39,9 @@ public:
     // this operation may clean the state
     void setColumn(int _col);
 
-    void initState();
+    void setThemePath(const std::string &_path);
+    const std::string &getThemePath();
+
 
     const std::string &getPlayer();
     void setPlayer(const std::string &_player);
