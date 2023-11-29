@@ -1,9 +1,8 @@
-#ifndef CORE_H
-#define CORE_H
-
-#endif // CORE_H
+#ifndef GAMESTATE_H
+#define GAMESTATE_H
 
 #include <vector>
+#include <stack>
 
 enum class GameOperation {
     Left, Right, Up, Down
@@ -44,3 +43,4 @@ public:
     bool end();
 };
 
+#endif

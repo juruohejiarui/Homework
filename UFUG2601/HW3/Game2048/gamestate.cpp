@@ -1,5 +1,6 @@
-#include "core.h"
+#include "gamestate.h"
 #include <cstdlib>
+#include <fstream>
 
 int GameState::getRow() { return this->row; }
 int GameState::getColumn() { return this->column; }
@@ -15,11 +16,12 @@ GameState::GameState(int _row, int _col) {
 }
 
 void GameState::initialize(int _row, int _col) {
+    row = _row, column = _col;
     data.resize(_row);
     for (int i = 0; i < data.size(); i++)
         data[i].resize(_col, 0);
     data[0][0] = 2;
-    (rand() & 1 ? data[0][this->column] : data[this->row][0]) = 2;
+    (rand() & 1 ? data[0][this->column - 1] : data[this->row - 1][0]) = 2;
 }
 
 bool GameState::checkValid(GameOperation _o) {

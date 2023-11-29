@@ -39,14 +39,13 @@ void GameBoard::keyReleaseEvent(QKeyEvent *ev)
     QWidget::keyReleaseEvent(ev);
 }
 
-GameState &GameBoard::getCurrentState() { return states.back(); }
 
 void GameBoard::initState() {
-    states.clear();
-    GameState _ostate = GameState(configuration.Row, configuration.Column);
-    switchView(GUIState::Playing);
+    configuration.initState();
 }
 
+
+#pragma region Key Handler
 void GameBoard::keyHandler(int _key) {
     switch (currentView) {
     case GUIState::Playing:
@@ -62,9 +61,39 @@ void GameBoard::keyHandler(int _key) {
 }
 
 void GameBoard::keyHandler_Playing(int _key) {
-    if (_key == Qt::Key_Q) Undo();
+    if (_key == Qt::Key_Q) configuration.getStatePackage().undo();
     else {
-        states.push_back(GameState(states.back()));
-        states.back().updateState(getOperation(_key));
+
     }
 }
+
+void GameBoard::keyHandler_End(int _key) {
+    if (_key == Qt::Key_Escape) {
+        switchView(GUIState::Playing);
+    }
+}
+
+void GameBoard::keyHandler_RankList(int _key) {
+    if (_key == Qt::Key_Escape) {
+        switchView(GUIState::Playing);
+    } else if (_key == Qt::Key_Up) {
+        scrollPosition = std::max(scrollPosition - 1, 0);
+    } else if (_key == Qt::Key_Down) {
+        scrollPosition = std::max(scrollPosition + 1, (int)ceil(configuration.getRankList().size() / 10.0) - 1);
+    }
+    update();
+}
+
+#pragma endregion
+
+#pragma region GUI update
+void GameBoard::switchView(GUIState _gui_state) {
+    currentView = _gui_state;
+    update();
+}
+
+void GameBoard::updateGUI() {
+
+}
+
+#pragma endregion

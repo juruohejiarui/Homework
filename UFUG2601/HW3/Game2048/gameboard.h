@@ -3,15 +3,11 @@
 
 #include <QWidget>
 #include <QKeyEvent>
-#include <deque>
-#include "core.h"
+#include <stack>
+#include <vector>
+#include "gamestate.h"
 
-struct Configuration {
-    int Row, Column;
-    std::string Player;
-
-    std::vector< std::vector<int> > Record;
-};
+#include "configuration.h"
 
 enum class GUIState {
     Playing, End, RankList,
@@ -21,16 +17,15 @@ class GameBoard : public QWidget
 {
     Q_OBJECT
 private:
-    std::deque<GameState> states;
-
     void initState();
     int currentPressedKey;
 
     int scrollPosition;
 
-    std::string configPath;
     Configuration configuration;
     GUIState currentView;
+
+    void initBoard();
 
     void updateGUI_Playing();
     void updateGUI_RankList();
@@ -43,7 +38,7 @@ private:
     void keyHandler(int _key);
 
 
-    /// load the configure from the default path
+    // load the configure from the default path
     int loadConfig();
 
 protected:
@@ -52,15 +47,14 @@ protected:
 
 public:
     explicit GameBoard(QWidget *parent = nullptr);
-    GameState &getCurrentState();
 
-    /// set the default config path
+    // set the default config path
     void setConfig(std::string _path);
 
     void switchView(GUIState _gui_state);
     GUIState getCurrentGUIState();
 
-    /// try to abort the current game and create a new game
+    // try to abort the current game and create a new game
     bool tryAbort();
     bool tryResizeBoard(int _row, int _col);
 
