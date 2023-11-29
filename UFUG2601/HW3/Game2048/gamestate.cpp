@@ -209,7 +209,11 @@ bool GameState::end() {
     bool _full = true;
     for (int i = 0; i < this->row; i++)
         for (int j = 0; j < this->column; j++)
-            if (!data[i][j]) { _full = false; break; }
-    return _full;
+            if (!data[i][j]) return false;
+    for (int i = 0; i < this->row; i++)
+        for (int j = 0; j < this->column; j++)
+            if ((j < this->column - 1 && data[i][j] == data[i][j + 1]) || (i < this->row - 1 && data[i][j] == data[i + 1][j]))
+                return false;
+    return true;
 }
 int GameState::getScore() { return this->score; }

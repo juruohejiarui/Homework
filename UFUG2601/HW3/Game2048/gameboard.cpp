@@ -87,6 +87,13 @@ void GameBoard::initState() {
     configuration.initState();
 }
 
+bool GameBoard::tryNewGame() {
+    if (configuration.getStatePackage().getCurrentState().end() && !ensureAbort())
+        return false;
+    initState();
+    switchView(GUIState::Playing);
+}
+
 void GameBoard::changeTheme(const std::string &_path) {
     configuration.setThemePath(_path);
 
@@ -133,6 +140,10 @@ void GameBoard::keyHandler_Playing(int _key) {
 
 void GameBoard::keyHandler_End(int _key) {
     if (_key == Qt::Key_Escape) {
+        initState();
+        switchView(GUIState::Playing);
+    } else if (_key == Qt::Key_Q) {
+        configuration.getStatePackage().undo();
         switchView(GUIState::Playing);
     }
     update();
@@ -158,6 +169,7 @@ void GameBoard::switchView(GUIState _gui_state) {
     update();
 }
 
+
 void GameBoard::updateGUI() {
     switch (currentView) {
     case GUIState::Playing:     updateGUI_Playing();    return ;
@@ -166,8 +178,17 @@ void GameBoard::updateGUI() {
     }
 }
 
+static char textBuffer[1005];
+void drawRectangle(QPainter &_painter, QRect _r, int _c) {
+    QColor _col = QColor((_c >> 16) & 0xff, (_c >> 8) & 0xff, _c & 0xff);
+    _painter.setBrush(_col), _painter.setPen(_col), _painter.drawRect(_r);
+}
+void drawText(QPainter &_painter, QRect _r, int _c, QFont &_f) {
+    QColor _col = QColor((_c >> 16) & 0xff, (_c >> 8) & 0xff, _c & 0xff);
+    _painter.setBrush(_col), _painter.setPen(_col), _painter.setFont(_f), _painter.drawText(_r, Qt::AlignCenter, textBuffer);
+}
+
 void GameBoard::updateGUI_Playing() {
-    char _text[105];
 
     QPainter _ptr = QPainter(this);
 
@@ -189,35 +210,25 @@ void GameBoard::updateGUI_Playing() {
     _board_y = ((this->height() - _board_h - _topbar_h) >> 1) + _topbar_h;
     _tile_x = ceil(_plaid_w / 10.0), _tile_y = ceil(_plaid_h / 10.0);
 
-    auto _drawrect = [&_ptr](QRect _r, int _c) {
-        QColor _col = QColor((_c >> 16) & 0xff, (_c >> 8) & 0xff, _c & 0xff);
-        _ptr.setBrush(_col), _ptr.setPen(_col), _ptr.drawRect(_r);
-    };
-    auto _drawtext = [&_ptr, &_text](QRect _r, int _c, QFont _f) {
-        QColor _col = QColor((_c >> 16) & 0xff, (_c >> 8) & 0xff, _c & 0xff);
-        _ptr.setBrush(_col), _ptr.setPen(_col), _ptr.setFont(_f), _ptr.drawText(_r, Qt::AlignCenter, _text);
-    };
-
     // draw the topbar
-    _drawrect(QRect(0, 0, this->width(), this->height()), backgroundColor);
-    sprintf(_text, "Player : %s", configuration.getPlayer().c_str());
-    _drawtext(QRect(0, 0, this->width() >> 1, _topbar_h), textColor, textFont);
-    sprintf(_text, "Score\n %d", configuration.getStatePackage().getCurrentState().getScore());
-    _drawrect(QRect(this->width() >> 1, 0, this->width() >> 1, _topbar_h), tileColor[14]);
-    _drawtext(QRect(this->width() >> 1, 0, this->width() >> 1, _topbar_h), textColor, textFont);
+    drawRectangle(_ptr, QRect(0, 0, this->width(), this->height()), backgroundColor);
+    sprintf(textBuffer, "Player : %s", configuration.getPlayer().c_str());
+    drawText(_ptr, QRect(0, 0, this->width() >> 1, _topbar_h), textColor, textFont);
+    sprintf(textBuffer, "Score\n %d", configuration.getStatePackage().getCurrentState().getScore());
+    drawRectangle(_ptr, QRect(this->width() >> 1, 0, this->width() >> 1, _topbar_h), tileColor[14]);
+    drawText(_ptr, QRect(this->width() >> 1, 0, this->width() >> 1, _topbar_h), textColor, textFont);
 
-    printf("(%d, %d), w = %d, h = %d\n", _board_x, _board_y, _board_w, _board_h);
     // draw the board
     for (int i = 0; i < _row; i++)
         for (int j = 0; j < _column; j++) {
-            auto _r = QRect(_board_x + _plaid_w * j - _tile_x, _board_y + _plaid_h * i + _tile_y,
+            auto _r = QRect(_board_x + _plaid_w * j + _tile_x, _board_y + _plaid_h * i + _tile_y,
                             _tile_w, _tile_h);
-            _drawrect(  _r,
-                        tileColor[std::min(configuration.getStatePackage().getCurrentState()[i][j], 13)]);
+            drawRectangle(_ptr, _r,
+                        tileColor[std::min(configuration.getStatePackage().getCurrentState()[i][j], 15)]);
             if (configuration.getStatePackage().getCurrentState()[i][j] > 0) {
                 int _display_number = (1 << configuration.getStatePackage().getCurrentState()[i][j]);
-                sprintf(_text, "%d", _display_number);
-                _drawtext(_r, tileTextColor, tileFont);
+                sprintf(textBuffer, "%d", _display_number);
+                drawText(_ptr, _r, tileTextColor, tileFont);
             }
 
         }

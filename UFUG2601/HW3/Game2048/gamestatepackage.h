@@ -3,12 +3,14 @@
 
 #include "gamestate.h"
 #include <string>
+#include <deque>
 
 class GameStatePackage {
 private:
-    std::vector<GameState> states;
+    std::deque<GameState> states;
     std::string filePath;
 public:
+    static const int maxStateQueueSize = 200;
     GameStatePackage();
     GameStatePackage(const std::string &_path);
 

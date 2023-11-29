@@ -13,13 +13,16 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
     GameBoard *gameBoard;
-    QAction *actionNewGame, *action33, *action44, *action55, *action66, *actionCustom;
+    QAction *actionNewGame, *actionHelp;
 protected:
     void resizeEvent(QResizeEvent *event) Q_DECL_OVERRIDE;
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+private slots:
+    void actionHelpClicked();
+    void actionNewGameClicked();
 private:
     Ui::MainWindow *ui;
 };

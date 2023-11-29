@@ -26,12 +26,7 @@ private:
     GUIState currentView;
     int tileColor[15], backgroundColor, boardColor, textColor, tileTextColor;
 
-
-
     Configuration configuration;
-
-
-    void initBoard();
 
     void updateGUI_Playing();
     void updateGUI_RankList();

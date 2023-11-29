@@ -58,8 +58,8 @@
      <property name="title">
       <string>Theme</string>
      </property>
-     <addaction name="actionLight"/>
-     <addaction name="actionDark"/>
+     <addaction name="actionThemeBlue"/>
+     <addaction name="actionThemeClassic"/>
     </widget>
     <addaction name="menuBoard_Size"/>
     <addaction name="menuTheme"/>
@@ -111,12 +111,12 @@
     <string>Custom Size</string>
    </property>
   </action>
-  <action name="actionLight">
+  <action name="actionThemeBlue">
    <property name="text">
     <string>Light</string>
    </property>
   </action>
-  <action name="actionDark">
+  <action name="actionThemeClassic">
    <property name="text">
     <string>Dark</string>
    </property>

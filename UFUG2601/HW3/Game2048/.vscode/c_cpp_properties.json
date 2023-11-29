@@ -3,7 +3,8 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "~/Qt/6.6.0/gcc_64/include/**"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

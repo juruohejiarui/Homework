@@ -63,6 +63,7 @@ void GameStatePackage::init() { states.resize(1); }
 bool GameStatePackage::Operate(GameOperation _o) {
     states.push_back(GameState(states[states.size() - 1]));
     getCurrentState().updateState(_o);
+    if (states.size() > maxStateQueueSize) states.pop_front();
     return getCurrentState().end();
 }
 
