@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="GameBoard" name="gameBoard" native="true">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>100</y>
+      <width>541</width>
+      <height>381</height>
+     </rect>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuConfiguration">
+    <property name="title">
+     <string>Configuration</string>
+    </property>
+    <widget class="QMenu" name="menuBoard_Size">
+     <property name="title">
+      <string>Board Size</string>
+     </property>
+     <addaction name="action33"/>
+     <addaction name="action44"/>
+     <addaction name="action55"/>
+     <addaction name="action66"/>
+     <addaction name="actionCustom"/>
+    </widget>
+    <widget class="QMenu" name="menuTheme">
+     <property name="title">
+      <string>Theme</string>
+     </property>
+     <addaction name="actionLight"/>
+     <addaction name="actionDark"/>
+    </widget>
+    <addaction name="menuBoard_Size"/>
+    <addaction name="menuTheme"/>
+    <addaction name="actionPlayer_Information"/>
+   </widget>
+   <widget class="QMenu" name="menuGame">
+    <property name="title">
+     <string>Operation</string>
+    </property>
+    <addaction name="actionLoadRecord"/>
+    <addaction name="actionNewGame"/>
+    <addaction name="separator"/>
+    <addaction name="actionUndo"/>
+   </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+    <addaction name="actionShow_Rank"/>
+    <addaction name="actionConfiguration_Panel"/>
+   </widget>
+   <addaction name="menuConfiguration"/>
+   <addaction name="menuGame"/>
+   <addaction name="menuView"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="action33">
+   <property name="text">
+    <string>3*3</string>
+   </property>
+  </action>
+  <action name="action44">
+   <property name="text">
+    <string>4*4</string>
+   </property>
+  </action>
+  <action name="action55">
+   <property name="text">
+    <string>5*5</string>
+   </property>
+  </action>
+  <action name="action66">
+   <property name="text">
+    <string>6*6</string>
+   </property>
+  </action>
+  <action name="actionCustom">
+   <property name="text">
+    <string>Custom Size</string>
+   </property>
+  </action>
+  <action name="actionLight">
+   <property name="text">
+    <string>Light</string>
+   </property>
+  </action>
+  <action name="actionDark">
+   <property name="text">
+    <string>Dark</string>
+   </property>
+  </action>
+  <action name="actionLoadRecord">
+   <property name="text">
+    <string>New Game</string>
+   </property>
+  </action>
+  <action name="actionNewGame">
+   <property name="text">
+    <string>Load From Records</string>
+   </property>
+  </action>
+  <action name="actionShow_Rank">
+   <property name="text">
+    <string>Rank List</string>
+   </property>
+  </action>
+  <action name="actionPlayer_Information">
+   <property name="text">
+    <string>Change User Information</string>
+   </property>
+  </action>
+  <action name="actionUndo">
+   <property name="text">
+    <string>Undo</string>
+   </property>
+  </action>
+  <action name="actionConfiguration_Panel">
+   <property name="text">
+    <string>Configuration Panel</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>GameBoard</class>
+   <extends>QWidget</extends>
+   <header>gameboard.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
