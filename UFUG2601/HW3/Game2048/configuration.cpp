@@ -95,7 +95,7 @@ void Configuration::updateRankList(const GameResult &_result) {
     auto iter = rankList.begin();
     while (iter != rankList.end() && iter->score > _result.score) iter++;
     rankList.insert(iter, _result);
-    if (rankList.size() > 20) rankList.pop_back();
+    if (rankList.size() > 40) rankList.pop_back();
 }
 
 GameStatePackage &Configuration::getStatePackage() { return statePackage; }

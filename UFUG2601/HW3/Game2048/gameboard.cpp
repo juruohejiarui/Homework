@@ -30,7 +30,7 @@ GameBoard::GameBoard(QWidget *parent)
     {
         int fontId = QFontDatabase::addApplicationFont(":/Resources/Fonts/GenshinFont.ttf");
         QString fontName = QFontDatabase::applicationFontFamilies(fontId).at(0);
-        tileFont = QFont(fontName, 15);
+        tileFont = QFont(fontName, 14);
         textFont = QFont(fontName, 16);
     }
     switchView(GUIState::Playing);
@@ -176,7 +176,7 @@ void GameBoard::keyHandler_RankList(int _key) {
     } else if (_key == Qt::Key_Up) {
         scrollPosition = std::max(scrollPosition - 1, 0);
     } else if (_key == Qt::Key_Down) {
-        scrollPosition = std::max(scrollPosition + 1, (int)ceil(configuration.getRankList().size() / 10.0) - 1);
+        scrollPosition = std::max(std::min(scrollPosition + 1, (int)configuration.getRankList().size() - 10), 0);
     }
     update();
 }
@@ -268,11 +268,11 @@ void GameBoard::updateGUI_End() {
     sprintf(textBuffer, "Score : %d", configuration.getStatePackage().getCurrentState().getScore());
     drawText(_ptr, QRect(0, 50, this->width(), 50), tileTextColor, textFont);
 
-    sprintf(textBuffer, "Start a New Game [Esc]");
+    sprintf(textBuffer, "Continue [Esc]");
     drawRectangle(_ptr, QRect(50, 100, this->width() - 100, 50), tileColor[0]);
     drawText(_ptr, QRect(50, 100, this->width() - 100, 50), tileTextColor, textFont);
 
-    sprintf(textBuffer, "Continue [Z]");
+    sprintf(textBuffer, "Start a New Game [Z]");
     drawRectangle(_ptr, QRect(50, 155, this->width() - 100, 50), tileColor[0]);
     drawText(_ptr, QRect(50, 155, this->width() - 100, 50), tileTextColor, textFont);
 
@@ -281,7 +281,29 @@ void GameBoard::updateGUI_End() {
     drawText(_ptr, QRect(50, 210, this->width() - 100, 50), tileTextColor, textFont);
 }
 void GameBoard::updateGUI_RankList() {
-    
+    QPainter _ptr = QPainter(this);
+    drawRectangle(_ptr, QRect(0, 0, this->width(), this->height()), backgroundColor);
+    sprintf(textBuffer, "Back [Esc]");
+    drawText(_ptr, QRect(0, 0, this->width() >> 1, 50), textColor, textFont);
+    sprintf(textBuffer, "Scroll or [Arrow]");
+    drawText(_ptr, QRect(this->width() >> 1, 0, this->width() >> 1, 50), textColor, tileFont);
+
+    int _item_width = this->width() / 3, _record_height = (this->height() - 50) / 10;
+    for (int i = 0; i < 10; i++) {
+        drawRectangle(_ptr, QRect(0, i * _record_height, this->width(), _record_height), tileColor[1]);
+        sprintf(textBuffer, "%d", i + scrollPosition);
+        drawText(_ptr, QRect(0, i * _record_height, 50, _record_height), textColor, tileFont);
+
+        auto &_record = configuration.getRankList()[i + scrollPosition];
+        sprintf(textBuffer, "%s", _record.player.c_str());
+        drawText(_ptr, QRect(50, i * _record_height, _item_width, _record_height), textColor, tileFont);
+
+        sprintf(textBuffer, "%d", _record.score);
+        drawText(_ptr, QRect(50 + _item_width, i * _record_height, _item_width, _record_height), textColor, tileFont);
+
+        memcpy(textBuffer, std::ctime(&_record.time), 100);
+        drawText(_ptr, QRect(50 + (_item_width << 1), i * _record_height, _item_width, _record_height), textColor, tileFont);
+    }
 }
 #pragma endregion
 

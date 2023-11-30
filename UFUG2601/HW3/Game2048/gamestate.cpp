@@ -207,7 +207,6 @@ void GameState::updateState(GameOperation _o) {
 
 // check if this state is an end state
 bool GameState::end() {
-    bool _full = true;
     for (int i = 0; i < this->row; i++)
         for (int j = 0; j < this->column; j++)
             if (!data[i][j]) return false;
