@@ -62,7 +62,11 @@ void GameStatePackage::undo() {
     if (states.size() > 1) states.pop_back();
 }
 
-void GameStatePackage::init() { states.resize(1); }
+void GameStatePackage::init() {
+    int _row = states[0].getRow(), _col = states[0].getColumn();
+    while (!states.empty()) states.pop_back();
+    states.push_back(GameState(_row, _col));
+}
 
 bool GameStatePackage::Operate(GameOperation _o) {
     states.push_back(GameState(states[states.size() - 1]));

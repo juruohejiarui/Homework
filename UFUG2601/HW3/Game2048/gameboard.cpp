@@ -5,6 +5,7 @@
 #include <QFontDatabase>
 #include <QMessageBox>
 #include <fstream>
+#include <iostream>
 
 bool ensureAbort() {
     QMessageBox msgbx;
@@ -140,7 +141,7 @@ void GameBoard::keyHandler_Playing(int _key) {
 }
 
 void GameBoard::keyHandler_End(int _key) {
-    if (_key == Qt::Key_Escape) {
+    if (_key == Qt::Key_Z) {
         if (configuration.getStatePackage().getCurrentState().end() || ensureAbort()) {
             // update the rank list
             configuration.updateRankList(
@@ -154,7 +155,7 @@ void GameBoard::keyHandler_End(int _key) {
             configuration.save();
             switchView(GUIState::Playing);
         }
-    } else if (_key == Qt::Key_Z) {
+    } else if (_key == Qt::Key_Escape) {
         switchView(GUIState::Playing);
     } else {
         // update the rank list
@@ -288,21 +289,22 @@ void GameBoard::updateGUI_RankList() {
     sprintf(textBuffer, "Scroll or [Arrow]");
     drawText(_ptr, QRect(this->width() >> 1, 0, this->width() >> 1, 50), textColor, tileFont);
 
-    int _item_width = this->width() / 3, _record_height = (this->height() - 50) / 10;
-    for (int i = 0; i < 10; i++) {
-        drawRectangle(_ptr, QRect(0, i * _record_height, this->width(), _record_height), tileColor[1]);
-        sprintf(textBuffer, "%d", i + scrollPosition);
-        drawText(_ptr, QRect(0, i * _record_height, 50, _record_height), textColor, tileFont);
+    int _item_width = (this->width() - 70) / 3, _record_height = (this->height() - 50) / 10;
+    for (int i = 0; i < 10 && i + scrollPosition < configuration.getRankList().size(); i++) {
+        drawRectangle(_ptr, QRect(0, i * _record_height + 50, this->width(), _record_height), tileColor[14]);
+        sprintf(textBuffer, "%d", i + scrollPosition + 1);
+        drawText(_ptr, QRect(0, i * _record_height + 50, 50, _record_height), textColor, tileFont);
 
         auto &_record = configuration.getRankList()[i + scrollPosition];
         sprintf(textBuffer, "%s", _record.player.c_str());
-        drawText(_ptr, QRect(50, i * _record_height, _item_width, _record_height), textColor, tileFont);
+        drawText(_ptr, QRect(50, i * _record_height + 50, _item_width, _record_height), textColor, tileFont);
 
         sprintf(textBuffer, "%d", _record.score);
-        drawText(_ptr, QRect(50 + _item_width, i * _record_height, _item_width, _record_height), textColor, tileFont);
+        drawText(_ptr, QRect(50 + _item_width, i * _record_height + 50, _item_width, _record_height), textColor, tileFont);
 
         memcpy(textBuffer, std::ctime(&_record.time), 100);
-        drawText(_ptr, QRect(50 + (_item_width << 1), i * _record_height, _item_width, _record_height), textColor, tileFont);
+        textBuffer[strlen(textBuffer) - 1] = '\0';
+        drawText(_ptr, QRect(50 + (_item_width << 1), i * _record_height + 50, _item_width + 20, _record_height), textColor, tileFont);
     }
 }
 #pragma endregion

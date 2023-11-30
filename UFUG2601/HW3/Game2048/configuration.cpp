@@ -1,5 +1,6 @@
 #include "configuration.h"
 #include <fstream>
+#include <iostream>
 
 GameResult::GameResult(int _score, time_t _time, std::pair<int, int> _size, const std::string &_player) {
     this->score = _score, this->time = _time;
@@ -20,6 +21,7 @@ std::string readString(std::ifstream &ifs) {
         if (_ch == '\0') break;
         _res.push_back(_ch);
     }
+    std::cout << "read : " << _res << std::endl;
     return _res;
 }
 
