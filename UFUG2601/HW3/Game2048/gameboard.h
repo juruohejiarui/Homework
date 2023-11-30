@@ -40,6 +40,9 @@ private:
     void keyHandler_End(int _key);
     void keyHandler(int _key);
 
+    void mouseHandler_Playing();
+    void mouseHandler_RankList();
+    void mouseHandler_End();
 
     // load the configure from the default path
     int loadConfig();

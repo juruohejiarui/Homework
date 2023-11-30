@@ -4,9 +4,11 @@
 #include <QPainter>
 #include <QFontDatabase>
 #include <QMessageBox>
+#include <QInputDialog>
 #include <fstream>
 #include <iostream>
 
+#pragma region Message Box
 bool ensureAbort() {
     QMessageBox msgbx;
     msgbx.setText("This operation will abort this game, continue?");
@@ -16,6 +18,18 @@ bool ensureAbort() {
     if (res == QMessageBox::Ok) return true;
     else return false;
 }
+std::pair<bool, std::string> changeUserName(GameBoard *_parent) {
+    bool _bret = false;
+    QString _user_name = "";
+    while (_user_name.length() == 0 || _user_name.length() < 20) {
+        _user_name = QInputDialog::getText(
+            _parent, "New User", "Input the new user name:", QLineEdit::Normal, "Default User", &_bret);
+        if (!_bret) return std::make_pair(0, "");
+        if (!_user_name.isEmpty() && _user_name.length() < 20) break;
+    }
+    return std::make_pair(true, _user_name.toStdString());
+}
+#pragma endregion
 
 GameBoard::GameBoard(QWidget *parent)
     : QWidget{parent}
@@ -61,7 +75,11 @@ void GameBoard::mouseReleaseEvent(QMouseEvent *ev) {
     if(mousePos == QPoint(ev->x(), ev->y())) emit clicked();
 }
 void GameBoard::mouseClicked() {
-
+    switch (currentView) {
+    case GUIState::Playing:     mouseHandler_Playing();      return ;
+    case GUIState::End:         mouseHandler_End();         return ;
+    case GUIState::RankList:    mouseHandler_RankList();    return ;
+    }
 }
 
 void GameBoard::paintEvent(QPaintEvent *event) {
@@ -184,6 +202,12 @@ void GameBoard::keyHandler_RankList(int _key) {
 
 #pragma endregion
 
+#pragma region Mouse Handler
+void GameBoard::mouseHandler_Playing() {
+    
+}
+#pragma endregion
+
 #pragma region GUI update
 void GameBoard::switchView(GUIState _gui_state) {
     currentView = _gui_state;
@@ -258,7 +282,6 @@ void GameBoard::updateGUI_Playing() {
 }
 
 void GameBoard::updateGUI_End() {
-
     QPainter _ptr = QPainter(this);
 
     drawRectangle(_ptr, QRect(0, 0, this->width(), this->height()), backgroundColor);
