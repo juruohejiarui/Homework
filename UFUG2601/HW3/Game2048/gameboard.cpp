@@ -1,4 +1,5 @@
 #include "gameboard.h"
+#include "dialogs.h"
 #include <QColor>
 #include <QRect>
 #include <QPainter>
@@ -9,26 +10,36 @@
 #include <iostream>
 
 #pragma region Message Box
-bool ensureAbort() {
-    QMessageBox msgbx;
-    msgbx.setText("This operation will abort this game, continue?");
-    msgbx.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
-    msgbx.setDefaultButton(QMessageBox::Ok);
-    int res = msgbx.exec();
-    if (res == QMessageBox::Ok) return true;
-    else return false;
-}
 std::pair<bool, std::string> changeUserName(GameBoard *_parent) {
     bool _bret = false;
     QString _user_name = "";
-    while (_user_name.length() == 0 || _user_name.length() < 20) {
-        _user_name = QInputDialog::getText(
-            _parent, "New User", "Input the new user name:", QLineEdit::Normal, "Default User", &_bret);
-        if (!_bret) return std::make_pair(0, "");
-        if (!_user_name.isEmpty() && _user_name.length() < 20) break;
+    _user_name = QInputDialog::getText(
+        _parent, "New User", "Input the new user name:", QLineEdit::Normal, "Default User", &_bret);
+    if (!_bret) return std::make_pair(0, "");
+    if (!_user_name.isEmpty() && _user_name.length() < 20)
+        return std::make_pair(true, _user_name.toStdString());
+    else {
+        showWarning("Valid User Name", "The user name must not be empty and be in 20 characters.");
+        return std::make_pair(false, "");
     }
-    return std::make_pair(true, _user_name.toStdString());
 }
+std::pair<int, int> changeSize(GameBoard *_parent) {
+    bool _bret = false, _bret2 = false;
+    QString _size_str = QInputDialog::getMultiLineText(_parent, "New Size", "Input the new Size\nLine 1 : Row\nLine 2 : Column", "4\n4", &_bret);
+    QStringList _list = _size_str.split('\n');
+    if (!_bret) return std::make_pair(0, 0);
+    if (_list.length() < 2) {
+        showWarning("Valid Content", "The input for the new size is invalid\n");
+        return std::make_pair(0, 0);
+    }
+    std::pair<int, int> _res = std::make_pair(_list[0].toInt(&_bret), _list[1].toInt(&_bret2));
+    if (!_bret || !_bret2) {
+        showWarning("Valid Content", "The input for the new size is invalid\n");
+        return std::make_pair(0, 0);
+    }
+    return _res;
+}
+
 #pragma endregion
 
 GameBoard::GameBoard(QWidget *parent)
@@ -45,8 +56,9 @@ GameBoard::GameBoard(QWidget *parent)
     {
         int fontId = QFontDatabase::addApplicationFont(":/Resources/Fonts/GenshinFont.ttf");
         QString fontName = QFontDatabase::applicationFontFamilies(fontId).at(0);
-        tileFont = QFont(fontName, 14);
-        textFont = QFont(fontName, 16);
+        smallFont = QFont(fontName, 12);
+        mediumFont = QFont(fontName, 14);
+        LargeFont = QFont(fontName, 16);
     }
     switchView(GUIState::Playing);
 }
@@ -73,6 +85,20 @@ void GameBoard::mousePressEvent(QMouseEvent *ev) {
 
 void GameBoard::mouseReleaseEvent(QMouseEvent *ev) {
     if(mousePos == QPoint(ev->x(), ev->y())) emit clicked();
+    else {
+        if (currentView == GUIState::Playing) {
+            QPoint _delta = QPoint(ev->x(), ev->y()) - mousePos;
+            if (abs(_delta.x()) < 5 || abs(_delta.y()) < 5) return ;
+            GameOperation _o;
+            if (std::abs(_delta.x()) > std::abs(_delta.y())) {
+                if (_delta.x() < 0) _o = GameOperation::Left;
+                else _o = GameOperation::Right;
+            } else if (_delta.y() > 0) _o = GameOperation::Down;
+            else _o = GameOperation::Up;
+
+            tryOperate(_o);
+        }
+    }
 }
 void GameBoard::mouseClicked() {
     switch (currentView) {
@@ -102,16 +128,40 @@ void GameBoard::keyReleaseEvent(QKeyEvent *ev)
 }
 #pragma endregion
 
-
 void GameBoard::initState() {
     configuration.initState();
 }
 
 bool GameBoard::tryNewGame() {
-    if (configuration.getStatePackage().getCurrentState().end() && !ensureAbort())
+    if (!configuration.getStatePackage().getCurrentState().end() && !ensureAbort())
         return false;
     initState();
     switchView(GUIState::Playing);
+    return true;
+}
+
+bool GameBoard::tryChangePlayer() {
+    releaseKeyboard();
+    auto _res = changeUserName(this);
+    grabKeyboard();
+    if (!_res.first) return false;
+    configuration.setPlayer(_res.second);
+    update();
+    return true;
+}
+
+bool GameBoard::tryResizeBoard(int _row, int _col) {
+    if (!configuration.getStatePackage().getCurrentState().end() && !ensureAbort()) return false;
+    configuration.setColumn(_col), configuration.setRow(_row);
+    update();
+    return true;
+}
+
+bool GameBoard::tryOperate(GameOperation _o) {
+    if (!configuration.getStatePackage().getCurrentState().checkValid(_o)) return false;
+    bool _res = configuration.getStatePackage().Operate(_o);
+    if (_res) switchView(GUIState::End);
+    update();
 }
 
 void GameBoard::changeTheme(const std::string &_path) {
@@ -147,28 +197,15 @@ void GameBoard::keyHandler(int _key) {
 }
 
 void GameBoard::keyHandler_Playing(int _key) {
-    if (_key == Qt::Key_Escape) {
-        switchView(GUIState::End);
-    }
+    if (_key == Qt::Key_Escape) switchView(GUIState::End);
     else if (_key == Qt::Key_Z) configuration.getStatePackage().undo();
-    else {
-        if (configuration.getStatePackage().getCurrentState().checkValid(getOperation(_key)))
-            configuration.getStatePackage().Operate(getOperation(_key));
-    }
+    else tryOperate(getOperation(_key));
     update();
 }
 
 void GameBoard::keyHandler_End(int _key) {
     if (_key == Qt::Key_Z) {
         if (configuration.getStatePackage().getCurrentState().end() || ensureAbort()) {
-            // update the rank list
-            configuration.updateRankList(
-                GameResult(
-                    configuration.getStatePackage().getCurrentState().getScore(),
-                    time(NULL),
-                    std::make_pair(configuration.getRow(), configuration.getColumn()),
-                    configuration.getPlayer())
-                );
             initState();
             configuration.save();
             switchView(GUIState::Playing);
@@ -176,15 +213,6 @@ void GameBoard::keyHandler_End(int _key) {
     } else if (_key == Qt::Key_Escape) {
         switchView(GUIState::Playing);
     } else {
-        // update the rank list
-        configuration.updateRankList(
-            GameResult(
-                configuration.getStatePackage().getCurrentState().getScore(), 
-                time(NULL),
-                std::make_pair(configuration.getRow(), configuration.getColumn()),
-                configuration.getPlayer())
-        );
-        configuration.save();
         switchView(GUIState::RankList);
     }
 }
@@ -204,12 +232,38 @@ void GameBoard::keyHandler_RankList(int _key) {
 
 #pragma region Mouse Handler
 void GameBoard::mouseHandler_Playing() {
-    
+    configuration.updateRankList();
+    configuration.save();
+    if (mousePos.x() < this->width() >> 1 && mousePos.y() < 50) tryChangePlayer();
+    if (mousePos.x() > this->width() >> 1 && mousePos.y() < 50) switchView(GUIState::RankList);
+}
+
+void GameBoard::mouseHandler_RankList() {
+    if (mousePos.x() < this->width() >> 1 && mousePos.y() < 50) switchView(GUIState::Playing);
+}
+
+void GameBoard::mouseHandler_End() {
+    if (mousePos.x() < 50 || mousePos.x() > this->width() - 50) return ;
+    if (mousePos.y() > 100 && mousePos.y() <= 150) switchView(GUIState::Playing);
+    if (mousePos.y() > 155 && mousePos.y() <= 205) {
+        configuration.updateRankList();
+        configuration.save();
+        if (configuration.getStatePackage().getCurrentState().end() || ensureAbort()) {
+            initState();
+            configuration.save();
+            switchView(GUIState::Playing);
+        }
+    } else if (mousePos.y() > 210 && mousePos.y() < 260) {
+        configuration.updateRankList();
+        configuration.save();
+        switchView(GUIState::RankList);
+    }
 }
 #pragma endregion
 
 #pragma region GUI update
 void GameBoard::switchView(GUIState _gui_state) {
+    if (currentView == GUIState::Playing) configuration.updateRankList(), configuration.save();
     currentView = _gui_state;
     scrollPosition = 0;
     update();
@@ -240,10 +294,10 @@ void GameBoard::updateGUI_Playing() {
 
     // calculate the size
     int _row = configuration.getRow(), _column = configuration.getColumn();
-    int _topbar_h = 50, _board_w, _board_h, _plaid_h, _plaid_w, _tile_h, _tile_w, _board_x, _board_y, _tile_x, _tile_y;
+    int _topbar_h = 50, _hintbar_h = 25, _board_w, _board_h, _plaid_h, _plaid_w, _tile_h, _tile_w, _board_x, _board_y, _tile_x, _tile_y;
     // use the width of this board
     if (this->width() * _row > (this->height() - _topbar_h) * _column)
-        _board_h = std::min((this->height() - _topbar_h), 500),
+        _board_h = std::min((this->height() - _topbar_h - _hintbar_h), 500),
             _board_w = _board_h * _column / _row;
     else
         _board_w = std::min(this->width(), 500),
@@ -253,18 +307,22 @@ void GameBoard::updateGUI_Playing() {
     _tile_h = _plaid_h - ceil(_plaid_h / 10.0), _tile_w = _plaid_w - ceil(_plaid_w / 10.0);
 
     _board_x = (this->width() - _board_w) >> 1;
-    _board_y = ((this->height() - _board_h - _topbar_h) >> 1) + _topbar_h;
+    _board_y = ((this->height() - _board_h - _topbar_h - _hintbar_h) >> 1) + _topbar_h + _hintbar_h;
     _tile_x = ceil(_plaid_w / 10.0), _tile_y = ceil(_plaid_h / 10.0);
 
     // draw the background
     drawRectangle(_ptr, QRect(0, 0, this->width(), this->height()), backgroundColor);
     // draw the topbar
     sprintf(textBuffer, "Player : %s", configuration.getPlayer().c_str());
-    drawText(_ptr, QRect(0, 0, this->width() >> 1, _topbar_h), textColor, textFont);
+    drawRectangle(_ptr, QRect(0, 0, this->width() >> 1, _topbar_h), tileColor[0]);
+    drawText(_ptr, QRect(0, 0, this->width() >> 1, _topbar_h), textColor, LargeFont);
+
     sprintf(textBuffer, "Score\n %d", configuration.getStatePackage().getCurrentState().getScore());
     drawRectangle(_ptr, QRect(this->width() >> 1, 0, this->width() >> 1, _topbar_h), tileColor[14]);
-    drawText(_ptr, QRect(this->width() >> 1, 0, this->width() >> 1, _topbar_h), textColor, textFont);
-
+    drawText(_ptr, QRect(this->width() >> 1, 0, this->width() >> 1, _topbar_h), textColor, mediumFont);
+    // draw the hint bar
+    sprintf(textBuffer, "[ESC] Pause, [Z] Undo, [Arrow]/[Mouse] Operation");
+    drawText(_ptr, QRect(0, _topbar_h, this->width(), _hintbar_h), tileTextColor, smallFont);
     // draw the board
     for (int i = 0; i < _row; i++)
         for (int j = 0; j < _column; j++) {
@@ -275,7 +333,7 @@ void GameBoard::updateGUI_Playing() {
             if (configuration.getStatePackage().getCurrentState()[i][j] > 0) {
                 int _display_number = (1 << configuration.getStatePackage().getCurrentState()[i][j]);
                 sprintf(textBuffer, "%d", _display_number);
-                drawText(_ptr, _r, tileTextColor, tileFont);
+                drawText(_ptr, _r, tileTextColor, (_display_number > 8192 ? smallFont : mediumFont));
             }
 
         }
@@ -287,47 +345,48 @@ void GameBoard::updateGUI_End() {
     drawRectangle(_ptr, QRect(0, 0, this->width(), this->height()), backgroundColor);
     
     sprintf(textBuffer, "Player : %s", configuration.getPlayer().c_str());
-    drawText(_ptr, QRect(0, 0, this->width(), 50), textColor, textFont);
+    drawText(_ptr, QRect(0, 0, this->width(), 50), textColor, LargeFont);
 
     sprintf(textBuffer, "Score : %d", configuration.getStatePackage().getCurrentState().getScore());
-    drawText(_ptr, QRect(0, 50, this->width(), 50), tileTextColor, textFont);
+    drawText(_ptr, QRect(0, 50, this->width(), 50), tileTextColor, LargeFont);
 
     sprintf(textBuffer, "Continue [Esc]");
     drawRectangle(_ptr, QRect(50, 100, this->width() - 100, 50), tileColor[0]);
-    drawText(_ptr, QRect(50, 100, this->width() - 100, 50), tileTextColor, textFont);
+    drawText(_ptr, QRect(50, 100, this->width() - 100, 50), tileTextColor, LargeFont);
 
     sprintf(textBuffer, "Start a New Game [Z]");
     drawRectangle(_ptr, QRect(50, 155, this->width() - 100, 50), tileColor[0]);
-    drawText(_ptr, QRect(50, 155, this->width() - 100, 50), tileTextColor, textFont);
+    drawText(_ptr, QRect(50, 155, this->width() - 100, 50), tileTextColor, LargeFont);
 
     sprintf(textBuffer, "Show Rank List [Arrow]");
     drawRectangle(_ptr, QRect(50, 210, this->width() - 100, 50), tileColor[0]);
-    drawText(_ptr, QRect(50, 210, this->width() - 100, 50), tileTextColor, textFont);
+    drawText(_ptr, QRect(50, 210, this->width() - 100, 50), tileTextColor, LargeFont);
 }
 void GameBoard::updateGUI_RankList() {
     QPainter _ptr = QPainter(this);
     drawRectangle(_ptr, QRect(0, 0, this->width(), this->height()), backgroundColor);
     sprintf(textBuffer, "Back [Esc]");
-    drawText(_ptr, QRect(0, 0, this->width() >> 1, 50), textColor, textFont);
+    drawRectangle(_ptr, QRect(0, 0, this->width() >> 1, 50), tileColor[0]);
+    drawText(_ptr, QRect(0, 0, this->width() >> 1, 50), textColor, LargeFont);
     sprintf(textBuffer, "Scroll or [Arrow]");
-    drawText(_ptr, QRect(this->width() >> 1, 0, this->width() >> 1, 50), textColor, tileFont);
+    drawText(_ptr, QRect(this->width() >> 1, 0, this->width() >> 1, 50), textColor, smallFont);
 
     int _item_width = (this->width() - 70) / 3, _record_height = (this->height() - 50) / 10;
     for (int i = 0; i < 10 && i + scrollPosition < configuration.getRankList().size(); i++) {
         drawRectangle(_ptr, QRect(0, i * _record_height + 50, this->width(), _record_height), tileColor[14]);
         sprintf(textBuffer, "%d", i + scrollPosition + 1);
-        drawText(_ptr, QRect(0, i * _record_height + 50, 50, _record_height), textColor, tileFont);
+        drawText(_ptr, QRect(0, i * _record_height + 50, 50, _record_height), textColor, LargeFont);
 
         auto &_record = configuration.getRankList()[i + scrollPosition];
         sprintf(textBuffer, "%s", _record.player.c_str());
-        drawText(_ptr, QRect(50, i * _record_height + 50, _item_width, _record_height), textColor, tileFont);
+        drawText(_ptr, QRect(50, i * _record_height + 50, _item_width, _record_height), textColor, mediumFont);
 
         sprintf(textBuffer, "%d", _record.score);
-        drawText(_ptr, QRect(50 + _item_width, i * _record_height + 50, _item_width, _record_height), textColor, tileFont);
+        drawText(_ptr, QRect(50 + _item_width, i * _record_height + 50, _item_width, _record_height), textColor, LargeFont);
 
         memcpy(textBuffer, std::ctime(&_record.time), 100);
         textBuffer[strlen(textBuffer) - 1] = '\0';
-        drawText(_ptr, QRect(50 + (_item_width << 1), i * _record_height + 50, _item_width + 20, _record_height), textColor, tileFont);
+        drawText(_ptr, QRect(50 + (_item_width << 1), i * _record_height + 50, _item_width + 20, _record_height), textColor, smallFont);
     }
 }
 #pragma endregion

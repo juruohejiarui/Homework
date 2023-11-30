@@ -23,7 +23,7 @@ private:
     #pragma region GUI Information
     int scrollPosition;
     QPoint mousePos;
-    QFont tileFont, textFont;
+    QFont smallFont, mediumFont, LargeFont;
     GUIState currentView;
     int tileColor[15], backgroundColor, boardColor, textColor, tileTextColor;
     #pragma endregion
@@ -58,19 +58,22 @@ public slots:
 public:
     explicit GameBoard(QWidget *parent = nullptr);
 
-
     void changeTheme(const std::string &_path);
     void switchView(GUIState _gui_state);
-    GUIState getCurrentGUIState();
 
     // try to abort the current game and create a new game
     bool tryNewGame();
+    bool tryChangePlayer();
+    bool tryResizeBoard(int _row, int _col);
+    // use custom size
+    bool tryResizeBoard();
+
+    bool tryOperate(GameOperation _o);
     
     // set the default config path
     void setConfig(std::string _path);
     int getRow();
     int getColumn();
-    bool tryResizeBoard(int _row, int _col);
 
 signals:
     void clicked();

@@ -9,7 +9,6 @@ std::vector<int> &GameState::operator [] (int index) { return this->data[index];
 
 GameState::GameState() {
     initialize(4, 4);
-
 }
 
 GameState::GameState(int _row, int _col) {

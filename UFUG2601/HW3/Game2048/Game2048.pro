@@ -10,6 +10,7 @@ CONFIG += c++17
 
 SOURCES += \
     configuration.cpp \
+    dialogs.cpp \
     gameboard.cpp \
     gamestate.cpp \
     gamestatepackage.cpp \
@@ -18,6 +19,7 @@ SOURCES += \
 
 HEADERS += \
     configuration.h \
+    dialogs.h \
     gameboard.h \
     gamestate.h \
     gamestatepackage.h \

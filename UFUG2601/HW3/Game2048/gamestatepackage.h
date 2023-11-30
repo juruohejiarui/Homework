@@ -9,6 +9,8 @@ class GameStatePackage {
 private:
     std::deque<GameState> states;
     std::string filePath;
+
+    time_t startTime;
 public:
     static const int maxStateQueueSize = 200;
     GameStatePackage();
@@ -29,6 +31,8 @@ public:
     void setRow(int _row);
     // this operation may clean the states
     void setColumn(int _column);
+
+    time_t getStartTime();
 };
 
 

@@ -7,11 +7,11 @@
 
 struct GameResult {
     std::string player;
-    time_t time;
+    time_t time, startTime;
     int score;
     std::pair<int, int> size;
 
-    GameResult(int _score, time_t _time, std::pair<int, int> _size, const std::string &_player);
+    GameResult(int _score, time_t _time, time_t _start_time, std::pair<int, int> _size, const std::string &_player);
 };
 
 class Configuration {
@@ -48,6 +48,7 @@ public:
 
     const std::vector<GameResult> &getRankList();
     void updateRankList(const GameResult &_result);
+    void updateRankList();
 
     GameStatePackage &getStatePackage();
 };

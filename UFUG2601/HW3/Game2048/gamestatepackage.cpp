@@ -3,9 +3,11 @@
 
 GameStatePackage::GameStatePackage()
 {
+    startTime = time(NULL);
 }
 
 GameStatePackage::GameStatePackage(const std::string &_path) {
+    startTime = time(NULL);
     load(_path);
 }
 
@@ -25,6 +27,7 @@ void GameStatePackage::load(const std::string &_path) {
     ifs.read((char *)&_state_cnt, sizeof(int));
     ifs.read((char *)&_row, sizeof(int));
     ifs.read((char *)&_column, sizeof(int));
+    ifs.read((char *)&startTime, sizeof(time_t));
 
     for(int i = 0; i < _state_cnt; i++) {
         auto _state = GameState(_row, _column);
@@ -46,6 +49,7 @@ void GameStatePackage::save() {
     ofs.write((char *)&_temp, sizeof(int));
     _temp = states[0].getColumn();
     ofs.write((char *)&_temp, sizeof(int));
+    ofs.write((char *)&startTime, sizeof(time_t));
 
     for (auto &state : states) {
         _temp = state.getScore();
@@ -66,6 +70,7 @@ void GameStatePackage::init() {
     int _row = states[0].getRow(), _col = states[0].getColumn();
     while (!states.empty()) states.pop_back();
     states.push_back(GameState(_row, _col));
+    startTime = time(NULL);
 }
 
 bool GameStatePackage::Operate(GameOperation _o) {
@@ -85,3 +90,5 @@ void GameStatePackage::setColumn(int _col) {
     int _old_row = states[0].getRow();
     states.clear(), states.push_back(GameState(_old_row, _col));
 }
+
+time_t GameStatePackage::getStartTime() { return startTime; }
