@@ -18,6 +18,7 @@ GameState::GameState(int _row, int _col) {
 
 void GameState::initialize(int _row, int _col) {
     row = _row, column = _col;
+    score = 0;
     data.resize(_row);
     for (int i = 0; i < data.size(); i++)
         data[i].resize(_col, 0);
@@ -217,3 +218,4 @@ bool GameState::end() {
     return true;
 }
 int GameState::getScore() { return this->score; }
+void GameState::setScore(int _score) { this->score = _score; }

@@ -21,16 +21,18 @@ void GameStatePackage::load(const std::string &_path) {
         ifs.open(_path, std::ios::binary);
     }
 
-    int _state_cnt, _row, _column;
+    int _state_cnt, _row, _column, _temp;
     ifs.read((char *)&_state_cnt, sizeof(int));
     ifs.read((char *)&_row, sizeof(int));
     ifs.read((char *)&_column, sizeof(int));
 
     for(int i = 0; i < _state_cnt; i++) {
         auto _state = GameState(_row, _column);
+        ifs.read((char *)&_temp, sizeof(int)), _state.setScore(_temp);
+        printf("read score : %d\n", _temp);
         for (int x = 0; x < _row; x++)
             for (int y = 0; y < _column; y++)
-                ifs.read((char *)&_state[x][y], sizeof(int));
+                ifs.read((char *)&_state[x][y], sizeof(char));
         states.push_back(_state);
     }
 }
@@ -46,13 +48,15 @@ void GameStatePackage::save() {
     ofs.write((char *)&_temp, sizeof(int));
 
     for (auto &state : states) {
+        _temp = state.getScore();
+        ofs.write((char *)&_temp, sizeof(int));
         for (int x = 0; x < state.getRow(); x++)
             for (int y = 0; y < state.getColumn(); y++)
-                ofs.write((char *)&state[x][y], sizeof(int));
+                ofs.write((char *)&state[x][y], sizeof(char));
     }
 }
 
-GameState &GameStatePackage::getCurrentState() { return states[states.size() - 1]; }
+GameState &GameStatePackage::getCurrentState() { return states.back(); }
 
 void GameStatePackage::undo() {
     if (states.size() > 1) states.pop_back();

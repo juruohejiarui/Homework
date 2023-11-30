@@ -20,11 +20,13 @@ private:
     void initState();
     int currentPressedKey;
 
+    #pragma region GUI Information
     int scrollPosition;
     QPoint mousePos;
     QFont tileFont, textFont;
     GUIState currentView;
     int tileColor[15], backgroundColor, boardColor, textColor, tileTextColor;
+    #pragma endregion
 
     Configuration configuration;
 

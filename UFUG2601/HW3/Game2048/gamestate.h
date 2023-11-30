@@ -36,6 +36,7 @@ public:
     void initialize(int _row, int _col);
 
     int getScore();
+    void setScore(int _score);
 
     // check if this operation is valid
     bool checkValid(GameOperation _o);

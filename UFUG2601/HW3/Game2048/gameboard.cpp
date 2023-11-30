@@ -25,6 +25,7 @@ GameBoard::GameBoard(QWidget *parent)
     this->setFocusPolicy(Qt::FocusPolicy::StrongFocus);
     this->setFocus();
 
+    // set GUI information
     changeTheme(configuration.getThemePath());
     {
         int fontId = QFontDatabase::addApplicationFont(":/Resources/Fonts/GenshinFont.ttf");
@@ -37,7 +38,7 @@ GameBoard::GameBoard(QWidget *parent)
 
 inline int isValidKey(int _key) {
     return _key == Qt::Key_Left || _key == Qt::Key_Up || _key == Qt::Key_Down || _key == Qt::Key_Right
-           || _key == Qt::Key_Escape || _key == Qt::Key_Q;
+           || _key == Qt::Key_Escape || _key == Qt::Key_Z;
 }
 inline GameOperation getOperation(int _key) {
     switch (_key) {
@@ -128,9 +129,9 @@ void GameBoard::keyHandler(int _key) {
 
 void GameBoard::keyHandler_Playing(int _key) {
     if (_key == Qt::Key_Escape) {
-        if (ensureAbort()) configuration.initState();
+        switchView(GUIState::End);
     }
-    else if (_key == Qt::Key_Q) configuration.getStatePackage().undo();
+    else if (_key == Qt::Key_Z) configuration.getStatePackage().undo();
     else {
         if (configuration.getStatePackage().getCurrentState().checkValid(getOperation(_key)))
             configuration.getStatePackage().Operate(getOperation(_key));
@@ -140,13 +141,33 @@ void GameBoard::keyHandler_Playing(int _key) {
 
 void GameBoard::keyHandler_End(int _key) {
     if (_key == Qt::Key_Escape) {
-        initState();
+        if (configuration.getStatePackage().getCurrentState().end() || ensureAbort()) {
+            // update the rank list
+            configuration.updateRankList(
+                GameResult(
+                    configuration.getStatePackage().getCurrentState().getScore(),
+                    time(NULL),
+                    std::make_pair(configuration.getRow(), configuration.getColumn()),
+                    configuration.getPlayer())
+                );
+            initState();
+            configuration.save();
+            switchView(GUIState::Playing);
+        }
+    } else if (_key == Qt::Key_Z) {
         switchView(GUIState::Playing);
-    } else if (_key == Qt::Key_Q) {
-        configuration.getStatePackage().undo();
-        switchView(GUIState::Playing);
+    } else {
+        // update the rank list
+        configuration.updateRankList(
+            GameResult(
+                configuration.getStatePackage().getCurrentState().getScore(), 
+                time(NULL),
+                std::make_pair(configuration.getRow(), configuration.getColumn()),
+                configuration.getPlayer())
+        );
+        configuration.save();
+        switchView(GUIState::RankList);
     }
-    update();
 }
 
 void GameBoard::keyHandler_RankList(int _key) {
@@ -210,8 +231,9 @@ void GameBoard::updateGUI_Playing() {
     _board_y = ((this->height() - _board_h - _topbar_h) >> 1) + _topbar_h;
     _tile_x = ceil(_plaid_w / 10.0), _tile_y = ceil(_plaid_h / 10.0);
 
-    // draw the topbar
+    // draw the background
     drawRectangle(_ptr, QRect(0, 0, this->width(), this->height()), backgroundColor);
+    // draw the topbar
     sprintf(textBuffer, "Player : %s", configuration.getPlayer().c_str());
     drawText(_ptr, QRect(0, 0, this->width() >> 1, _topbar_h), textColor, textFont);
     sprintf(textBuffer, "Score\n %d", configuration.getStatePackage().getCurrentState().getScore());
@@ -236,8 +258,30 @@ void GameBoard::updateGUI_Playing() {
 
 void GameBoard::updateGUI_End() {
 
+    QPainter _ptr = QPainter(this);
+
+    drawRectangle(_ptr, QRect(0, 0, this->width(), this->height()), backgroundColor);
+    
+    sprintf(textBuffer, "Player : %s", configuration.getPlayer().c_str());
+    drawText(_ptr, QRect(0, 0, this->width(), 50), textColor, textFont);
+
+    sprintf(textBuffer, "Score : %d", configuration.getStatePackage().getCurrentState().getScore());
+    drawText(_ptr, QRect(0, 50, this->width(), 50), tileTextColor, textFont);
+
+    sprintf(textBuffer, "Start a New Game [Esc]");
+    drawRectangle(_ptr, QRect(50, 100, this->width() - 100, 50), tileColor[0]);
+    drawText(_ptr, QRect(50, 100, this->width() - 100, 50), tileTextColor, textFont);
+
+    sprintf(textBuffer, "Continue [Z]");
+    drawRectangle(_ptr, QRect(50, 155, this->width() - 100, 50), tileColor[0]);
+    drawText(_ptr, QRect(50, 155, this->width() - 100, 50), tileTextColor, textFont);
+
+    sprintf(textBuffer, "Show Rank List [Arrow]");
+    drawRectangle(_ptr, QRect(50, 210, this->width() - 100, 50), tileColor[0]);
+    drawText(_ptr, QRect(50, 210, this->width() - 100, 50), tileTextColor, textFont);
 }
 void GameBoard::updateGUI_RankList() {
+    
 }
 #pragma endregion
 
