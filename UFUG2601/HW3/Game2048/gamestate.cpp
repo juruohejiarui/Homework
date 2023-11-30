@@ -191,10 +191,6 @@ void GameState::updateState(GameOperation _o) {
         updateStateDown(); break;
     }
 
-    // get all the empty plaids and generate a tile on one plaid
-    for (int i = 0; i < this->row; i++)
-        for (int j = 0; j < this->column; j++)
-            printf("%d%c", data[i][j], (j == this->column - 1 ? '\n' : ' '));
     static std::vector< std::pair<int, int> > _empty_plaid;
     _empty_plaid.clear();
     for (int i = 0; i < this->row; i++)

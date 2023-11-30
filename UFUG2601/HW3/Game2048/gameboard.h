@@ -63,6 +63,8 @@ public:
 
     // try to abort the current game and create a new game
     bool tryNewGame();
+    void undo();
+
     bool tryChangePlayer();
     bool tryResizeBoard(int _row, int _col);
     // use custom size
@@ -74,6 +76,8 @@ public:
     void setConfig(std::string _path);
     int getRow();
     int getColumn();
+
+    void save();
 
 signals:
     void clicked();

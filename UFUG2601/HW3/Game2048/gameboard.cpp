@@ -13,8 +13,10 @@
 std::pair<bool, std::string> changeUserName(GameBoard *_parent) {
     bool _bret = false;
     QString _user_name = "";
+    _parent->releaseKeyboard();
     _user_name = QInputDialog::getText(
         _parent, "New User", "Input the new user name:", QLineEdit::Normal, "Default User", &_bret);
+    _parent->grabKeyboard();
     if (!_bret) return std::make_pair(0, "");
     if (!_user_name.isEmpty() && _user_name.length() < 20)
         return std::make_pair(true, _user_name.toStdString());
@@ -25,16 +27,18 @@ std::pair<bool, std::string> changeUserName(GameBoard *_parent) {
 }
 std::pair<int, int> changeSize(GameBoard *_parent) {
     bool _bret = false, _bret2 = false;
+    _parent->releaseKeyboard();
     QString _size_str = QInputDialog::getMultiLineText(_parent, "New Size", "Input the new Size\nLine 1 : Row\nLine 2 : Column", "4\n4", &_bret);
     QStringList _list = _size_str.split('\n');
+    _parent->grabKeyboard();
     if (!_bret) return std::make_pair(0, 0);
     if (_list.length() < 2) {
         showWarning("Valid Content", "The input for the new size is invalid\n");
         return std::make_pair(0, 0);
     }
     std::pair<int, int> _res = std::make_pair(_list[0].toInt(&_bret), _list[1].toInt(&_bret2));
-    if (!_bret || !_bret2) {
-        showWarning("Valid Content", "The input for the new size is invalid\n");
+    if (!_bret || !_bret2 || _res.first <= 0 || _res.first > 8 || _res.second <= 0 || _res.second > 8) {
+        showWarning("Valid Content", "The new size is invalid\nnumbers of row and column must be in [1, 8]\n");
         return std::make_pair(0, 0);
     }
     return _res;
@@ -77,11 +81,79 @@ inline GameOperation getOperation(int _key) {
     return GameOperation::Left;
 }
 
+
+void GameBoard::initState() {
+    configuration.initState();
+}
+
+bool GameBoard::tryNewGame() {
+    if (!configuration.getStatePackage().getCurrentState().end() && !ensureAbort())
+        return false;
+    save();
+    initState();
+    switchView(GUIState::Playing);
+    return true;
+}
+
+void GameBoard::undo() {
+    configuration.getStatePackage().undo();
+    update();
+}
+
+bool GameBoard::tryChangePlayer() {
+    auto _res = changeUserName(this);
+    if (!_res.first) return false;
+    configuration.setPlayer(_res.second);
+    update();
+    return true;
+}
+
+bool GameBoard::tryResizeBoard(int _row, int _col) {
+    if (!configuration.getStatePackage().getCurrentState().end() && !ensureAbort()) return false;
+    configuration.setColumn(_col), configuration.setRow(_row);
+    update();
+    return true;
+}
+
+bool GameBoard::tryResizeBoard() {
+    auto _res = changeSize(this);
+    if (!_res.first || !_res.second) return false;
+    return tryResizeBoard(_res.first, _res.second);
+}
+
+bool GameBoard::tryOperate(GameOperation _o) {
+    if (!configuration.getStatePackage().getCurrentState().checkValid(_o)) return false;
+    bool _res = configuration.getStatePackage().Operate(_o);
+    if (_res) switchView(GUIState::End);
+    update();
+}
+
+void GameBoard::changeTheme(const std::string &_path) {
+    configuration.setThemePath(_path);
+
+    std::ifstream ifs(configuration.getThemePath(), std::ios::binary);
+    auto _readint = [&ifs]() -> int {
+        int dt; ifs.read((char *)&dt, sizeof(int));
+        return dt;
+    };
+    backgroundColor = _readint();
+    textColor = _readint();
+    tileTextColor = _readint();
+    for (int i = 0; i < 15; i++) tileColor[i] = _readint();
+    ifs.close();
+
+    update();
+}
+
+void GameBoard::save() {
+    configuration.updateRankList();
+    configuration.save();
+}
+
 #pragma region Event Handler
 void GameBoard::mousePressEvent(QMouseEvent *ev) {
     mousePos = QPoint(ev->x(), ev->y());
 }
-
 
 void GameBoard::mouseReleaseEvent(QMouseEvent *ev) {
     if(mousePos == QPoint(ev->x(), ev->y())) emit clicked();
@@ -128,59 +200,6 @@ void GameBoard::keyReleaseEvent(QKeyEvent *ev)
 }
 #pragma endregion
 
-void GameBoard::initState() {
-    configuration.initState();
-}
-
-bool GameBoard::tryNewGame() {
-    if (!configuration.getStatePackage().getCurrentState().end() && !ensureAbort())
-        return false;
-    initState();
-    switchView(GUIState::Playing);
-    return true;
-}
-
-bool GameBoard::tryChangePlayer() {
-    releaseKeyboard();
-    auto _res = changeUserName(this);
-    grabKeyboard();
-    if (!_res.first) return false;
-    configuration.setPlayer(_res.second);
-    update();
-    return true;
-}
-
-bool GameBoard::tryResizeBoard(int _row, int _col) {
-    if (!configuration.getStatePackage().getCurrentState().end() && !ensureAbort()) return false;
-    configuration.setColumn(_col), configuration.setRow(_row);
-    update();
-    return true;
-}
-
-bool GameBoard::tryOperate(GameOperation _o) {
-    if (!configuration.getStatePackage().getCurrentState().checkValid(_o)) return false;
-    bool _res = configuration.getStatePackage().Operate(_o);
-    if (_res) switchView(GUIState::End);
-    update();
-}
-
-void GameBoard::changeTheme(const std::string &_path) {
-    configuration.setThemePath(_path);
-
-    std::ifstream ifs(configuration.getThemePath(), std::ios::binary);
-    auto _readint = [&ifs]() -> int {
-        int dt; ifs.read((char *)&dt, sizeof(int));
-        printf("dt = %8x\n", dt);
-        return dt;
-    };
-    backgroundColor = _readint();
-    textColor = _readint();
-    tileTextColor = _readint();
-    for (int i = 0; i < 15; i++) tileColor[i] = _readint();
-
-    ifs.close();
-}
-
 #pragma region Key Handler
 void GameBoard::keyHandler(int _key) {
     switch (currentView) {
@@ -205,11 +224,7 @@ void GameBoard::keyHandler_Playing(int _key) {
 
 void GameBoard::keyHandler_End(int _key) {
     if (_key == Qt::Key_Z) {
-        if (configuration.getStatePackage().getCurrentState().end() || ensureAbort()) {
-            initState();
-            configuration.save();
-            switchView(GUIState::Playing);
-        }
+        tryNewGame();
     } else if (_key == Qt::Key_Escape) {
         switchView(GUIState::Playing);
     } else {
@@ -232,8 +247,7 @@ void GameBoard::keyHandler_RankList(int _key) {
 
 #pragma region Mouse Handler
 void GameBoard::mouseHandler_Playing() {
-    configuration.updateRankList();
-    configuration.save();
+    save();
     if (mousePos.x() < this->width() >> 1 && mousePos.y() < 50) tryChangePlayer();
     if (mousePos.x() > this->width() >> 1 && mousePos.y() < 50) switchView(GUIState::RankList);
 }
@@ -246,16 +260,14 @@ void GameBoard::mouseHandler_End() {
     if (mousePos.x() < 50 || mousePos.x() > this->width() - 50) return ;
     if (mousePos.y() > 100 && mousePos.y() <= 150) switchView(GUIState::Playing);
     if (mousePos.y() > 155 && mousePos.y() <= 205) {
-        configuration.updateRankList();
-        configuration.save();
+        save();
         if (configuration.getStatePackage().getCurrentState().end() || ensureAbort()) {
             initState();
             configuration.save();
             switchView(GUIState::Playing);
         }
     } else if (mousePos.y() > 210 && mousePos.y() < 260) {
-        configuration.updateRankList();
-        configuration.save();
+        save();
         switchView(GUIState::RankList);
     }
 }
@@ -318,7 +330,7 @@ void GameBoard::updateGUI_Playing() {
     drawText(_ptr, QRect(0, 0, this->width() >> 1, _topbar_h), textColor, LargeFont);
 
     sprintf(textBuffer, "Score\n %d", configuration.getStatePackage().getCurrentState().getScore());
-    drawRectangle(_ptr, QRect(this->width() >> 1, 0, this->width() >> 1, _topbar_h), tileColor[14]);
+    drawRectangle(_ptr, QRect(this->width() >> 1, 0, this->width() >> 1, _topbar_h), tileColor[12]);
     drawText(_ptr, QRect(this->width() >> 1, 0, this->width() >> 1, _topbar_h), textColor, mediumFont);
     // draw the hint bar
     sprintf(textBuffer, "[ESC] Pause, [Z] Undo, [Arrow]/[Mouse] Operation");
@@ -373,7 +385,7 @@ void GameBoard::updateGUI_RankList() {
 
     int _item_width = (this->width() - 70) / 3, _record_height = (this->height() - 50) / 10;
     for (int i = 0; i < 10 && i + scrollPosition < configuration.getRankList().size(); i++) {
-        drawRectangle(_ptr, QRect(0, i * _record_height + 50, this->width(), _record_height), tileColor[14]);
+        drawRectangle(_ptr, QRect(0, i * _record_height + 50, this->width(), _record_height), tileColor[(i + scrollPosition < 3) ? 14 - (i + scrollPosition) : 8]);
         sprintf(textBuffer, "%d", i + scrollPosition + 1);
         drawText(_ptr, QRect(0, i * _record_height + 50, 50, _record_height), textColor, LargeFont);
 

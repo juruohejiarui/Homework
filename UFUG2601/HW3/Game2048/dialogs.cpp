@@ -4,7 +4,8 @@ void showWarning(const std::string &_title, const std::string &_message) {
     QMessageBox _msgbox;
     _msgbox.setText(_message.c_str());
     _msgbox.setWindowTitle(_title.c_str());
-    _msgbox.show();
+    _msgbox.setStandardButtons(QMessageBox::Ok);
+    _msgbox.exec();
 }
 
 bool ensureAbort() {
