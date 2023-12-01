@@ -1,5 +1,6 @@
 #include "gameboard.h"
 #include "dialogs.h"
+#include "applicationinfo.h"
 #include <QColor>
 #include <QRect>
 #include <QPainter>
@@ -55,6 +56,7 @@ GameBoard::GameBoard(QWidget *parent)
     this->setFocusPolicy(Qt::FocusPolicy::StrongFocus);
     this->setFocus();
 
+    configuration.load(getApplicationDir() + "default.config");
     // set GUI information
     changeTheme(configuration.getThemePath());
     {

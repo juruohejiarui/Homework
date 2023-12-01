@@ -32,7 +32,6 @@ void GameStatePackage::load(const std::string &_path) {
     for(int i = 0; i < _state_cnt; i++) {
         auto _state = GameState(_row, _column);
         ifs.read((char *)&_temp, sizeof(int)), _state.setScore(_temp);
-        printf("read score : %d\n", _temp);
         for (int x = 0; x < _row; x++)
             for (int y = 0; y < _column; y++)
                 ifs.read((char *)&_state[x][y], sizeof(char));

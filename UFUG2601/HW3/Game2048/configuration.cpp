@@ -12,7 +12,6 @@ GameResult::GameResult(int _score, time_t _time, time_t _start_time, std::pair<i
 }
 Configuration::Configuration()
 {
-    load(getApplicationDir() + "default.config");
 }
 
 void Configuration::initState() { statePackage.init(); }
@@ -24,7 +23,6 @@ std::string readString(std::ifstream &ifs) {
         if (_ch == '\0') break;
         _res.push_back(_ch);
     }
-    std::cout << "read : " << _res << std::endl;
     return _res;
 }
 
