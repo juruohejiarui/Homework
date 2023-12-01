@@ -1,5 +1,4 @@
 #include "configuration.h"
-#include "applicationinfo.h"
 #include <fstream>
 #include <iostream>
 
@@ -36,7 +35,7 @@ void Configuration::load(const std::string &path) {
     // create this file if it does not exist
     if (!ifs.good()) {
         player = "Default Player";
-        themePath = getApplicationDir() + "Classic.theme";
+        themePath = path + ".Themes/Classic.theme";
         statePackage = GameStatePackage(path + ".state");
         std::ofstream ofs(path, std::ios::binary);
         ofs.close();
@@ -91,7 +90,7 @@ void Configuration::setColumn(int _column) {
 int Configuration::getRow() { return statePackage.getRow(); }
 int Configuration::getColumn() { return statePackage.getColumn(); }
 
-void Configuration::setThemePath(const std::string &_path) { themePath = _path; }
+void Configuration::setThemePath(const std::string &_path) { themePath = filePath + ".Themes/" + _path; }
 const std::string &Configuration::getThemePath() { return themePath; }
 
 const std::string &Configuration::getPlayer() { return player; }

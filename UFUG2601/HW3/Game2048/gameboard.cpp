@@ -131,7 +131,7 @@ bool GameBoard::tryOperate(GameOperation _o) {
 }
 
 void GameBoard::changeTheme(const std::string &_path) {
-    configuration.setThemePath(_path);
+    configuration.setThemePath(_path.substr(_path.find_last_of('/') + 1));
 
     std::ifstream ifs(configuration.getThemePath(), std::ios::binary);
     auto _readint = [&ifs]() -> int {

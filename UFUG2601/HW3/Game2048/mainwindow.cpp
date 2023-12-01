@@ -91,9 +91,9 @@ void MainWindow::actionResizeCustomClicked() {
 }
 
 void MainWindow::actionThemeClassicClicked() {
-    gameBoard->changeTheme(getApplicationDir() + "Classic.theme");
+    gameBoard->changeTheme("Classic.theme");
 }
 
 void MainWindow::actionThemeBlueClicked() {
-    gameBoard->changeTheme(getApplicationDir() + "Blue.theme");
+    gameBoard->changeTheme("Blue.theme");
 }
