@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "applicationinfo.h"
 #include "dialogs.h"
 #include "ui_mainwindow.h"
 #include <QInputDialog>
@@ -90,9 +91,9 @@ void MainWindow::actionResizeCustomClicked() {
 }
 
 void MainWindow::actionThemeClassicClicked() {
-    gameBoard->changeTheme("Classic.theme");
+    gameBoard->changeTheme(getApplicationDir() + "Classic.theme");
 }
 
 void MainWindow::actionThemeBlueClicked() {
-    gameBoard->changeTheme("Blue.theme");
+    gameBoard->changeTheme(getApplicationDir() + "Blue.theme");
 }

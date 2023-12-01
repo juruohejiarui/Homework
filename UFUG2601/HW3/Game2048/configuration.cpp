@@ -1,4 +1,5 @@
 #include "configuration.h"
+#include "applicationinfo.h"
 #include <fstream>
 #include <iostream>
 
@@ -11,7 +12,7 @@ GameResult::GameResult(int _score, time_t _time, time_t _start_time, std::pair<i
 }
 Configuration::Configuration()
 {
-    load("default.config");
+    load(getApplicationDir() + "default.config");
 }
 
 void Configuration::initState() { statePackage.init(); }
@@ -37,7 +38,7 @@ void Configuration::load(const std::string &path) {
     // create this file if it does not exist
     if (!ifs.good()) {
         player = "Default Player";
-        themePath = "Classic.theme";
+        themePath = getApplicationDir() + "Classic.theme";
         statePackage = GameStatePackage(path + ".state");
         std::ofstream ofs(path, std::ios::binary);
         ofs.close();
