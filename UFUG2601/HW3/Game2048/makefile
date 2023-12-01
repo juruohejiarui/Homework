@@ -1,0 +1,22 @@
+CXX=g++ -std=c++17
+
+BUILD_PATH=./build-cli
+
+.PHONY: build
+
+configuration.o: configuration.h configuration.cpp gamestatepackage.h gamestate.h
+	$(CXX) configuration.cpp -c -o configuration.o
+gamestatepackage.o: gamestatepackage.cpp gamestatepackage.h gamestate.h
+	$(CXX) gamestatepackage.cpp -c -o gamestatepackage.o
+gamestate.o: gamestate.cpp gamestate.h
+	$(CXX) gamestate.cpp -c -o gamestate.o
+gameboard-cli.o: gameboard-cli.h gameboard-cli.cpp configuration.h gamestatepackage.h gamestate.h
+	$(CXX) gameboard-cli.cpp -c -o gameboard-cli.o
+main-cli.o: gameboard-cli.h gamestate.h gamestatepackage.h configuration.h
+	$(CXX) main-cli.cpp -c -o main-cli.o
+
+build: configuration.o gamestatepackage.o gamestate.o gameboard-cli.o main-cli.o
+	$(CXX) configuration.o gamestatepackage.o gamestate.o gameboard-cli.o main-cli.o -o Game2048-cli
+
+clean:
+	rm ./*.o ./Game2048-cli
