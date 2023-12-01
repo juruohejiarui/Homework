@@ -8,7 +8,7 @@ bool keepGoing;
 Configuration configuration;
 
 void updateView_Playing() {
-
+    
 }
 void updateView_RankList() {
 
@@ -30,8 +30,28 @@ void updateView() {
     }
 }
 
-void inputHandler() {
+void inputHandler_Pause() {
+
+}
+
+void inputHandler_Playing() {
     
+}
+
+void inputHandler_RankList() {
+    
+}
+
+void inputHandler_Welcome() {
+    
+}
+void inputHandler() {
+    switch(currentView) {
+        case ViewState::Pause: inputHandler_Pause(); break;
+        case ViewState::Playing: inputHandler_Playing(); break;
+        case ViewState::RankList: inputHandler_RankList(); break;
+        case ViewState::Welcome: inputHandler_Welcome(); break;
+    }
 }
 void exec2048() {
     configuration.load("default.config");
