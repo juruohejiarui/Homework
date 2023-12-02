@@ -17,6 +17,5 @@ int main(int argc, char *argv[])
     QFont font = QFont(fontName, 12);
     QApplication::setFont(font);
 
-
     return a.exec();
 }

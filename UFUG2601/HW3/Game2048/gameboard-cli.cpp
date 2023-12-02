@@ -1,4 +1,5 @@
 #include "gameboard-cli.h"
+#include "keyboard-cli.h"
 #include "configuration.h"
 
 enum ViewState {
@@ -54,11 +55,15 @@ void inputHandler() {
     }
 }
 void exec2048() {
+    initKeyboard();
     configuration.load("default.config");
     keepGoing = true;
     while (keepGoing) {
         updateView();
         inputHandler();
+        keyboardHit();
+        printf("%d\n", keyboardRead());
     }
     configuration.save();
+    closeKeyboard();
 }

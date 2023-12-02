@@ -2,6 +2,6 @@
 #include "gameboard-cli.h"
 
 int main() {
-    printf("Hello world\n");
+    exec2048();
     return 0;
 }

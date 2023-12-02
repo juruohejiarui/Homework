@@ -60,6 +60,7 @@
         "thread": "cpp",
         "typeinfo": "cpp",
         "variant": "cpp",
-        "qmessagebox": "cpp"
+        "qmessagebox": "cpp",
+        "qinputdialog": "cpp"
     }
 }
