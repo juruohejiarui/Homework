@@ -72,7 +72,7 @@ void updateView_Playing() {
     }
     cprint("\n\n");
 
-    printOperationHint("ARROW / {ASDW}", "Start");
+    printOperationHint("ARROW / {ASDW}", "Operate");
     printOperationHint("Z", "Undo");
     printOperationHint("Q", "Pause");
     putchar('\n');
