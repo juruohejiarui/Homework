@@ -128,6 +128,7 @@ bool GameBoard::tryOperate(GameOperation _o) {
     bool _res = configuration.getStatePackage().Operate(_o);
     if (_res) switchView(GUIState::End);
     update();
+    return _res;
 }
 
 void GameBoard::changeTheme(const std::string &_path) {
@@ -303,7 +304,6 @@ void drawText(QPainter &_painter, QRect _r, int _c, QFont &_f) {
 }
 
 void GameBoard::updateGUI_Playing() {
-
     QPainter _ptr = QPainter(this);
 
     // calculate the size

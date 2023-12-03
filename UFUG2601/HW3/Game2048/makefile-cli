@@ -1,4 +1,4 @@
-CXX=g++ -std=c++17
+CXX=g++ -O2 --std=c++17
 
 BUILD_PATH=./build-cli
 

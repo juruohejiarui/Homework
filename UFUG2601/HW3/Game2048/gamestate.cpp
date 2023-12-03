@@ -100,6 +100,7 @@ bool GameState::checkValid(GameOperation _o) {
     case GameOperation::Down:   return checkValidDown();
     case GameOperation::Up:     return checkValidUp();
     }
+    return false;
 }
 
 void GameState::updateStateLeft() {
