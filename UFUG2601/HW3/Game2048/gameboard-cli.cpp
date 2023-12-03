@@ -1,6 +1,7 @@
 #include "gameboard-cli.h"
 #include "io-cli.h"
 #include "configuration.h"
+#include <cstring>
 
 enum ViewState {
     Playing, RankList, Welcome, Pause, InputDialogBox, DialogBox, Unknown
@@ -20,9 +21,8 @@ DialogBoxType dialogBoxType;
 int dialogResult, dialogFlag[15];
 
 /*
-ViewState::Playing:
-    1. change player name
-    2. warning after change player name
+Hint for dialogFlag:
+
 ViewState::Pause:
     1. abort current game before start a new game
     2. abort current game before change board size
@@ -41,7 +41,7 @@ void printOperationHint(const char *_k, const char *_d) {
 } 
 
 void updateView_Playing() {
-    cprint("[BOARD]\n", CLI_COLOR_BLUE, CLI_COLOR_GREEN | CLI_COLOR_INTENSITY, CLI_COLOR_WHITE);
+    cprint("[BOARD]\n", CLI_COLOR_BLUE | CLI_COLOR_RED | CLI_COLOR_INTENSITY, CLI_COLOR_WHITE);
     cprint("Current Player : ");
     sprintf(stringBuffer, "%s\n", configuration.getPlayer().c_str());
     cprint(stringBuffer, CLI_COLOR_BLUE | CLI_COLOR_INTENSITY, CLI_COLOR_BLACK, true);
@@ -81,14 +81,31 @@ void updateView_Playing() {
 static int rankListScroll;
 
 void updateView_RankList() {
+    cprint("[RANK LIST]\n", CLI_COLOR_BLUE | CLI_COLOR_RED | CLI_COLOR_INTENSITY, CLI_COLOR_WHITE);
+    for (int i = 0; i < 10 && i + rankListScroll < configuration.getRankList().size(); i++) {
+        auto _record = configuration.getRankList()[i + rankListScroll];
+        sprintf(stringBuffer, "%2d", i + rankListScroll + 1);
+        cprint(stringBuffer, CLI_COLOR_WHITE | CLI_COLOR_INTENSITY);
+        sprintf(stringBuffer, "%20s", _record.player.c_str());
+        cprint(stringBuffer, CLI_COLOR_BLUE | CLI_COLOR_INTENSITY);
+        sprintf(stringBuffer, "%9d ", _record.score);
+        cprint(stringBuffer, CLI_COLOR_GREEN | CLI_COLOR_INTENSITY);
+        memcpy(stringBuffer, std::ctime(&_record.time), 100);
+        stringBuffer[strlen(stringBuffer) - 1] = '\0';
+        cprint(stringBuffer, CLI_COLOR_INTENSITY | CLI_COLOR_WHITE);
+        putchar('\n');
+    }
 
+    putchar('\n');
+    printOperationHint("ARROW", "Scroll");
+    printOperationHint("Q", "Back");
+    putchar('\n');
 }
 
 void updateView_Welcome() {
     cprint("Welcome!!!\n", CLI_COLOR_RED | CLI_COLOR_INTENSITY, CLI_COLOR_BLACK);
     
-    printOperationHint("ARROW / {ASDW} / Enter", "Start / Continue");
-    printOperationHint("R", "Rank List");
+    printOperationHint("ANY", "Start / Continue");
 }
 void updateView_Pause() {
     cprint("[PAUSE]\n", CLI_COLOR_BLUE, CLI_COLOR_GREEN | CLI_COLOR_INTENSITY, CLI_COLOR_WHITE);
@@ -116,6 +133,7 @@ void updateView_Pause() {
 
 void update_dialogBox() {
     cprint(dialogText);
+    putchar('\n');
     putchar('\n');
     switch (dialogBoxType) {
         case DialogBoxType::Ok:
@@ -166,6 +184,7 @@ void showDialog(ViewState _dialog) {
     lastView = currentView;
     currentView = _dialog;
     dialogResult = -1;
+    inputDialogContent[inputDialogContentLength = 0] = '\0';
 }
 
 void closeDialog() {
@@ -181,9 +200,6 @@ static int keyBuffer[4], keyBufferSize;
 
 ValidKey getKey() {
     int _key = keyboardRead();
-    printf("%d buf = {", _key);
-    for (int i = 0; i < keyBufferSize; i++) printf("%d ", keyBuffer[i]);
-    printf("}\n");
     switch (_key) {
         case 13:
             keyBufferSize = 0;
@@ -312,6 +328,10 @@ void inputHandler_Pause(ValidKey _key) {
         case ValidKey::R:
             switchView(ViewState::RankList);
             break;
+        case ValidKey::Q:
+            configuration.save();
+            keepGoing = false;
+            break;
         case ValidKey::Left:
         case ValidKey::Right:
         case ValidKey::Up:
@@ -367,15 +387,31 @@ void inputHandler_Playing(ValidKey _key) {
 
 void inputHandler_RankList(ValidKey _key) {
     switch (_key) {
-
+        case ValidKey::Up:
+            rankListScroll = std::max(rankListScroll - 1, 0);
+            break;
+        case ValidKey::Down:
+            rankListScroll = std::max(0, std::min(rankListScroll + 1, (int)configuration.getRankList().size() - 10));
+            break;
+        case ValidKey::Q:
+            switchView(ViewState::Playing);
+            break;
     }
 }
 
 void inputHandler_Welcome(ValidKey _key) {
-    
+    switchView(ViewState::Playing);
 }
 
-void inputHandler_InputDialog(int _key) {
+void inputHandler_InputDialogBox(int _key) {
+    // ESC
+    if (_key == 27) {
+        dialogResult = 0, closeDialog();
+    } else if (_key == 13) { // Enter
+        dialogResult = 1, closeDialog();
+    } else if (_key == 127) { // delete
+        if (inputDialogContentLength > 0) inputDialogContent[--inputDialogContentLength] = '\0';
+    } else inputDialogContent[inputDialogContentLength++] = _key, inputDialogContent[inputDialogContentLength] = '\0';
 }
 
 void inputHandler_DialogBox(ValidKey _key) {
@@ -395,46 +431,54 @@ void dialogResultHandler_Pause() {
     if (_flag == 1) {
         if (dialogResult == 1) configuration.initState();
         switchView(ViewState::Playing);
+        _flag = 0;
     } else if (_flag == 2) {
         if (dialogResult == 1) {
-            configuration.updateRankList();
             _flag = 3;
             sprintf(dialogText, "Input the new board size: <Row> <Column>");
-            showDialog(ViewState::DialogBox);
-        } else switchView(ViewState::Playing);
+            showDialog(ViewState::InputDialogBox);
+        } else switchView(ViewState::Playing), _flag = 0;
     } else if (_flag == 3) {
         if (dialogResult == 1) {
-            std::string _new_size_str(inputDialogContent);
             int _nrow = 0, _ncol = 0;
-            if (_new_size_str.size() != 3) goto INVALID_SIZE;
-            if ('0' > std::min(_new_size_str[0], _new_size_str[2]) || '9' < std::max(_new_size_str[0], _new_size_str[2])
-                || _new_size_str[1] != ' ') goto INVALID_SIZE;
+            if (inputDialogContentLength > 3) goto INVALID_SIZE;
+            if ('0' > std::min(inputDialogContent[0], inputDialogContent[2]) || '9' < std::max(inputDialogContent[0], inputDialogContent[2])
+                || inputDialogContent[1] != ' ') goto INVALID_SIZE;
             VALID_SIZE:
-                _nrow = _new_size_str[0] - '0', _ncol = _new_size_str[2] - '0';
-                configuration.updateRankList();
-                configuration.setRow(_nrow);
-                configuration.setColumn(_ncol);
-                switchView(ViewState::Playing);
-                goto END;
+            _nrow = inputDialogContent[0] - '0', _ncol = inputDialogContent[2] - '0';
+            configuration.updateRankList();
+            configuration.setRow(_nrow);
+            configuration.setColumn(_ncol);
+            switchView(ViewState::Playing);
+            _flag = 0;
+            goto END;
+
             INVALID_SIZE:
-                _flag = 6;
-                sprintf(dialogText, "Valid Board Size\n, the number of row and column must be in [1, 8]");
-                showDialog(ViewState::DialogBox);
+            _flag = 6;
+            sprintf(dialogText, "Valid Board Size\nThe number of row and column must be in [1, 8]");
+            dialogBoxType = DialogBoxType::Ok;
+            showDialog(ViewState::DialogBox);
             END:
-        }
+            
+            sprintf(stringBuffer, "test");
+        } else _flag = 0;
     } else if (_flag == 4) {
         if (dialogResult == 1) {
             std::string _new_name(inputDialogContent);
             if (_new_name.size() == 0 || _new_name.size() > 20) {
                 _flag = 5;
                 memcpy(dialogText, "Invalid Player Name\nThe length of player name must be in [1, 20]", 65);
+                dialogBoxType = DialogBoxType::Ok;
                 showDialog(ViewState::DialogBox);
-            } else configuration.setPlayer(std::string(inputDialogContent));
-        }
+            } else 
+                configuration.setPlayer(_new_name),
+                configuration.updateRankList();
+            _flag = 0;
+        } else _flag = 0;
     } else if (_flag == 5 || _flag == 6) {
         switchView(ViewState::Playing);
+        _flag = 0;
     }
-    _flag = 0;
 }
 
 void dialogResultHandler_Playing() {
@@ -454,7 +498,7 @@ void inputHandler() {
     }
     // 这个界面比较特殊，要获取所有类型的输入
     if (currentView == ViewState::InputDialogBox) {
-        inputHandler_InputDialog(keyboardRead());
+        inputHandler_InputDialogBox(keyboardRead());
         return ;
     }
     ValidKey _key = getKey();
@@ -474,6 +518,7 @@ void exec2048() {
     keepGoing = true;
     currentView = ViewState::Playing;
     dialogResult = -1;
+    cprint("test...\n");
     while (keepGoing) {
         updateView();
         inputHandler();
