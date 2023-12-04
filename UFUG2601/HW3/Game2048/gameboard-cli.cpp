@@ -461,7 +461,7 @@ void dialogResultHandler_Pause() {
         if (dialogResult == 1) {
             int _nrow = 0, _ncol = 0;
             if (inputDialogContentLength > 3) goto INVALID_SIZE;
-            if ('0' > std::min(inputDialogContent[0], inputDialogContent[2]) || '9' < std::max(inputDialogContent[0], inputDialogContent[2])
+            if ('0' > std::min(inputDialogContent[0], inputDialogContent[2]) || '8' < std::max(inputDialogContent[0], inputDialogContent[2])
                 || inputDialogContent[1] != ' ') goto INVALID_SIZE;
             VALID_SIZE:
             _nrow = inputDialogContent[0] - '0', _ncol = inputDialogContent[2] - '0';
@@ -474,7 +474,7 @@ void dialogResultHandler_Pause() {
 
             INVALID_SIZE:
             _flag = 6;
-            sprintf(dialogText, "Valid Board Size\nThe number of row and column must be in [1, 8]");
+            sprintf(dialogText, "Invalid Board Size\nThe number of row and column must be in [1, 8]");
             dialogBoxType = DialogBoxType::Ok;
             showDialog(ViewState::DialogBox);
             END:
