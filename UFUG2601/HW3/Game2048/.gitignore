@@ -3,3 +3,8 @@
 /Game2048.app
 /PkgInfo
 /empty.lproj
+
+/build-Game2048-Desktop_x86_darwin_generic_mach_o_64bit-Debug
+/build-Game2048-Desktop_Qt_6_6_0_GCC_64bit-Debug
+/build-Game2048-Desktop_Qt_6_6_0_GCC_64bit-Release
+/build-Game2048-Desktop_Qt_6_6_0_MinGW_64_bit-Debug
