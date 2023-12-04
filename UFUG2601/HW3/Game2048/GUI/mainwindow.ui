@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>500</width>
+    <height>500</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="GameBoard" name="gameBoard" native="true">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>800</width>
+      <height>556</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuConfiguration">
+    <property name="title">
+     <string>Configuration</string>
+    </property>
+    <widget class="QMenu" name="menuBoard_Size">
+     <property name="title">
+      <string>Board Size</string>
+     </property>
+     <addaction name="actionResize33"/>
+     <addaction name="actionResize44"/>
+     <addaction name="actionResize55"/>
+     <addaction name="actionResize66"/>
+     <addaction name="actionResize88"/>
+     <addaction name="actionResizeCustom"/>
+    </widget>
+    <widget class="QMenu" name="menuTheme">
+     <property name="title">
+      <string>Theme</string>
+     </property>
+     <addaction name="actionThemeClassic"/>
+     <addaction name="actionThemeBlue"/>
+    </widget>
+    <addaction name="menuBoard_Size"/>
+    <addaction name="menuTheme"/>
+    <addaction name="actionChangePlayer"/>
+   </widget>
+   <widget class="QMenu" name="menuGame">
+    <property name="title">
+     <string>Operation</string>
+    </property>
+    <addaction name="actionNewGame"/>
+    <addaction name="actionUndo"/>
+   </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+    <addaction name="actionShow_Rank"/>
+    <addaction name="actionPause"/>
+    <addaction name="actionBoard"/>
+   </widget>
+   <addaction name="menuConfiguration"/>
+   <addaction name="menuGame"/>
+   <addaction name="menuView"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionResize33">
+   <property name="text">
+    <string>3*3</string>
+   </property>
+  </action>
+  <action name="actionResize44">
+   <property name="text">
+    <string>4*4</string>
+   </property>
+  </action>
+  <action name="actionResize55">
+   <property name="text">
+    <string>5*5</string>
+   </property>
+  </action>
+  <action name="actionResize66">
+   <property name="text">
+    <string>6*6</string>
+   </property>
+  </action>
+  <action name="actionResizeCustom">
+   <property name="text">
+    <string>Custom Size</string>
+   </property>
+  </action>
+  <action name="actionThemeClassic">
+   <property name="text">
+    <string>Classic</string>
+   </property>
+  </action>
+  <action name="actionThemeBlue">
+   <property name="text">
+    <string>Blue</string>
+   </property>
+  </action>
+  <action name="actionNewGame">
+   <property name="text">
+    <string>New Game</string>
+   </property>
+  </action>
+  <action name="actionShow_Rank">
+   <property name="text">
+    <string>Rank List</string>
+   </property>
+  </action>
+  <action name="actionChangePlayer">
+   <property name="text">
+    <string>Player Name</string>
+   </property>
+  </action>
+  <action name="actionUndo">
+   <property name="text">
+    <string>Undo</string>
+   </property>
+  </action>
+  <action name="actionConfiguration_Panel">
+   <property name="text">
+    <string>Configuration Panel</string>
+   </property>
+  </action>
+  <action name="actionResize88">
+   <property name="text">
+    <string>8*8</string>
+   </property>
+  </action>
+  <action name="actionPause">
+   <property name="text">
+    <string>Pause</string>
+   </property>
+  </action>
+  <action name="actionBoard">
+   <property name="text">
+    <string>Board</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>GameBoard</class>
+   <extends>QWidget</extends>
+   <header>gameboard.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

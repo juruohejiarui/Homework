@@ -1,6 +1,0 @@
-<RCC>
-    <qresource prefix="/"/>
-    <qresource prefix="/Resources/Fonts">
-        <file>GenshinFont.ttf</file>
-    </qresource>
-</RCC>
