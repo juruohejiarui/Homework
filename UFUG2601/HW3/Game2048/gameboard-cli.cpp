@@ -41,14 +41,22 @@ void printOperationHint(const char *_k, const char *_d) {
 } 
 
 void updateView_Playing() {
-    cprint("[BOARD]\n", CLI_COLOR_BLUE | CLI_COLOR_RED | CLI_COLOR_INTENSITY, CLI_COLOR_WHITE);
-    cprint("Current Player : ");
-    sprintf(stringBuffer, "%s\n", configuration.getPlayer().c_str());
-    cprint(stringBuffer, CLI_COLOR_BLUE | CLI_COLOR_INTENSITY, CLI_COLOR_BLACK, true);
-    cprint("Score : ");
-    sprintf(stringBuffer, "%d\n", configuration.getStatePackage().getCurrentState().getScore());
-    cprint(stringBuffer, CLI_COLOR_BLUE | CLI_COLOR_INTENSITY, CLI_COLOR_BLACK, true);
+    cprint("               [BOARD]               \n", CLI_COLOR_BLUE | CLI_COLOR_RED | CLI_COLOR_INTENSITY, CLI_COLOR_WHITE);
 
+    cprint("Current Player : ", CLI_COLOR_BLACK, CLI_COLOR_WHITE);
+    sprintf(stringBuffer, "%s", configuration.getPlayer().c_str());
+    int t = strlen(stringBuffer);
+    while (t < 20) stringBuffer[t++] = ' ';
+    stringBuffer[t] = '\0';
+    cprint(stringBuffer, CLI_COLOR_BLUE | CLI_COLOR_INTENSITY, CLI_COLOR_WHITE);
+    putchar('\n');
+    cprint("Score          : ", CLI_COLOR_BLACK, CLI_COLOR_WHITE);
+    sprintf(stringBuffer, "%d", configuration.getStatePackage().getCurrentState().getScore());
+    t = strlen(stringBuffer);
+    while (t < 20) stringBuffer[t++] = ' ';
+    stringBuffer[t] = '\0';
+    cprint(stringBuffer, CLI_COLOR_BLUE | CLI_COLOR_INTENSITY, CLI_COLOR_WHITE);
+    putchar('\n'), putchar('\n');
     int _row = configuration.getRow(), _col = configuration.getColumn();
     cprint("   ");
     for (int j = 1; j <= _col; j++) {
@@ -87,7 +95,7 @@ void updateView_RankList() {
         sprintf(stringBuffer, "%2d", i + rankListScroll + 1);
         cprint(stringBuffer, CLI_COLOR_WHITE | CLI_COLOR_INTENSITY);
         sprintf(stringBuffer, "%20s", _record.player.c_str());
-        cprint(stringBuffer, CLI_COLOR_BLUE | CLI_COLOR_INTENSITY);
+        cprint(stringBuffer, CLI_COLOR_RED | CLI_COLOR_GREEN | CLI_COLOR_INTENSITY);
         sprintf(stringBuffer, "%9d ", _record.score);
         cprint(stringBuffer, CLI_COLOR_GREEN | CLI_COLOR_INTENSITY);
         memcpy(stringBuffer, std::ctime(&_record.time), 100);
@@ -108,13 +116,23 @@ void updateView_Welcome() {
     printOperationHint("ANY", "Start / Continue");
 }
 void updateView_Pause() {
-    cprint("[PAUSE]\n", CLI_COLOR_BLUE, CLI_COLOR_GREEN | CLI_COLOR_INTENSITY, CLI_COLOR_WHITE);
-    cprint("Current Player : ");
-    sprintf(stringBuffer, "%s\n", configuration.getPlayer().c_str());
-    cprint(stringBuffer, CLI_COLOR_BLUE | CLI_COLOR_INTENSITY, CLI_COLOR_BLACK, true);
-    cprint("Score : ");
-    sprintf(stringBuffer, "%d\n\n", configuration.getStatePackage().getCurrentState().getScore());
-    cprint(stringBuffer, CLI_COLOR_BLUE | CLI_COLOR_INTENSITY, CLI_COLOR_BLACK, true);
+    cprint("               [PAUSE]               \n", CLI_COLOR_BLUE | CLI_COLOR_RED | CLI_COLOR_INTENSITY, CLI_COLOR_WHITE);
+
+    cprint("Current Player : ", CLI_COLOR_BLACK, CLI_COLOR_WHITE);
+    sprintf(stringBuffer, "%s", configuration.getPlayer().c_str());
+    int t = strlen(stringBuffer);
+    while (t < 20) stringBuffer[t++] = ' ';
+    stringBuffer[t] = '\0';
+    cprint(stringBuffer, CLI_COLOR_BLUE | CLI_COLOR_INTENSITY, CLI_COLOR_WHITE);
+    putchar('\n');
+    cprint("Score          : ", CLI_COLOR_BLACK, CLI_COLOR_WHITE);
+    sprintf(stringBuffer, "%d", configuration.getStatePackage().getCurrentState().getScore());
+    t = strlen(stringBuffer);
+    while (t < 20) stringBuffer[t++] = ' ';
+    stringBuffer[t] = '\0';
+    cprint(stringBuffer, CLI_COLOR_BLUE | CLI_COLOR_INTENSITY, CLI_COLOR_WHITE);
+    putchar('\n'), putchar('\n');
+
     
     printOperationHint("Enter", "Continue");
     putchar('\n');
@@ -329,6 +347,7 @@ void inputHandler_Pause(ValidKey _key) {
             switchView(ViewState::RankList);
             break;
         case ValidKey::Q:
+            configuration.updateRankList();
             configuration.save();
             keepGoing = false;
             break;
