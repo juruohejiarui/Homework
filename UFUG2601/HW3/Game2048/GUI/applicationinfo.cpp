@@ -8,7 +8,7 @@ std::string getApplicationDir() {
 #elif __linux__
     _res += "/";
 #elif _WIN32
-    _res += "/"
+    _res += "/";
 #endif
     return _res.toStdString();
 }
