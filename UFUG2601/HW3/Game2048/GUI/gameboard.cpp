@@ -163,7 +163,7 @@ void GameBoard::mouseReleaseEvent(QMouseEvent *ev) {
     else {
         if (currentView == GUIState::Playing) {
             QPoint _delta = QPoint(ev->x(), ev->y()) - mousePos;
-            if (abs(_delta.x()) < 5 || abs(_delta.y()) < 5) return ;
+            if (abs(_delta.x()) < 2 || abs(_delta.y()) < 2) return ;
             GameOperation _o;
             if (std::abs(_delta.x()) > std::abs(_delta.y())) {
                 if (_delta.x() < 0) _o = GameOperation::Left;
@@ -183,6 +183,11 @@ void GameBoard::mouseClicked() {
     }
 }
 
+void GameBoard::wheelEvent(QWheelEvent *event) {
+    if (currentView == GUIState::RankList) {
+        keyHandler_RankList(event->angleDelta().y() > 0 ? Qt::Key_Down : Qt::Key_Up);
+    }
+}
 void GameBoard::paintEvent(QPaintEvent *event) {
     updateGUI();
 }

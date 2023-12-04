@@ -1,4 +1,7 @@
 /*.o
+/Core/*.o
+/GUI/*.o
+/CLI/*.o
 /Info.plist
 /Game2048.app
 /PkgInfo

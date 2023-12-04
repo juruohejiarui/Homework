@@ -48,6 +48,7 @@ private:
     int loadConfig();
 
 protected:
+    void wheelEvent(QWheelEvent *event) Q_DECL_OVERRIDE;
     void paintEvent(QPaintEvent *event) Q_DECL_OVERRIDE;
     void mousePressEvent(QMouseEvent *ev) Q_DECL_OVERRIDE;
     void mouseReleaseEvent(QMouseEvent *ev) Q_DECL_OVERRIDE;
