@@ -172,7 +172,6 @@ void updateView_InputDialogBox() {
     putchar('\n');
     memcpy(stringBuffer, inputDialogContent, inputDialogContentLength * sizeof(char));
     stringBuffer[inputDialogContentLength] = '\0';
-    printf("length = %d\n", inputDialogContentLength);
     cprint(stringBuffer, CLI_COLOR_RED | CLI_COLOR_GREEN | CLI_COLOR_INTENSITY);
     putchar('\n'), putchar('\n');
     printOperationHint("Enter", "OK");

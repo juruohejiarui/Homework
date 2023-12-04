@@ -3,6 +3,7 @@
 
 #ifdef __linux__
 #include <termios.h>
+#include <cstdlib>
 int keyboardRead(void) {
     struct termios tm, tm_old;
     int fd = 0, ch;
@@ -43,6 +44,8 @@ void cleanScreen() { system("clear"); }
 
 #ifdef __APPLE__
 #include <termios.h>
+#include <cstdlib>
+
 int keyboardRead(void) {
     struct termios tm, tm_old;
     int fd = 0, ch;
@@ -83,6 +86,7 @@ void cleanScreen() { system("clear"); }
 
 #ifdef _WIN32
 #include <windows.h>
+#include <cstdlib>
 #include <conio.h>
 int keyboardRead(void) { return getch(); }
 
