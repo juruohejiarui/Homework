@@ -94,7 +94,8 @@ def checkDangerous(board) -> (int, int):
             if board[i][2 - i] == 0: return (i, 2 - i)
 
     return (-1, -1)
-def next_move(board):
+
+def specialCases(board):
     is_zero, is_full = True, True
     for i in range(0, 3):
         for j in range(0, 3):
@@ -103,6 +104,19 @@ def next_move(board):
             else: is_full = False
     if is_zero : return (1, 1)
     elif is_full: return (0, 0)
+
+    is_second = True
+    for i in range(0, 3):
+        for j in range(0, 3):
+            if ((board[i][j] != 0) != (i == 1 and j == 1)):
+                is_second = False
+    if is_second : return (0, 0)
+
+    return (-1, -1)
+    
+def next_move(board):
+    res = specialCases(board)
+    if res != (-1, -1) : return res
 
     res = checkDangerous(board)
     if res != (-1, -1): return res
@@ -117,4 +131,4 @@ def next_move(board):
     ans = bestMove(state)
     return ans
 
-print(next_move([[0, 0, 0], [0, 2, 1], [2, 0, 0]]))
+print(next_move([[0, 2, 0], [0, 1, 0], [0, 0, 0]]))
