@@ -8,5 +8,5 @@ build/GUI:
 
 clean:
 	cd ./CLI/ && make clean
-	cd ./GUI/ && make clean
+	cd ./GUI/ && make clean && rm Makefile
 	rm -R ./GUI/Game2048 ./Game2048-gui ./Game2048-cli

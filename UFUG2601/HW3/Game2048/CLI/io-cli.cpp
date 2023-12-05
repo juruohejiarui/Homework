@@ -3,6 +3,7 @@
 
 #ifdef __linux__
 #include <termios.h>
+#include <cstdlib>
 int keyboardRead(void) {
     struct termios tm, tm_old;
     int fd = 0, ch;
@@ -37,10 +38,14 @@ void cprint(const char* info, short _fcol, short _bcol, bool _ul) {
     if (_ul) printf("\033[4m");
     printf("%s", info);
 }
+void cleanScreen() { system("clear"); }
+
 #endif
 
 #ifdef __APPLE__
 #include <termios.h>
+#include <cstdlib>
+
 int keyboardRead(void) {
     struct termios tm, tm_old;
     int fd = 0, ch;
@@ -75,20 +80,25 @@ void cprint(const char* info, short _fcol, short _bcol, bool _ul) {
     if (_ul) printf("\033[4m");
     printf("%s", info);
 }
+
+void cleanScreen() { system("clear"); }
 #endif 
 
 #ifdef _WIN32
 #include <windows.h>
+#include <cstdlib>
 #include <conio.h>
 int keyboardRead(void) { return getch(); }
 
 void setColor(short _fcol, short _bcol, bool _ul) {
     HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);//取标准输入输出句柄 
-	SetConsoleTextAttribute(handle, (int)_fcol & (((int)_bcol) << 4) & (((int)ul) << 8));//字符与 color相同
+	SetConsoleTextAttribute(handle, _fcol | (((int)_bcol) << 4) | ((int)_ul << 8));//字符与 color相同
 }
 
-void cprint(const char *info, short _fol, short _bcol, bool _ul) {
+void cprint(const char *info, short _fcol, short _bcol, bool _ul) {
     setColor(_fcol, _bcol, _ul);
     printf("%s", info);
 }
+
+void cleanScreen() { system("cls"); }
 #endif

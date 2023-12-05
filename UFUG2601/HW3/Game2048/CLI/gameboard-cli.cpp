@@ -180,7 +180,7 @@ void updateView_InputDialogBox() {
 }
 
 void updateView() {
-    system("clear");
+    cleanScreen();
     switch (currentView) {
         case ViewState::Pause: updateView_Pause(); break;
         case ViewState::Playing: updateView_Playing(); break;
@@ -222,6 +222,7 @@ ValidKey getKey() {
         case 13:
             keyBufferSize = 0;
             return ValidKey::Enter;
+        #ifdef __APPLE__
         case 27:
             keyBufferSize = 0;
             keyBuffer[keyBufferSize++] = _key;
@@ -266,6 +267,73 @@ ValidKey getKey() {
                 keyBufferSize = 0;
                 return ValidKey::Waiting;
             }
+        #elif __linux__
+        case 27:
+            keyBufferSize = 0;
+            keyBuffer[keyBufferSize++] = _key;
+            return ValidKey::Waiting;
+        case 91:
+            if (keyBufferSize == 1 && keyBuffer[0] == 27) {
+                keyBuffer[keyBufferSize++] = 91;
+                return ValidKey::Waiting;
+            } else {
+                keyBufferSize = 0;
+                return ValidKey::Waiting;
+            }
+        case 65:
+            if (keyBufferSize == 2) {
+                keyBufferSize = 0;
+                return ValidKey::Up;
+            } else {
+                keyBufferSize = 0;
+                return ValidKey::Waiting;
+            }
+        case 66:
+            if (keyBufferSize == 2) {
+                keyBufferSize = 0;
+                return ValidKey::Down;
+            } else {
+                keyBufferSize = 0;
+                return ValidKey::Waiting;
+            }
+        case 67:
+            if (keyBufferSize == 2) {
+                keyBufferSize = 0;
+                return ValidKey::Right;
+            } else {
+                keyBufferSize = 0;
+                return ValidKey::Waiting;
+            }
+        case 68:
+            if (keyBufferSize == 2) {
+                keyBufferSize = 0;
+                return ValidKey::Left;
+            } else {
+                keyBufferSize = 0;
+                return ValidKey::Waiting;
+            }
+        #elif _WIN32
+        case 224:
+            keyBufferSize = 0;
+            keyBuffer[keyBufferSize++] = _key;
+            return ValidKey::Waiting;
+        case 75:
+            if (keyBufferSize == 1)
+                return keyBufferSize = 0, ValidKey::Left;
+            else return keyBufferSize = 0, ValidKey::Waiting;
+        case 77:
+            if (keyBufferSize == 1)
+                return keyBufferSize = 0, ValidKey::Right;
+            else return keyBufferSize = 0, ValidKey::Waiting;
+        case 72:
+            if (keyBufferSize == 1)
+                return keyBufferSize = 0, ValidKey::Up;
+            else return keyBufferSize = 0, ValidKey::Waiting;
+         case 80:
+            if (keyBufferSize == 1)
+                return keyBufferSize = 0, ValidKey::Down;
+            else return keyBufferSize = 0, ValidKey::Waiting;
+        #endif
         case 97:
             if (!keyBufferSize) return ValidKey::A;
             else {
@@ -428,8 +496,19 @@ void inputHandler_InputDialogBox(int _key) {
         dialogResult = 0, closeDialog();
     } else if (_key == 13) { // Enter
         dialogResult = 1, closeDialog();
+    #ifdef __linux__
     } else if (_key == 127) { // delete
-        if (inputDialogContentLength > 0) inputDialogContent[--inputDialogContentLength] = '\0';
+        if (inputDialogContentLength > 0) 
+            --inputDialogContentLength, inputDialogContent[inputDialogContentLength] = '\0';
+    #elif __APPLE__
+    } else if (_key == 127) { // delete
+        if (inputDialogContentLength > 0) 
+            --inputDialogContentLength, inputDialogContent[inputDialogContentLength] = '\0';
+    #elif _WIN32
+    } else if (_key == 8) { // delete
+        if (inputDialogContentLength > 0) 
+            --inputDialogContentLength, inputDialogContent[inputDialogContentLength] = '\0';
+    #endif
     } else inputDialogContent[inputDialogContentLength++] = _key, inputDialogContent[inputDialogContentLength] = '\0';
 }
 
