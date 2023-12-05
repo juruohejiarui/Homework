@@ -54,17 +54,59 @@ def bestMove(state : np.ndarray):
                 state[i, j] = 0
                 if tmp > mxv:
                     ans, mxv = (i, j), tmp
+                elif tmp == mxv and random.randint(1, 2) == 1:
+                    ans, mxv = (i, j), tmp
                 
 
     return ans
 
+def checkDangerous(board) -> (int, int):
+    for i in range(0, 3):
+        c = [0, 0, 0]
+        c[board[i][0]] += 1
+        c[board[i][1]] += 1
+        c[board[i][2]] += 1
+        if c[0] == 1 and (c[1] == 2 or c[2] == 2):
+            for j in range(0, 3):
+                if board[i][j] == 0: return (i, j)
+    
+    for i in range(0, 3):
+        c = [0, 0, 0]
+        c[board[0][i]] += 1
+        c[board[1][i]] += 1
+        c[board[2][i]] += 1
+        if c[0] == 1 and (c[1] == 2 or c[2] == 2):
+            for j in range(0, 3):
+                if board[j][i] == 0: return (j, i)
+
+    c = [0, 0, 0]
+    for i in range(0, 3):
+        c[board[i][i]] += 1
+    if c[0] == 1 and (c[1] == 2 or c[2] == 2):
+        for i in range(0, 3):
+            if board[i][i] == 0: return (i, i)
+    
+    c = [0, 0, 0]
+    for i in range(0, 3):
+        c[board[i][2 - i]] += 1
+    if c[0] == 1 and (c[1] == 2 or c[2] == 2):
+        for i in range(0, 3):
+            if board[i][2 - i] == 0: return (i, 2 - i)
+
+    return (-1, -1)
 def next_move(board):
-    is_zero = True
+    is_zero, is_full = True, True
     for i in range(0, 3):
         for j in range(0, 3):
             if board[i][j] != 0:
                 is_zero = False
+            else: is_full = False
     if is_zero : return (1, 1)
+    elif is_full: return (0, 0)
+
+    res = checkDangerous(board)
+    if res != (-1, -1): return res
+
     state = np.zeros((3, 3))
     for i in range(0, 3):
         for j in range(0, 3):
@@ -75,4 +117,4 @@ def next_move(board):
     ans = bestMove(state)
     return ans
 
-# print(next_move([[1, 0, 0], [0, 2, 0], [0, 0, 0]]))
+print(next_move([[0, 0, 0], [0, 2, 1], [2, 0, 0]]))
