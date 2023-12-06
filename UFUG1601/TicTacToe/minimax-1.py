@@ -1,5 +1,6 @@
 import numpy as np
 import math
+import random
 
 state : np.ndarray
 def get_init_dep() -> int:
@@ -32,14 +33,11 @@ def get_winner() -> int:
 def eval(dep : int) -> int:
     winner = get_winner()
     if winner == 0: return 0
-    elif winner == 1: return 9 - dep
-    else: return -9 - dep
+    elif winner == 1: return 10 - dep
+    else: return -10 + dep
 
 def is_end() -> bool:
     return get_winner() != 0 or len(get_empty()) == 0
-
-def corv(pos : (int, int)):
-    return min(2 - pos[0], pos[0]) + min(2 - pos[1], pos[1])
 
 def minimax(dep : int, is_player1 : bool, alpha = -math.inf, beta = math.inf) -> (int, (int, int)):
     empty_pos = get_empty()
@@ -47,34 +45,32 @@ def minimax(dep : int, is_player1 : bool, alpha = -math.inf, beta = math.inf) ->
     if is_end(): return (eval(dep), (-1, -1))
     
     if is_player1:
-        mxvl, mncorv = -math.inf, math.inf
+        mxvl = -math.inf
         step = (-1, -1)
         for pos in empty_pos:
             state[pos[0], pos[1]] = 1
             vl = minimax(dep + 1, False, alpha, beta)[0]
             state[pos[0], pos[1]] = 0
-            cv = corv(pos)
-            if vl > mxvl or (mxvl == vl and cv < mncorv):
-                mxvl, mncorv, step = vl, cv, pos
+            if vl > mxvl or (mxvl == vl and random.randint(1, 2) == 1):
+                mxvl, step = vl, pos
             alpha = max(alpha, vl)
             if alpha > beta: break
         return mxvl, step
     else:
-        mnvl, mncorv = math.inf, math.inf
+        mnvl = math.inf
         step = (-1, -1)
         for pos in empty_pos:
             state[pos[0], pos[1]] = 2
             vl = minimax(dep + 1, True, alpha, beta)[0]
             state[pos[0], pos[1]] = 0
-            cv = corv(pos)
-            if vl < mnvl or (mnvl == vl and cv < mncorv):
-                mnvl, mncorv, step = vl, cv, pos
+            if vl < mnvl or (mnvl == vl and random.randint(1, 2) == 1):
+                mnvl, step = vl, pos
             beta = min(beta, vl)
             if alpha > beta: break
         return mnvl, step
 
 def best_move(is_player1):
-    best_move = minimax(get_init_dep(), is_player1)[1]
+    best_move = minimax(get_init_dep(), True)[1]
     return best_move
 
 def dangerous(board) -> (int, int):
@@ -126,8 +122,14 @@ def next_move(board):
             elif board[i][j] == 2:
                 state[i, j] = 2
                 c1 += 1
-    if c1 == 1 and (board[0][0] != 0 or board[0][2] != 0 or board[2][0] != 0 or board[2][2] != 0):
-        return (1, 1)
+    # for i in range(0, 4, 2):
+    #     for j in range(0, 4, 2):
+    #         if state[i, j] != 0 and state[2 - i, 2 - j] == 0:
+    #             return (2 - i, 2 - j)
+    # for i in range(0, 4, 2):
+    #     for j in range(0, 4, 2):
+    #         if state[i, j] == 0:
+    #             return (i, j)
     if c1 % 2 == 1:
         for i in range(0, 3):
             for j in range(0, 3):
@@ -135,7 +137,7 @@ def next_move(board):
     
     if is_end(): return (0, 0)
     # print(state)
-    ans = best_move(c1 % 2 == 0)
+    ans = best_move(True)
     return ans
 
-# print(next_move([[0, 1, 2], [2, 1, 0], [1, 2, 2]]))
+# print(next_move([[0, 0, 0], [0, 1, 0], [0, 0, 0]]))
