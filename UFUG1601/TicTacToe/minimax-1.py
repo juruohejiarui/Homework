@@ -42,7 +42,7 @@ def is_end() -> bool:
 def minimax(dep : int, is_player1 : bool, alpha = -math.inf, beta = math.inf) -> (int, (int, int)):
     empty_pos = get_empty()
     if len(empty_pos) == 9: return (0, (1, 1))
-    if is_end(): return (eval(dep), (-1, -1))
+    if is_end(): return (eval(dep), (0, 0))
     
     if is_player1:
         mxvl = -math.inf
@@ -140,4 +140,4 @@ def next_move(board):
     ans = best_move(True)
     return ans
 
-# print(next_move([[0, 0, 0], [0, 1, 0], [0, 0, 0]]))
+print(next_move([[0, 0, 0], [0, 0, 0], [0, 0, 0]]))
