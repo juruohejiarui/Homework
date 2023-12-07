@@ -56,7 +56,11 @@ GameBoard::GameBoard(QWidget *parent)
     this->setFocusPolicy(Qt::FocusPolicy::StrongFocus);
     this->setFocus();
 
-    configuration.load(getApplicationDir() + "default.config");
+    #ifdef __APPLE__
+    configuration.load("../../../default.config");
+    #else
+    configuration.load("./default.config");
+    #endif
     // set GUI information
     changeTheme(configuration.getThemePath());
     {
@@ -132,9 +136,10 @@ bool GameBoard::tryOperate(GameOperation _o) {
 }
 
 void GameBoard::changeTheme(const std::string &_path) {
-    configuration.setThemePath(_path.substr(_path.find_last_of('/') + 1));
+    configuration.setThemePath(_path);
 
-    std::ifstream ifs(configuration.getThemePath(), std::ios::binary);
+    std::ifstream ifs(configuration.getFilePath() + ".Themes/" + configuration.getThemePath(), std::ios::binary);
+    std::cout << configuration.getFilePath() + ".Themes/" + configuration.getThemePath() << std::endl;
     auto _readint = [&ifs]() -> int {
         int dt; ifs.read((char *)&dt, sizeof(int));
         return dt;

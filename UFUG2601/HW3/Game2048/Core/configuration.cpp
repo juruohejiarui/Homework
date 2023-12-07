@@ -32,11 +32,12 @@ void writeString(std::ofstream &ofs, std::string &_s) {
 void Configuration::load(const std::string &path) {
     std::ifstream ifs(path, std::ios::binary);
     filePath = path;
+    std::cout << "filePath is " << path << std::endl;
     // create this file if it does not exist
     if (!ifs.good()) {
         player = "Default Player";
-        themePath = path + ".Themes/Classic.theme";
-        statePackage = GameStatePackage(path + ".state");
+        themePath = "Classic.theme";
+        statePackage = GameStatePackage(filePath + ".state");
         std::ofstream ofs(path, std::ios::binary);
         ofs.close();
         save();
@@ -90,8 +91,12 @@ void Configuration::setColumn(int _column) {
 int Configuration::getRow() { return statePackage.getRow(); }
 int Configuration::getColumn() { return statePackage.getColumn(); }
 
-void Configuration::setThemePath(const std::string &_path) { themePath = filePath + ".Themes/" + _path; }
+void Configuration::setThemePath(const std::string &_path) { themePath = _path; }
 const std::string &Configuration::getThemePath() { return themePath; }
+
+const std::string &Configuration::getFilePath() {
+    return filePath;
+}
 
 const std::string &Configuration::getPlayer() { return player; }
 void Configuration::setPlayer(const std::string &_player) { player = _player; }

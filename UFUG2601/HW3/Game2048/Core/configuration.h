@@ -42,6 +42,8 @@ public:
     void setThemePath(const std::string &_path);
     const std::string &getThemePath();
 
+    const std::string &getFilePath();
+
 
     const std::string &getPlayer();
     void setPlayer(const std::string &_player);
