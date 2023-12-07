@@ -51,7 +51,7 @@ def minimax(dep : int, is_player1 : bool, alpha = -math.inf, beta = math.inf) ->
             state[pos[0], pos[1]] = 1
             vl = minimax(dep + 1, False, alpha, beta)[0]
             state[pos[0], pos[1]] = 0
-            if vl > mxvl or (mxvl == vl and random.randint(1, 2) == 1):
+            if vl > mxvl:
                 mxvl, step = vl, pos
             alpha = max(alpha, vl)
             if alpha > beta: break
@@ -63,14 +63,14 @@ def minimax(dep : int, is_player1 : bool, alpha = -math.inf, beta = math.inf) ->
             state[pos[0], pos[1]] = 2
             vl = minimax(dep + 1, True, alpha, beta)[0]
             state[pos[0], pos[1]] = 0
-            if vl < mnvl or (mnvl == vl and random.randint(1, 2) == 1):
+            if vl < mnvl:
                 mnvl, step = vl, pos
             beta = min(beta, vl)
             if alpha > beta: break
         return mnvl, step
 
 def best_move(is_player1):
-    best_move = minimax(get_init_dep(), True)[1]
+    best_move = minimax(get_init_dep(), is_player1)[1]
     return best_move
 
 def dangerous(board) -> (int, int):
@@ -113,6 +113,7 @@ def next_move(board):
     if res != (-1, -1): return res
     global state
     state = np.zeros((3, 3))
+    is_player1 = True
     c1 = 0
     for i in range(0, 3):
         for j in range(0, 3):
@@ -131,13 +132,14 @@ def next_move(board):
     #         if state[i, j] == 0:
     #             return (i, j)
     if c1 % 2 == 1:
-        for i in range(0, 3):
-            for j in range(0, 3):
-                if state[i, j] != 0: state[i, j] = 3 - state[i, j]
+        is_player1 = False
+        # for i in range(0, 3):
+        #     for j in range(0, 3):
+        #         if state[i, j] != 0: state[i, j] = 3 - state[i, j]
     
     if is_end(): return (0, 0)
     # print(state)
-    ans = best_move(True)
+    ans = best_move(is_player1)
     return ans
 
-print(next_move([[0, 0, 0], [0, 0, 0], [0, 0, 0]]))
+print(next_move([[0, 0, 0], [0, 0, 0], [1, 0, 0]]))
