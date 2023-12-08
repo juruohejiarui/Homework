@@ -142,4 +142,43 @@ def next_move(board):
     ans = best_move(is_player1)
     return ans
 
-print(next_move([[0, 0, 0], [0, 0, 0], [1, 0, 0]]))
+# print(next_move([[0, 0, 0], [0, 0, 0], [1, 0, 0]]))
+
+board = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+x, y = next_move(board) 
+assert x >= 0 and x <= 2
+assert y >= 0 and y <= 2
+
+board = [[0, 1, 0], [0, 0, 0], [0, 0, 0]]
+x, y = next_move(board) 
+assert x >= 0 and x <= 2
+assert y >= 0 and y <= 2
+
+board = [[0, 1, 2], [1, 2, 0], [1, 0, 2]]
+x, y = next_move(board) 
+assert x >= 0 and x <= 2
+assert y >= 0 and y <= 2
+
+board = [[0, 1, 2], [1, 2, 0], [1, 0, 0]]
+x, y = next_move(board) 
+assert x >= 0 and x <= 2
+assert y >= 0 and y <= 2
+
+board = [[1, 1, 2], [2, 2, 1], [1, 2, 0]]
+x, y = next_move(board) 
+assert x >= 0 and x <= 2
+assert y >= 0 and y <= 2
+
+board = [[1, 1, 2], [2, 2, 1], [1, 0, 0]]
+x, y = next_move(board) 
+assert x >= 0 and x <= 2
+assert y >= 0 and y <= 2
+
+board = [[1, 1, 2], [2, 2, 1], [1, 2, 1]]
+x, y = next_move(board) 
+assert x >= 0 and x <= 2
+assert y >= 0 and y <= 2
+print(next_move(board))
+assert next_move(board) is not None
+assert type(next_move(board)) != bool
+assert isinstance(next_move(board), tuple)

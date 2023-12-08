@@ -11,3 +11,4 @@ UFUG2601/HW3/Game2048/GUI/ui_mainwindow.h
 UFUG2601/HW3/Game2048/GUI/release/object_script.Game2048.Release
 UFUG2601/HW3/Game2048/GUI/release/moc_gameboard.cpp
 UFUG1601/TicTacToe/__pycache__/
+*.stash

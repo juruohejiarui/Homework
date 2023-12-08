@@ -20,7 +20,7 @@ else
 endif
 
 clean:
-	cd ./GUI/ && make clean && rm Makefile
+	cd ./GUI/ && make clean && rm Makefile .qmake.stash
 	cd ./CLI/ && make clean
 ifeq ($(OS),Windows_NT)
 	rm -R ./GUI/Game2048.exe ./Game2048-gui.exe ./Game2048-cli.exe

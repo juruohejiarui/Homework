@@ -1,5 +1,5 @@
 import minimax_old as minimax
-import zjj
+import zjj as rfs
 import copy
 import random
 
@@ -23,22 +23,26 @@ def is_full(board : list[list[int]]) -> bool:
 
 if __name__ == "__main__":
     c = [0, 0, 0]
-    for round in range(0, 100):
+    for round in range(0, 50):
         board = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
         is_player1 = (random.randint(1, 2) == 1)
         if is_player1: print("is player 1   ")
         else: print("is player 2   ")
+        turn = 0
         while result(board) == 0 and (not is_full(board)):
-            if is_player1:
-                p1 : (int, int) = minimax.next_move(copy.deepcopy(board))
-                board[p1[0]][p1[1]] = 1
-                p1 = zjj.next_move(copy.deepcopy(board))
-                board[p1[0]][p1[1]] = 2
+            turn += 1
+            if turn % 2 == 1:
+                if is_player1:
+                    p = minimax.next_move(copy.deepcopy(board))
+                else:
+                    p = rfs.next_move(copy.deepcopy(board))
+                board[p[0]][p[1]] = 1
             else:
-                p1 : (int, int) = zjj.next_move(copy.deepcopy(board))
-                board[p1[0]][p1[1]] = 1
-                p1 = minimax.next_move(copy.deepcopy(board))
-                board[p1[0]][p1[1]] = 2
+                if not is_player1:
+                    p = minimax.next_move(copy.deepcopy(board))
+                else:
+                    p = rfs.next_move(copy.deepcopy(board))
+                board[p[0]][p[1]] = 2
             # print(board)
         res = result(board)
         if (not is_player1) and res != 0:
