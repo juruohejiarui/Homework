@@ -108,19 +108,104 @@ public:
 };
 
 template <typename E>
+class LinkedListElement {
+public:
+    LinkedListElement *prev, *next;
+    E data;
+    LinkedListElement() { prev = next = nullptr; }
+};
+
+template <typename E>
 class LinkedList : public List<E> {
     // TODO
 private:
-    class Element {
-        Element *prev, *next;
-        T content;
-    } *start, *end;
-    
+    LinkedListElement<E> *start, *end;
+    int length;
+public:
     LinkedList() {
-        start = new Element, end = new Element;
+        start = new LinkedListElement<E>, end = new LinkedListElement<E>;
+        start->next = end, end->prev = start;
+        length = 0;
     }
     ~LinkedList() {
-        
+        for (LinkedListElement<E> *ele = start, *nxt = ele; ele != end; ele = nxt) {
+            nxt = ele->next;
+            delete ele;
+        }
+        delete end;
+    }
+    int size() const override { return length; }
+
+    bool isEmpty() const override { return length == 0; }
+
+    bool contains(const E& element) const override {
+        for (LinkedListElement<E> *ele = start->next; ele != end; ele = ele->next)
+            if (ele->data == element) return true;
+        return false;
+    }
+
+    E get(int index) const override {
+        if (index >= length) throw std::out_of_range("the index is out of range");
+        LinkedListElement<E> *ele;
+        for (ele = start->next; index; ele = ele->next, index--) ;
+        return ele->data;
+    }
+
+    void clear() {
+        length = 0;
+        for (LinkedListElement<E> *ele = start->next, *nxt = ele; ele != end; ele = nxt) {
+            nxt = ele->next;
+            delete ele;
+        }
+        start->next = end, end->prev = start;
+    }
+
+    void add(const E& element) override {
+        LinkedListElement<E> *newEle = new LinkedListElement<E>;
+        newEle->prev = end->prev;
+        newEle->next = end;
+        newEle->prev->next = newEle;
+        end->prev = newEle;
+        newEle->data = element;
+        length++;
+    }
+
+    void add(int index, const E& element) override {
+        if (index >= length) throw std::out_of_range("the index is out of range");
+        length++;
+        LinkedListElement<E> *ele = new LinkedListElement<E>, *pos;
+        ele->data = element;
+        for (pos = start->next; index; pos = pos->next, index--) ;
+        ele->next = pos, ele->prev = pos->prev, pos->prev = ele, ele->prev->next = ele;
+    }
+
+    bool remove(const E& element) override {
+        for (LinkedListElement<E> *ele = start->next; ele != end; ele = ele->next) 
+            if (ele->data == element) {
+                ele->prev->next = ele->next, ele->next->prev = ele->prev;
+                delete ele;
+                length--;
+                return true;
+            }
+        return false;
+    }
+
+    E removeIndex(int index) override {
+        if (index >= length) throw std::out_of_range("the index is out of range");
+        LinkedListElement<E> *ele;
+        E res;
+        if (index >= length) for (ele = end->prev, index = length - index - 1; index; ele = ele->prev, index--) ;
+        else for (ele = start->next; index; index--, ele = ele->next) ;
+        length--;
+        res = ele->data, ele->prev->next = ele->next, ele->next->prev = ele->prev;
+        delete ele;
+        return res;
+    }
+
+    int indexOf(const E& element) const override {
+        for (auto ele = start->next, index = 0; ele != end; ele = ele->next, index++)
+            if (ele->data == element) return index;
+        return -1;
     }
 };
 

@@ -5,7 +5,7 @@
 #include <cstdlib>
 
 template<typename T>
-void test_list0(ArrayList<T>& list) {
+void test_list0(LinkedList<T>& list) {
     list.add(5);
     list.add(6);
     list.add(7);
@@ -23,7 +23,7 @@ void test_list0(ArrayList<T>& list) {
     for (int i = 0; i < list.size(); i++) std::cout << list.get(i) << ' ';
     putchar('\n');
     
-    for (int i = 0; i < 1000000; i++) list.add(i * 2);
+    for (int i = 0; i < 10000; i++) list.add(i * 2);
     // for (int i = 0; i < list.size(); i++) std::cout << list.get(i) << ' ';
     // putchar('\n');
     int c = list.size() * 3 / 4 + 4;
@@ -34,11 +34,9 @@ void test_list0(ArrayList<T>& list) {
         int t = list.removeIndex(list.size() - 1);
         // printf("remove index = %d, t = %d\n", x, t);
     }
-    // for (int i = 0; i < list.size(); i++) std::cout << list.get(i) << ' ';
-    // putchar('\n');
-    printf("capacity = %d\n", list.getCapacity());
+    for (int i = 0; i < 1000; i++) std::cout << list.get(i) << ' ';
+    putchar('\n');
     list.clear();
-
 }
 
 
@@ -49,7 +47,7 @@ int main() {
     
 
     // e.g., 
-    ArrayList<int> list;
+    LinkedList<int> list;
     test_list0(list);
 
     // ... 
