@@ -4,7 +4,6 @@
 template<typename E>
 class Collection {
 public:
-    using size_t = unsigned long;
     /**
      * Virtual destructor for the Collection interface.
      * Ensures derived classes are properly destructed.
@@ -16,7 +15,7 @@ public:
      * 
      * @return The number of elements in the collection.
      */
-    virtual size_t size() const = 0;
+    virtual int size() const = 0;
 
     /**
      * Checks if the collection is empty.
