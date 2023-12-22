@@ -39,6 +39,46 @@ void test_list0(LinkedList<T>& list) {
     list.clear();
 }
 
+void test1() {
+	ArrayList<int> ls;
+	std::vector<int> arr;
+	int Q = 10000;
+	srand(time(NULL));
+	while (Q--) {
+		int op = rand() % 10;
+        // printf("op = %d ", op);
+        if (ls.size() != (int)arr.size()) {
+            printf("neq size\n");
+            break;
+        }
+		if (op == 0 || op > 8) {
+			int x = rand() % 1000;
+			ls.add(x), arr.push_back(x);
+		} else if (op == 1) {
+            int p;
+            if (ls.size() == 0) p = 0;
+            else p = rand() % 2 == 0 ? rand() % ls.size() : ls.size();
+			int x = rand() % 1000; 
+			ls.add(p, x), arr.insert(arr.begin() + p, x);
+		} else if (op == 2 || op == 6) {
+			if (arr.size() == 0) continue;
+			ls.removeIndex(ls.size() - 1), arr.pop_back();
+		} else if (op == 3) {
+			if (arr.size() == 0) continue;
+			int p = rand() % ls.size();
+            ls.removeIndex(p), arr.erase(arr.begin() + p);
+        } else if (op == 4) {
+            if (arr.size() == 0) continue;
+            int p = rand() % ls.size();
+            printf("%c", (ls.indexOf(ls.get(p)) == std::find(arr.begin(), arr.end(), ls.get(p)) - arr.begin()) ? 'Y' : 'N');
+        } else if (op == 5 || op == 7 || op == 8) {
+            bool succ = true;
+            for (int i = 0; i < ls.size(); i++)
+                if (ls.get(i) != arr[i]) { succ = false; break; }
+            printf("%c", (succ ? 'Y' : 'N'));
+        }
+    }
+}
 
 int main() {
     // Insert your test code here. 
@@ -49,7 +89,8 @@ int main() {
     // e.g., 
     LinkedList<int> list;
     test_list0(list);
-
+    
+    test1();
     // ... 
 
     

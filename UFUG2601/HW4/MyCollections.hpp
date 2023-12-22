@@ -171,7 +171,7 @@ public:
     }
 
     void add(int index, const E& element) override {
-        if (index >= length) throw std::out_of_range("the index is out of range");
+        if (index > length) throw std::out_of_range("the index is out of range");
         length++;
         LinkedListElement *ele = new LinkedListElement, *pos;
         ele->data = element;
