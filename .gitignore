@@ -14,3 +14,4 @@ UFUG1601/TicTacToe/__pycache__/
 *.stash
 a.out
 .vscode/c_cpp_properties.json
+a.log
