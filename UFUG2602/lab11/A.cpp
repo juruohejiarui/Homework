@@ -14,25 +14,20 @@ int readint() {
 vector<int> G[maxn];
 int deg[maxn], vis[maxn];
 queue<int> q;
-stack<int> stk;
 
 int ans[maxn], ansl;
 
-void dfs() {
-    stk.push(1);
-    while (!stk.empty()) {
-        int u = stk.top(); stk.pop();
-        if (vis[u]) continue;
-        vis[u] = 1, ans[++ansl] = u;
-        for (int i = G[u].size() - 1; i >= 0; i--) {
-            int v = G[u][i];
-            if (!vis[v]) stk.push(v);
-        }
+void dfs(int st) {
+    if (vis[st]) return ;
+    vis[st] = 1;
+    ans[++ansl] = st;
+    for (int v : G[st]) {
+        if (vis[v]) continue;
+        dfs(v);
     }
 }
-void bfs() {
-    memset(vis, 0, sizeof(vis)), ansl = 0;
-    q.push(1), vis[1] = 1;
+void bfs(int i) {
+    q.push(i), vis[i] = 1;
     while (!q.empty()) {
         int u = q.front(); q.pop();
         ans[++ansl] = u;
@@ -52,9 +47,10 @@ int main() {
         G[u].push_back(v);
     }
     for (int i = 1; i <= n; i++) sort(G[i].begin(), G[i].end());
-    dfs();
+    for (int i = 1; i <= n; i++) if (!vis[i]) dfs(i);
     for (int i = 1; i <= ansl; i++) printf("%d%c", ans[i], (i == ansl ? '\n' : ' '));
-    bfs();
+    memset(vis, 0, sizeof(vis)), ansl = 0;
+    for (int i = 1; i <= n; i++) if (!vis[i]) bfs(i);
     for (int i = 1; i <= ansl; i++) printf("%d%c", ans[i], (i == ansl ? '\n' : ' '));
     return 0;
 }
