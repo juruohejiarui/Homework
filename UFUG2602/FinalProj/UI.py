@@ -17,9 +17,13 @@
 
 
 import curses
+import hyperpara
 from data_handling import load_words_from_file, search
 import re
 import sys
+
+APPROX_LEN_THRESHOLD = 5
+ERROR_THRESHOLD = 2
 
 def main(stdscr):
 
@@ -67,46 +71,82 @@ def main(stdscr):
 	keywords = ''
 	pad_position = 0
 
+	hyperpara.set_thresholds(APPROX_LEN_THRESHOLD, ERROR_THRESHOLD)
+
+	varSet : dict = dict([("APPROX_LEN", "APPROX_LEN_THRESHOLD"), ("ERROR", "ERROR_THRESHOLD")])
+
+	cursor = 0
 	while True:
 		# Get input
-		input_win.move(1, len(PROMPT_STR) + len(keywords) + 1)  # Position cursor correctly
+		input_win.move(1, len(PROMPT_STR) + cursor + 1)  # Position cursor correctly
 		key = input_win.getkey()
 
 		# Handle special keys
 		if key in ['\n', '\r']:  # Enter key
-			# Call the search function and display results
-			results = search(keywords, records, root)		   # You are allowed to change returned variables here. Still, you need to change correspondingly the unit test by yourself.
-			result_win.clear()
-			for i, line in enumerate(results.split('\n')):
-				result_win.addstr(i, 1, line)
-			result_win.refresh(pad_position, 0, input_win_height, 1, height - 1, width - 2)
-			pad_position = 0  # Reset scrolling position
-			# Clear previous input
-			# input_win.clear()
-			# input_win.box()
-			# input_win.addstr(1, 1, PROMPT_STR)
-			# keywords = ''
-			# input_win.refresh()
+			if keywords.startswith('$') :
+				parts = keywords.split('=')
+				output = ""
+				varName = parts[0].strip()[1 : ]
+				varName = varName.upper()
+				if (len(keywords) == 1) :
+					v1, v2 = hyperpara.get_thresholds()
+					output = f"APPROX_LEN = {v1}\tERROR = {v2}"
+				else :
+					if varName not in varSet :
+						output = "Error: No such variable"
+					if len(parts) < 2:
+						varVal = eval(varSet[varName])
+						output = f"{varName} = {varVal}"
+					else :
+						varVal = parts[1].strip(); trueVal = None
+						exec(f"global {varSet[varName]}\ntrueVal = {varVal}\n{varSet[varName]} = trueVal")
+						output = f"change {varName} into {eval(varSet[varName])}"
+				result_win.clear()
+				result_win.addstr(0, 1, output)
+				result_win.refresh(pad_position, 0, input_win_height, 1, height - 1, width - 2)
+				pad_position = 0
+				hyperpara.set_thresholds(APPROX_LEN_THRESHOLD, ERROR_THRESHOLD)
+			else :
+				# Call the search function and display results
+				results = search(keywords, records, root)		   # You are allowed to change returned variables here. Still, you need to change correspondingly the unit test by yourself.
+				result_win.clear()
+				lId = 0
+				for i, line in enumerate(results.split('\n')):
+					result_win.addstr(lId, 1, line)
+					lId += len(line) // (width + 3) + (1 if len(line) % (width + 3) != 0 else 0)
+				result_win.refresh(pad_position, 0, input_win_height, 1, height - 1, width - 2)
+				pad_position = 0  # Reset scrolling position
+				# Clear previous input
+				# input_win.clear()
+				# input_win.box()
+				# input_win.addstr(1, 1, PROMPT_STR)
+				# keywords = ''
+				# input_win.refresh()
 		elif ord(key) == 27:  # ESC key
 			break
 		elif key in ['KEY_BACKSPACE', '\b', '\x7f']:
-			keywords = keywords[:-1]
+			if cursor > 0 : 
+				keywords = keywords[0 : cursor - 1] + keywords[cursor : ]
+				cursor -= 1
 			input_win.clear()
 			input_win.box()
 			input_win.addstr(1, 1, PROMPT_STR + keywords)
 			input_win.refresh()
-		elif key == 'KEY_DOWN':
+		elif key == 'KEY_UP' :
 			pad_position += 1
 			result_win.refresh(pad_position, 0, input_win_height, 1, height - 1, width - 2)
-		elif key == 'KEY_UP':
+		elif key == 'KEY_DOWN' :
 			pad_position = max(0, pad_position - 1)
 			result_win.refresh(pad_position, 0, input_win_height, 1, height - 1, width - 2)
 		elif key in ['KEY_LEFT', 'KEY_RIGHT']:  # Handle left and right arrows
-			# Optionally, you can add code to move the cursor position if needed
-			pass
+			if key == 'KEY_LEFT' :
+				cursor = max(0, cursor - 1)
+			else :
+				cursor = min(len(keywords), cursor - 1)
 		else:
 			# Add the character to the input
-			keywords += key
+			keywords = keywords[0 : cursor] + key + keywords[cursor : ]
+			cursor += 1
 			input_win.addstr(1, len(PROMPT_STR) + len(keywords), key)
 			input_win.refresh()
 

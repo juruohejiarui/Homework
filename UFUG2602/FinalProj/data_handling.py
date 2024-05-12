@@ -37,11 +37,10 @@ def load_words_from_file(filePath : str) -> tuple[list[Trie], list[str]] :
 	# process its content by splitting it into words based on non-alphanumeric characters
 	# then insert these words into a Trie data structure along with their positions in the file.
 	records = open(filePath).read().splitlines()
-	trie : list[Trie] = [None] * len(records)
+	trie = Trie()
 	for i, line in enumerate(records) :
-		trie[i] = Trie()
 		for word in split('[^a-zA-z]+', line) :
-			trie[i].insert(word.lower())
+			trie.insert(word.lower(), i)
 	return trie, records
 
 def search(keyword : str, records : list[str], trieRoot : list[Trie]):
@@ -58,10 +57,10 @@ def search(keyword : str, records : list[str], trieRoot : list[Trie]):
 	postfix = infix_to_postfix(tkList)
 	validList = []
 	
-	for lId in range(len(records)) :
-		res = evaluate_postfix(postfix, trieRoot[lId])
-		if res == -1 : continue
-		validList.append((res, lId))
+	res = evaluate_postfix(postfix, trieRoot)
+	for lId, dis in enumerate(res) :
+		if dis != -1 :
+			validList.append((dis, lId))
 	validList.sort()
 	validList = validList[:20]
 	resList = [records[lId] for _, lId in validList]
