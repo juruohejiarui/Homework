@@ -3,21 +3,21 @@
 # It works as the Lib of external hyperparameter which can be valued by hand.
 
 from os import path
-from func_lib import Trie
-from functools import cache
+
 
 # The base dictionary of your project
 BASE_DIR = path.dirname(path.abspath(__file__))
 
 # Threshold values
-APPROX_LEN_THRESHOLD = 5
-ERROR_THRESHOLD = 2
+APPROX_LEN_THRESHOLD = 3
+ERROR_THRESHOLD = 1
 
 def set_thresholds(approx_len : int, error : int | float) -> None:
 	# Set the threshold values
 	global APPROX_LEN_THRESHOLD, ERROR_THRESHOLD
 	APPROX_LEN_THRESHOLD = approx_len
 	ERROR_THRESHOLD = error
+	from func_lib import Trie
 	Trie.findCandidates.cache_clear()
 
 def get_thresholds() -> tuple[int, int | float]:

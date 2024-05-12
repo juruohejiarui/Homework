@@ -30,7 +30,7 @@
 from collections import defaultdict
 from math import ceil
 from functools import cache
-import hyperpara
+from hyperpara import *
 import math
 
 
@@ -84,7 +84,7 @@ class Trie:
 
 	@cache
 	def findCandidates(self, keyword) -> list[int] :
-		APPROX_LEN_THRESHOLD, ERROR_THRESHOLD = hyperpara.get_thresholds()
+		print(APPROX_LEN_THRESHOLD, ERROR_THRESHOLD)
 		# Note first to check if the word is in the cache
 		if len(keyword) < APPROX_LEN_THRESHOLD : return self.find_exact(keyword)
 		else : return self.find_approximate(keyword, ERROR_THRESHOLD if ERROR_THRESHOLD >= 1 else int(ERROR_THRESHOLD * len(keyword)))
@@ -205,6 +205,7 @@ def infix_to_postfix(tokens : list[str]) -> list[str] :
 			stack.append(token)
 	while stack:
 		output.append(stack.pop())
+	if output[-1].isalnum() and len(output) > 1 : output.append('+')
 	return output
 
 # Note 2: The `evaluate_postfix` function processes a postfix expression which simplifies the evaluation of expressions by eliminating the need for parentheses and making operator processing straightforward.
@@ -216,6 +217,7 @@ def evaluate_postfix(tokens : list[str], trieRoot : Trie) -> list[int] :
 	tokens.append([-1 for _ in range(trieRoot.idRange + 1)])
 	tokens.append('|')
 
+	print(tokens)
 	
 	for token in tokens:
 		if token == '+':
