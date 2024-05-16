@@ -26,7 +26,7 @@
 
 from func_lib import Trie, tokenize, infix_to_postfix, evaluate_postfix	 # You choose the modules you want
 from re import split
-from hyperpara import *
+from hyperpara import TEST_DATA_01, TEST_DATA_02
 import unittest
 
 
@@ -38,6 +38,7 @@ def load_words_from_file(filePath : str) -> tuple[Trie, list[str]] :
 	records = open(filePath).read().splitlines()
 	trie = Trie()
 	for i, line in enumerate(records) :
+		# split the line into words and insert them into the trie
 		for word in split('[^a-zA-z]+', line) :
 			trie.insert(word.lower(), i)
 	return trie, records
@@ -52,7 +53,9 @@ def search(keyword : str, records : list[str], trieRoot : Trie) -> str:
 	# returns the top 20 matching records as a formatted string.
 
 	keyword = keyword.lower()
+	# convert the keyword expression into a list of tokens
 	tkList = tokenize(keyword)
+	# then convert the infix expression into a postfix expression
 	postfix = infix_to_postfix(tkList)
 	validList = []
 	
@@ -61,6 +64,7 @@ def search(keyword : str, records : list[str], trieRoot : Trie) -> str:
 		if dis != -1 :
 			validList.append((dis, lId))
 	validList.sort()
+	# get the top 20 matching records
 	validList = validList[:20]
 	resList = [records[lId] for _, lId in validList]
 	

@@ -22,8 +22,6 @@ from data_handling import load_words_from_file, search
 import re
 import sys
 
-APPROX_LEN_THRESHOLD = 5
-ERROR_THRESHOLD = 2
 
 def main(stdscr):
 
@@ -71,7 +69,7 @@ def main(stdscr):
 	keywords = ''
 	pad_position = 0
 
-	hyperpara.set_thresholds(APPROX_LEN_THRESHOLD, ERROR_THRESHOLD)
+	APPROX_LEN_THRESHOLD, ERROR_THRESHOLD = hyperpara.get_thresholds()
 
 	varSet : dict = dict([("APPROX_LEN", "APPROX_LEN_THRESHOLD"), ("ERROR", "ERROR_THRESHOLD")])
 
@@ -83,29 +81,35 @@ def main(stdscr):
 
 		# Handle special keys
 		if key in ['\n', '\r']:  # Enter key
+			# if the input is a operation for the hyperparameters
 			if keywords.startswith('$') :
 				parts = keywords.split('=')
 				output = ""
 				varName = parts[0].strip()[1 : ]
 				varName = varName.upper()
+				# get the values of all the variables
 				if (len(keywords) == 1) :
-					v1, v2 = hyperpara.get_thresholds()
-					output = f"APPROX_LEN = {v1}\tERROR = {v2}"
+					APPROX_LEN_THRESHOLD, ERROR_THRESHOLD = hyperpara.get_thresholds()
+					output = f"APPROX_LEN = {APPROX_LEN_THRESHOLD}\tERROR = {ERROR_THRESHOLD}"
 				else :
 					if varName not in varSet :
 						output = "Error: No such variable"
+					# output the value of the variable
 					if len(parts) < 2:
 						varVal = eval(varSet[varName])
 						output = f"{varName} = {varVal}"
+					# change the value of the variable
 					else :
-						varVal = parts[1].strip(); trueVal = None
-						exec(f"global {varSet[varName]}\ntrueVal = {varVal}\n{varSet[varName]} = trueVal")
+						varVal = parts[1].strip()
+						if varName == "ERROR" : ERROR_THRESHOLD = eval(varVal)
+						elif varName == "APPROX_LEN" : APPROX_LEN_THRESHOLD = eval(varVal)
 						output = f"change {varName} into {eval(varSet[varName])}"
 				result_win.clear()
 				result_win.addstr(0, 1, output)
 				result_win.refresh(pad_position, 0, input_win_height, 1, height - 1, width - 2)
 				pad_position = 0
 				hyperpara.set_thresholds(APPROX_LEN_THRESHOLD, ERROR_THRESHOLD)
+			# if the input is a search expression
 			else :
 				# Call the search function and display results
 				results = search(keywords, records, root)		   # You are allowed to change returned variables here. Still, you need to change correspondingly the unit test by yourself.
@@ -116,12 +120,6 @@ def main(stdscr):
 					lId += len(line) // (width + 3) + (1 if len(line) % (width + 3) != 0 else 0)
 				result_win.refresh(pad_position, 0, input_win_height, 1, height - 1, width - 2)
 				pad_position = 0  # Reset scrolling position
-				# Clear previous input
-				# input_win.clear()
-				# input_win.box()
-				# input_win.addstr(1, 1, PROMPT_STR)
-				# keywords = ''
-				# input_win.refresh()
 		elif ord(key) == 27:  # ESC key
 			break
 		elif key in ['KEY_BACKSPACE', '\b', '\x7f']:
@@ -132,6 +130,7 @@ def main(stdscr):
 			input_win.box()
 			input_win.addstr(1, 1, PROMPT_STR + keywords)
 			input_win.refresh()
+		# there are some bugs on my WSL virtual machine, so I cannot test the following code
 		elif key == 'KEY_UP' :
 			pad_position += 1
 			result_win.refresh(pad_position, 0, input_win_height, 1, height - 1, width - 2)

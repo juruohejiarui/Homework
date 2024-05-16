@@ -30,7 +30,7 @@
 from collections import defaultdict
 from math import ceil
 from functools import cache
-from hyperpara import *
+import hyperpara
 import math
 
 
@@ -71,35 +71,30 @@ class Trie:
 	def insert(self, word : str, index : int) :
 		if word == '': return 
 		self.idRange = max(self.idRange, index)
+		nd : TrieNode = self.root
 		for i in range(len(word)) :
-			# insert all the substring of the word into the trie
-			subWord = word[i : ]
-			nd : TrieNode = self.root
-			for j in range(len(subWord)) :
-				ch = subWord[j]
-				if ch not in nd.children :
-					nd.children[ch] = TrieNode()
-				nd = nd.children[ch]
-				nd.idSet.add(index)
+			ch = word[i]
+			if ch not in nd.children :
+				nd.children[ch] = TrieNode()
+			nd = nd.children[ch]
+			# add the index to the set of the node, which represents that this word is in the line of the index
+			nd.idSet.add(index)
 
+	# set up caches for the same keyword and threshold
 	@cache
 	def findCandidates(self, keyword) -> list[int] :
-		print(APPROX_LEN_THRESHOLD, ERROR_THRESHOLD)
+		# get the threshold values
+		APPROX_LEN_THRESHOLD, ERROR_THRESHOLD = hyperpara.get_thresholds()
 		# Note first to check if the word is in the cache
 		if len(keyword) < APPROX_LEN_THRESHOLD : return self.find_exact(keyword)
-		else : return self.find_approximate(keyword, ERROR_THRESHOLD if ERROR_THRESHOLD >= 1 else int(ERROR_THRESHOLD * len(keyword)))
+		else :
+			return self.find_approximate(keyword, int(ERROR_THRESHOLD))
+			# return self.find_approximate(keyword, ERROR_THRESHOLD if ERROR_THRESHOLD >= 1 else int(ERROR_THRESHOLD * len(keyword)))
 
 		# return results
 
 	def find_exact(self, word) -> list[int] :
-		nd : TrieNode = self.root
-		for ch in word :
-			if ch not in nd.children :
-				return [-1 for i in range(self.idRange + 1)]
-			nd = nd.children[ch]
-		ansList = [-1 for i in range(self.idRange + 1)]
-		for id in nd.idSet : ansList[id] = 0
-		return ansList
+		return self.find_approximate(word, 0)
 	
 	def find_approximate(self, word : str, dist : int) -> list[int] :
 		self.root.dp = [i for i in range(len(word) + 1)]
@@ -109,15 +104,19 @@ class Trie:
 		
 	def _search(self, node : TrieNode, word, pos, dist, ansList) :
 		# Use dynamic programming (based on edit distance) to find words in the trie that are within the specified error threshold from the given word		
-		# if min(node.dp) > dist : return min(node.dp)
 		for (ch, child) in node.children.items() :
+			# case 1: use the value of the previous node ...
 			child.dp = [0 for i in range(len(word) + 1)]
 			child.dp[0] = pos + 1
 			for i in range(1, len(word) + 1) :
 				child.dp[i] = min(child.dp[i - 1] + 1, node.dp[i] + 1, node.dp[i - 1] + (1 if word[i - 1] != ch else 0))
+			# case 2: treat this node as the initial node ...
+			child.dp = [min(child.dp[i], i) for i in range(len(word) + 1)]
+			# update the answer list if valid
 			for id in child.idSet :
 				if child.dp[len(word)] <= dist : ansList[id] = min(ansList[id] if ansList[id] != -1 else math.inf, child.dp[len(word)])
 			self._search(child, word, pos + 1, dist, ansList)
+			# recover the dp list
 			child.dp = []
 
 
@@ -136,7 +135,7 @@ def op_AND(a, b, trieRoot : Trie) -> list :
 	else :
 		a = trieRoot.findCandidates(a)
 		b = trieRoot.findCandidates(b)
-	# merge answer using +
+	# merge answer using plus, which is compatible with regular situations
 	return [(a[i] + b[i] if a[i] != -1 and b[i] != -1 else -1) for i in range(len(a))]
 
 def op_OR(a, b, trieRoot : Trie) -> list :
@@ -146,8 +145,7 @@ def op_OR(a, b, trieRoot : Trie) -> list :
 	else :
 		a = trieRoot.findCandidates(a)
 		b = trieRoot.findCandidates(b)
-	# merge answer using min
-	
+	# merge answer using min, I think use the minimum distance is more reasonable
 	return [(min(a[i] if a[i] != -1 else math.inf, b[i] if b[i] != -1 else math.inf) if a[i] != -1 or b[i] != -1 else -1) for i in range(len(a))]
 
 # Given codes to help to parse and evaluate the expressions (not need to implement, but please read it carefully)
@@ -175,11 +173,14 @@ def tokenize(expression : str) -> list[str] :
 				i += 1
 			token = expression[start:i]
 
-			# If last token is also an operand, insert an implicit '+'
-			if tokens and tokens[-1].isalnum():
+			# If last token is also an operand, or a block of expression wrapper by (), insert an implicit '+'
+			if tokens and (tokens[-1].isalnum() or tokens[-1] == ')') :
 				tokens.append('+')
 			tokens.append(token)
 		else:  # Operator or parenthesis
+			# some bugs on the given template, so I add this line to fix it
+			if tokens and (tokens[-1].isalnum() or tokens[-1] == ')') and expression[i] == '(' :
+				tokens.append('+')
 			tokens.append(expression[i])
 			i += 1
 		
@@ -191,7 +192,7 @@ def infix_to_postfix(tokens : list[str]) -> list[str] :
 	output : list[str] = []
 
 	for token in tokens:
-		if token.isalnum():  # Operand
+		if token.isalnum() :  # Operand
 			output.append(token)
 		elif token == '(':
 			stack.append(token)
@@ -206,7 +207,7 @@ def infix_to_postfix(tokens : list[str]) -> list[str] :
 	while stack:
 		output.append(stack.pop())
 	if output[-1].isalnum() and len(output) > 1 : output.append('+')
-	return output
+	return output 
 
 # Note 2: The `evaluate_postfix` function processes a postfix expression which simplifies the evaluation of expressions by eliminating the need for parentheses and making operator processing straightforward.
 
