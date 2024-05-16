@@ -217,9 +217,7 @@ def evaluate_postfix(tokens : list[str], trieRoot : Trie) -> list[int] :
 	
 	tokens.append([-1 for _ in range(trieRoot.idRange + 1)])
 	tokens.append('|')
-
-	print(tokens)
-	
+		
 	for token in tokens:
 		if token == '+':
 			b = stack.pop()
