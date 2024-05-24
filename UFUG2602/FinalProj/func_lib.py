@@ -88,7 +88,8 @@ class Trie:
 		# Note first to check if the word is in the cache
 		if len(keyword) < APPROX_LEN_THRESHOLD : return self.find_exact(keyword)
 		else :
-			return self.find_approximate(keyword, int(ERROR_THRESHOLD))
+			trueError = ERROR_THRESHOLD if ERROR_THRESHOLD >= 1 else int(ERROR_THRESHOLD * len(keyword))
+			return self.find_approximate(keyword, trueError)
 			# return self.find_approximate(keyword, ERROR_THRESHOLD if ERROR_THRESHOLD >= 1 else int(ERROR_THRESHOLD * len(keyword)))
 
 		# return results
