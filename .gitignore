@@ -1,3 +1,8 @@
+/AIAA2205/hw1/data/
+/AIAA2205/hw1/models/
+/AIAA2205/hw1/mfcc-*.csv
+/AIAA2205/hw1/runs
+__pycache__
 
 UFUG2601/HW3/Game2048/GUI/debug/object_script.Game2048.Debug
 UFUG2601/HW3/Game2048/GUI/Makefile.Debug
