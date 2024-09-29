@@ -26,8 +26,8 @@ parser.add_argument("feat_dim", type=int)
 parser.add_argument("list_videos")
 parser.add_argument("output_file")
 parser.add_argument("--feat_appendix", default=".csv")
-parser.add_argument("--lr", default=0.005)
-parser.add_argument("--epochs", default=300)
+parser.add_argument("--lr", default=0.02)
+parser.add_argument("--epochs", default=400)
 parser.add_argument("prefix", type=str)
 
 class FocalLoss(nn.Module):
@@ -77,6 +77,7 @@ if __name__ == '__main__':
 	# pass array for svm training
 	# one-versus-rest multiclass strategy
 	model = NNModel(args.feat_dim)
+	model.to('cuda')
 	totalBatch = len(dataLoader)
 	NUM_BATCH_WARM_UP = totalBatch * 5
 	criterion = FocalLoss()
@@ -87,18 +88,19 @@ if __name__ == '__main__':
 		model.train()
 		validBatchId = random.sample(range(0, len(dataLoader)), len(dataLoader) // 10)
 		for batch_idx, (data, target) in enumerate(dataLoader):
+			x, y = data.cuda(), target.cuda()
 			optimizer.zero_grad()
 			if batch_idx in validBatchId :
 				continue
-			outputs = model(data)
-			loss = criterion(outputs, target)
+			outputs = model(x)
+			loss = criterion(outputs, y)
 			loss.backward()
 			optimizer.step()
 			scheduler.step()
 		model.eval()
 		accCnt = 0
 		for i in range(X.shape[0]) :
-			modelY = model(torch.tensor(X[i])).clone().detach().requires_grad_(True)
+			modelY = model(torch.tensor(X[i]).cuda()).cpu()
 			if torch.argmax(modelY) == Y[i] : accCnt += 1
 		tqdmDesc.set_postfix(acc='{:.6f}'.format(accCnt / X.shape[0]))
 		tqdmDesc.update(1)
@@ -107,7 +109,7 @@ if __name__ == '__main__':
 	
 	accCnt = 0
 	for i in range(X.shape[0]) :
-		modelY = model(torch.tensor(X[i])).clone().detach()
+		modelY = model(torch.tensor(X[i]).cuda()).cpu()
 		if torch.argmax(modelY) == Y[i] : accCnt += 1
 	print(f"train set accuracy: {accCnt / Y.shape[0]}")
 	

@@ -18,8 +18,10 @@ from tqdm import tqdm
 
 parser = argparse.ArgumentParser()
 parser.add_argument("model_file")
-parser.add_argument("feat_dir")
-parser.add_argument("feat_dim", type=int)
+parser.add_argument("feat1_dir")
+parser.add_argument("feat1_dim", type=int)
+parser.add_argument("feat2_dir")
+parser.add_argument("feat2_dim", type=int)
 parser.add_argument("list_videos")
 parser.add_argument("output_file")
 parser.add_argument("--feat_appendix", default=".csv")
@@ -33,26 +35,31 @@ if __name__ == '__main__':
 
 	# 2. Create array containing features of each sample
 	fread = open(args.list_videos, "r")
-	feat_list = []
+	feat1_list, feat2_list = [], []
 	video_ids = []
 	for line in fread.readlines():
 		# HW00006228
 		video_id = os.path.splitext(line.strip())[0]
 		video_ids.append(video_id)
-		feat_filepath = os.path.join(args.feat_dir, video_id + args.feat_appendix)
-		if not os.path.exists(feat_filepath):
-			feat_list.append(np.zeros(args.feat_dim))
+		feat1_filepath = os.path.join(args.feat1_dir, video_id + args.feat_appendix)
+		feat2_filepath = os.path.join(args.feat2_dir, video_id + args.feat_appendix)
+		if not os.path.exists(feat1_filepath):
+			feat1_list.append(np.zeros(args.feat1_dim))
+			feat2_list.append(np.zeros(args.feat2_dim))
 		else:
-			feat_list.append(np.genfromtxt(feat_filepath, delimiter=";", dtype='float'))
+			feat1_list.append(np.genfromtxt(feat1_filepath, delimiter=";", dtype='float'))
+			feat2_list.append(np.genfromtxt(feat2_filepath, delimiter=";", dtype='float'))
 
-	X = np.array(feat_list, dtype=np.float32)
-	print(X.shape)
+
+	X1 = np.array(feat1_list, dtype=np.float32)
+	X2 = np.array(feat2_list, dtype=np.float32)
+	print(X1.shape)
 	# 3. Get scores with trained svm model
 	# (num_samples, num_class)
 	model.eval()
-	scoress = torch.zeros((X.shape[0], 10))
-	for i in range(X.shape[0]) :
-		scoress[i, : ] = model(torch.tensor(X[i]).cuda())
+	scoress = torch.zeros((X1.shape[0], 10))
+	for i in range(X1.shape[0]) :
+		scoress[i, : ] = model(torch.tensor(X1[i]).cuda(), torch.tensor(X2[i]).cuda(), False)
 
 	# 4. save the argmax decisions for submission
 	with open(args.output_file, "w") as f:

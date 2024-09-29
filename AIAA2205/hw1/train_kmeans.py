@@ -28,7 +28,7 @@ if __name__ == '__main__':
 		selection.append(pd.read_csv(path, sep=';', dtype='float'))
 	X = np.concatenate(selection)
 	# TA: perform kmeans clustering here. get a model file variable kmeans
-	kmeans = KMeans(n_clusters=cluster_num, n_init=8, random_state=42, verbose=1)
+	kmeans = KMeans(n_clusters=cluster_num, n_init=8)
 	kmeans = kmeans.fit(X)
 	
 	# 2. Save trained model
