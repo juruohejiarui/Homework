@@ -4,10 +4,14 @@ import argparse
 import numpy as np
 import os
 from sklearn.neural_network import MLPClassifier
-from sklearn.preprocessing import StandardScaler
 import pickle
 import sys
 import numpy as np
+
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.model_selection import RandomizedSearchCV
+from sklearn.neural_network import MLPClassifier
+from sklearn.preprocessing import StandardScaler
 
 # Apply the MLP model to the testing videos;
 # Output prediction class for each video
@@ -22,11 +26,10 @@ parser.add_argument("output_file")
 parser.add_argument("--feat_appendix", default=".csv")
 
 if __name__ == '__main__':
-
   args = parser.parse_args()
 
   # 1. load mlp model
-  mlp : MLPClassifier = pickle.load(open(args.model_file, "rb"))
+  mlps : list[MLPClassifier] = pickle.load(open(args.model_file, "rb"))
   scaler : StandardScaler = pickle.load(open('models/scaler', 'rb'))
 
   # 2. Create array containing features of each sample
@@ -43,15 +46,18 @@ if __name__ == '__main__':
     else:
       feat_list.append(np.genfromtxt(feat_filepath, delimiter=";", dtype="float"))
 
-  X = np.array(feat_list)
-  X = scaler.transform(X)
+  X = scaler.transform(np.array(feat_list))
 
   # 3. Get predictions
   # (num_samples) with integer
-  pred_classes = mlp.predict(X)
+  pred = np.zeros((X.shape[0], 10))
+  for mlp in mlps :
+    preds = mlp.predict_proba(X)
+    pred += preds
+  pred = np.argmax(pred, axis=1)
 
   # 4. save for submission
   with open(args.output_file, "w") as f:
     f.writelines("Id,Category\n")
-    for i, pred_class in enumerate(pred_classes):
-      f.writelines("%s,%d\n" % (video_ids[i], min(9, max(0, np.around(pred_class)))))
+    for i, pred_class in enumerate(pred):
+      f.writelines("%s,%d\n" % (video_ids[i], pred_class))

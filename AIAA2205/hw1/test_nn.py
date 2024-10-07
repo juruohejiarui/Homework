@@ -10,6 +10,8 @@ import numpy as np
 import nnUniversal as nn
 import torch
 
+from sklearn.preprocessing import StandardScaler
+
 from tqdm import tqdm
 
 # Apply the SVM model to the testing videos;
@@ -30,6 +32,7 @@ if __name__ == '__main__':
 
 	# 1. load svm model
 	model : nn.NNModel = pickle.load(open(args.model_file, "rb"))
+	scaler : StandardScaler = pickle.load(open('models/scaler', "rb"))
 
 	# 2. Create array containing features of each sample
 	fread = open(args.list_videos, "r")
@@ -46,6 +49,7 @@ if __name__ == '__main__':
 			feat_list.append(np.genfromtxt(feat_filepath, delimiter=";", dtype='float'))
 
 	X = np.array(feat_list, dtype=np.float32)
+	X = scaler.transform(X)
 	print(X.shape)
 	# 3. Get scores with trained svm model
 	# (num_samples, num_class)
@@ -57,6 +61,6 @@ if __name__ == '__main__':
 	# 4. save the argmax decisions for submission
 	with open(args.output_file, "w") as f:
 		f.writelines("Id,Category\n")
-		for i, scores in enumerate(scoress):
-			predicted_class = torch.argmax(scores)
+		for i in range(X.shape[0]) :
+			predicted_class = torch.argmax(scoress[i])
 			f.writelines("%s,%d\n" % (video_ids[i], predicted_class))

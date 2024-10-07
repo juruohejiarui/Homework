@@ -33,20 +33,8 @@ parser.add_argument("--feat_appendix", default=".csv")
 parser.add_argument("--lr", default=0.001, type=float)
 parser.add_argument("--epochs", default=400, type=int)
 parser.add_argument("prefix", type=str)
-parser.add_argument("--batch_size", type=int, default=30)
-
-def testModels(models: NNModel, batchLoader : torch.utils.data.DataLoader) -> tuple[float, torch.Tensor] :
-	accCnt, tot = 0, 0
-	freq = np.zeros(10)
-	for (data, target) in batchLoader :
-		y : torch.Tensor = model(data.cuda())
-		outputs = y.cpu().argmax(dim=1)
-		corY = target.argmax(1)
-		for i in range(target.shape[0]) :
-			if outputs[i].item() == corY[i].item() : accCnt += 1
-			freq[outputs[i].item()] += 1
-			tot += 1
-	return (accCnt / tot, freq / tot)
+parser.add_argument("--batch_size", type=int, default=40)
+parser.add_argument("--models_num", default=5, type=int)
 
 class FocalLoss(nn.Module):
 	def __init__(self, gamma=2, weight=None):
@@ -60,8 +48,56 @@ class FocalLoss(nn.Module):
 		focal_loss = (1 - pt) ** self.gamma * ce_loss  # 根据Focal Loss公式计算Focal Loss
 		return focal_loss
 
+def testModel(model: NNModel, batchLoader : torch.utils.data.DataLoader) -> float :
+	accNum, testNum = 0, 0
+	for (data, target) in batchLoader :
+		size = data.shape[0]
+		y : torch.Tensor = model(data.cuda()).cpu()
+		y = y.argmax(1)
+		target = target.argmax(1)
+		for i in range(size) :
+			if y[i] == target[i] : accNum += 1
+			testNum += 1
+	return accNum / testNum
+
+def trainModel(idx : int, model : NNModel, trainBatchLoader : torch.utils.data.DataLoader, validateBatchLoader : torch.utils.data.DataLoader) :
+	totalBatch = len(trainBatchLoader)
+	criterion = FocalLoss()
+	optimizer = torch.optim.SGD(models[i].parameters(), lr=lr)
+	scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, epochs * totalBatch)
+	tqdmDesc = tqdm(total=epochs)
+	for epoch in range(epochs) :
+		model.train()
+		for (data, target) in trainBatchLoader :
+			x, y = data.cuda(), target.cuda()
+			optimizer.zero_grad()
+			outputs = model(x)
+			loss = criterion(outputs, y)
+			loss.backward()
+			optimizer.step()
+			scheduler.step()
+			
+		model.eval()
+		acc = testModel(model, validateBatchLoader)
+
+		tqdmDesc.set_postfix(acc='{:.6f}'.format(acc))
+		tqdmDesc.update(1)
+		logger.add_scalar(tag=f"accuracy/validate/model{idx}", scalar_value=acc, global_step=epoch + 1)
+
+		acc = testModel(model, trainBatchLoader)
+		
+		logger.add_scalar(tag=f"accuracy/train/model{idx}", scalar_value=acc, global_step=epoch + 1)
+
+		logger.flush()
+
 if __name__ == '__main__':
 	args = parser.parse_args()
+
+	lr = args.lr
+	epochs = args.epochs
+	batch_size = args.batch_size
+	models_num = args.models_num
+
 	logger = SummaryWriter(comment=args.prefix, filename_suffix=".tfevent", flush_secs=1)
 
 	# 1. read all features in one array.
@@ -90,6 +126,7 @@ if __name__ == '__main__':
 	Y = torch.tensor(np.array(label_list, dtype=np.float32))
 	X = torch.tensor(scaler.fit_transform(np.array(feat_list, dtype=np.float32)))
 
+	alpha = 1
 
 	p = [i for i in range(len(label_list))]
 	random.shuffle(p)
@@ -105,62 +142,39 @@ if __name__ == '__main__':
 		X1_valid[i], Y_valid[i] = X[p[i + trainSize]], Y[p[i + trainSize]]
 	print(X.shape, Y.shape)
 
-	trainDataLoader = SelfDataLoader(X1_train, Y_train)
-	trainBatchLoader = torch.utils.data.DataLoader(trainDataLoader, batch_size=args.batch_size, shuffle=True, drop_last=False, num_workers=2)
 	validateDataLoader = SelfDataLoader(X1_valid, Y_valid)
-	validateBatchLoader = torch.utils.data.DataLoader(validateDataLoader, batch_size=args.batch_size, shuffle=True, drop_last=False, num_workers=2)
-	lr = args.lr
-	epochs = args.epochs
+	validateBatchLoader = torch.utils.data.DataLoader(validateDataLoader, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=2)
 
 	# pass array for svm training
 	# one-versus-rest multiclass strategy
-	model = NNModel(args.feat_dim)
-	model.to('cuda')
+	models = [NNModel(args.feat_dim).cuda() for i in range(models_num)]
+	sample_weights = torch.ones(len(X1_train)) / len(X1_train)
+	for i in range(models_num) :
+		if i > 0:
+			indices = np.random.choice(len(X1_train), size=len(X1_train), p=np.array(sample_weights))
+			subX, subY = X1_train[indices], Y_train[indices]
+			trainDataLoader = SelfDataLoader(subX, subY)
+		else :
+			trainDataLoader = SelfDataLoader(X1_train, Y_train)
+		trainBatchLoader = torch.utils.data.DataLoader(trainDataLoader, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=2)
+	
+		trainModel(i, models[i], trainBatchLoader=trainBatchLoader, validateBatchLoader=validateBatchLoader)
 
-	totalBatch = len(trainBatchLoader)
-	criterion = FocalLoss()
-	optimizer = torch.optim.SGD(model.parameters(), lr=lr)
-	scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer,  epochs * totalBatch)
-	tqdmDesc = tqdm(total=epochs)
-
-	for epoch in range(epochs) :
-		model.train()
-		for batch_idx, (data, target) in enumerate(trainBatchLoader) :
-			x, y = data.cuda(), target.cuda()
-			optimizer.zero_grad()
-			outputs = model(x)
-			loss = criterion(outputs, y)
-			loss.backward()
-			optimizer.step()
-			scheduler.step()
-			
-		model.eval()
-		(acc, freq) = testModels(model, validateBatchLoader)
-
-		tqdmDesc.set_postfix(acc='{:.6f}'.format(acc))
-		tqdmDesc.update(1)
-		logger.add_scalar(tag="accuracy/validate", scalar_value=acc, global_step=epoch + 1)
-
-		for i in range(10) :
-			logger.add_scalar(tag=f"freq/validate/{i}", scalar_value=freq[i], global_step=epoch + 1)
+		Ypred = models[i](X1_train.cuda()).argmax(1).cpu()
+		error = torch.mul((Ypred != Y_train), sample_weights).sum() / len(X1_train)
 		
-		(acc, freq) = testModels(model, trainBatchLoader)
+		if error > 0 and error < 1 :
+			model_weight = alpha * torch.log((1 - error) / error)
+		else :
+			model_weight = 1
 		
-		logger.add_scalar(tag="accuracy/train", scalar_value=acc, global_step=epoch + 1)
-		for i in range(10) :
-			logger.add_scalar(tag=f"freq/train/{i}", scalar_value=freq[i], global_step=epoch + 1)
+		print(f"train model{i}: error:{error}")
 
-		logger.flush()
-	
-	accCnt = 0
-	for i in range(X.shape[0]) :
-		modelY = model(torch.tensor(X[i]).cuda()).cpu()
-		if torch.argmax(modelY) == Y[i] : accCnt += 1
-	print(f"train set accuracy: {accCnt / Y.shape[0]}")
-	
-	
+		sample_weights *= torch.exp(model_weight * (Ypred != Y_train))
+		sample_weights /= sample_weights.sum()
+
 	# save trained SVM in output_file
-	pickle.dump(model, open(args.output_file, 'wb'))
+	pickle.dump(models, open(args.output_file, 'wb'))
 	pickle.dump(scaler, open("models/scaler", "wb"))
 	print('NN trained successfully')
 
