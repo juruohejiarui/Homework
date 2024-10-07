@@ -31,7 +31,7 @@ parser.add_argument("list_videos")
 parser.add_argument("output_file")
 parser.add_argument("--feat_appendix", default=".csv")
 parser.add_argument("--lr", default=0.001, type=float)
-parser.add_argument("--epochs", default=400, type=int)
+parser.add_argument("--epochs", default=300, type=int)
 parser.add_argument("prefix", type=str)
 parser.add_argument("--batch_size", type=int, default=30)
 
@@ -89,7 +89,6 @@ if __name__ == '__main__':
 
 	Y = torch.tensor(np.array(label_list, dtype=np.float32))
 	X = torch.tensor(scaler.fit_transform(np.array(feat_list, dtype=np.float32)))
-
 
 	p = [i for i in range(len(label_list))]
 	random.shuffle(p)
