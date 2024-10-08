@@ -69,11 +69,11 @@ class FocalLoss(nn.Module):
 # 训练模型
 def train_rnn_model(X, Y, logger : SummaryWriter, input_size, hidden_size, num_layers, num_classes, num_epochs=20, batch_size=32, learning_rate=0.001):
 	# 数据预处理
-	X_padded, lengths = pad_sequences(X)
 	p = [i for i in range(len(X))]
 	random.shuffle(p)
-	X = [X[p[i]] for i in range(len(X))]
-	Y = [Y[p[i]] for i in range(len(X))]
+	newX, newY = [X[p[i]] for i in range(len(X))], [Y[p[i]] for i in range(len(X))]
+	X, Y = newX, newY
+	X_padded, lengths = pad_sequences(X)
 	validSize = len(X) // 10
 	trainSize = len(X) - validSize
 	trainset = MFCCDataset(X_padded[0 : trainSize], X[0 : trainSize], Y[0 : trainSize])
@@ -84,7 +84,7 @@ def train_rnn_model(X, Y, logger : SummaryWriter, input_size, hidden_size, num_l
 	# 初始化模型、损失函数和优化器
 	model = RNNModel(input_size, hidden_size, num_layers, num_classes).cuda()
 	criterion = FocalLoss()
-	optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
+	optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 	scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer,  num_epochs * len(trainLoader))
 
 	for epoch in tqdm(range(num_epochs)):
