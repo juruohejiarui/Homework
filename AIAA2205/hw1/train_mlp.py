@@ -54,25 +54,26 @@ if __name__ == "__main__" :
 	mlps = [(f"mlp-{i}", MLPClassifier(
 		hidden_layer_sizes=(2048, 100, 50),
 		learning_rate_init=1e-3,
+		
 		max_iter=300, early_stopping=True, tol=1e-4)) for i in range(models_num)]
-	mlp = MLPClassifier(max_iter=500, hidden_layer_sizes=(25600, 4096, 512, 512), learning_rate_init=1e-4, learning_rate='invscaling',solver='sgd',batch_size=30)
+	mlp = MLPClassifier(max_iter=500)
 
-	# param_dist = {
-	# 	'hidden_layer_sizes': [],
-	# 	'activation': ['relu', 'tanh', 'logistic','identity'],
-	# 	'solver': ['adam', 'sgd', 
-	# 		#  'lbfgs'
-	# 		],
-	# 	'alpha': sci.uniform(1e-5, 1e-2),
-	# 	'learning_rate': ['constant', 'invscaling', 'adaptive'],
-	# 	'learning_rate_init': sci.uniform(1e-4, 1e-2), 
-	# 	'max_iter': [500, 1000],
-	# }
-	# random_search = RandomizedSearchCV(mlp, param_distributions=param_dist, n_iter=100, n_jobs=-1)
-	# random_search.fit(X, Y)
+	param_dist = {
+		'hidden_layer_sizes': [(100, 50), (200, 50), (300, 50), (100, 50, 25), (200, 50, 25), (300, 50, 25), (400, 50, 25), (800,50,25)],
+		'activation': ['relu', 'tanh', 'logistic','identity', 'leaky_relu'],
+		'solver': ['adam', 'sgd', 
+			#  'lbfgs'
+			],
+		'alpha': sci.uniform(1e-5, 1e-2),
+		'learning_rate': ['constant', 'invscaling', 'adaptive'],
+		'learning_rate_init': [1e-4,1e-3,1e-2,2e-3,2e-3,3e-3,5e-4,3e-4], 
+		'max_iter': [500, 1000],
+	}
+	random_search = RandomizedSearchCV(mlp, param_distributions=param_dist, n_iter=100, n_jobs=-1)
+	random_search.fit(X, Y)
+	mlp = random_search.best_estimator_
 	
-	mlp.fit(X, Y)
-
 	pickle.dump(mlp, open(args.output_file, 'wb'))
 	pickle.dump(scaler, open('models/scaler', 'wb'))
 	print('Bmlp classifier trained successfully')
+	print(f'best choice: {random_search.best_params_}')
