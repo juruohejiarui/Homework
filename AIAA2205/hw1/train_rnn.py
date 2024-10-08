@@ -14,7 +14,7 @@ import torch.utils.data.dataloader
 import random
 from tqdm import tqdm
 from tensorboardX import SummaryWriter
-from sklearn.preprocessing import StandardScaler
+import sklearn.preprocessing as preprocessing
 
 # Train SVM
 
@@ -66,9 +66,9 @@ if __name__ == '__main__':
 		if os.path.exists(seq_filepath):
 			feat_list.append(np.genfromtxt(seq_filepath, delimiter=";", dtype="float"))
 			label_list.append(int(df_videos_label[video_id]))
+			
 
 	print("number of samples: %s" % len(feat_list))
-	scaler = StandardScaler()
 
 	Y = torch.tensor(np.array(label_list, dtype=np.float32)).long()
 	model = rnn.train_rnn_model(feat_list, Y, logger, mfcc_dim, hidden_size, num_layers, 10, epochs, batch_size, lr)
@@ -77,5 +77,5 @@ if __name__ == '__main__':
 	# save trained SVM in output_file
 	pickle.dump(model, open(args.output_file, 'wb'))
 	pickle.dump(scaler, open("models/scaler", "wb"))
-	print('NN trained successfully')
+	print('NN trained successfully') 
 

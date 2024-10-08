@@ -84,7 +84,7 @@ def train_rnn_model(X, Y, logger : SummaryWriter, input_size, hidden_size, num_l
 	# 初始化模型、损失函数和优化器
 	model = RNNModel(input_size, hidden_size, num_layers, num_classes).cuda()
 	criterion = FocalLoss()
-	optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+	optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
 	scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer,  num_epochs * len(trainLoader))
 
 	for epoch in tqdm(range(num_epochs)):
@@ -104,7 +104,8 @@ def train_rnn_model(X, Y, logger : SummaryWriter, input_size, hidden_size, num_l
 			# if (i+1) % 10 == 0:
 			#	 print(f'Epoch [{epoch+1}/{num_epochs}], Step [{i+1}/{len(dataloader)}], Loss: {loss.item():.4f}')
 		logger.add_scalar("loss/rnn", lossSum.item(), epoch + 1)
-		logger.add_scalar("accuracy/rnn", test_rnn_model(model, validLoader), epoch + 1)
+		logger.add_scalar("accuracy/validate", test_rnn_model(model, validLoader), epoch + 1)
+		logger.add_scalar("accuracy/train", test_rnn_model(model, trainLoader), epoch + 1)
 
 	print("Training finished.")
 	return model
