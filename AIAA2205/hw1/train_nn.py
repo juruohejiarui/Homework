@@ -92,7 +92,7 @@ if __name__ == '__main__':
 
 	p = [i for i in range(len(label_list))]
 	random.shuffle(p)
-	validateSize = X.shape[0] // 10
+	validateSize = X.shape[0] // 20
 	trainSize = X.shape[0] - validateSize
 	X1_train, Y_train = torch.zeros((trainSize, args.feat_dim)), torch.zeros(trainSize)
 	X1_valid, Y_valid = torch.zeros((validateSize, args.feat_dim)), torch.zeros(validateSize)

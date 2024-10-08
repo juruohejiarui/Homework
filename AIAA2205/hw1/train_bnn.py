@@ -31,7 +31,7 @@ parser.add_argument("list_videos")
 parser.add_argument("output_file")
 parser.add_argument("--feat_appendix", default=".csv")
 parser.add_argument("--lr", default=0.001, type=float)
-parser.add_argument("--epochs", default=400, type=int)
+parser.add_argument("--epochs", default=150, type=int)
 parser.add_argument("prefix", type=str)
 parser.add_argument("--batch_size", type=int, default=40)
 parser.add_argument("--models_num", default=5, type=int)
@@ -145,33 +145,15 @@ if __name__ == '__main__':
 	validateDataLoader = SelfDataLoader(X1_valid, Y_valid)
 	validateBatchLoader = torch.utils.data.DataLoader(validateDataLoader, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=2)
 
+	trainDataLoader = SelfDataLoader(X1_train, Y_train)
+	trainBatchLoader = torch.utils.data.DataLoader(trainDataLoader, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=2)
+
 	# pass array for svm training
 	# one-versus-rest multiclass strategy
 	models = [NNModel(args.feat_dim).cuda() for i in range(models_num)]
 	sample_weights = torch.ones(len(X1_train)) / len(X1_train)
-	for i in range(models_num) :
-		if i > 0:
-			indices = np.random.choice(len(X1_train), size=len(X1_train), p=np.array(sample_weights))
-			subX, subY = X1_train[indices], Y_train[indices]
-			trainDataLoader = SelfDataLoader(subX, subY)
-		else :
-			trainDataLoader = SelfDataLoader(X1_train, Y_train)
-		trainBatchLoader = torch.utils.data.DataLoader(trainDataLoader, batch_size=batch_size, shuffle=True, drop_last=False, num_workers=2)
-	
+	for i in range(models_num) :	
 		trainModel(i, models[i], trainBatchLoader=trainBatchLoader, validateBatchLoader=validateBatchLoader)
-
-		Ypred = models[i](X1_train.cuda()).argmax(1).cpu()
-		error = torch.mul((Ypred != Y_train), sample_weights).sum() / len(X1_train)
-		
-		if error > 0 and error < 1 :
-			model_weight = alpha * torch.log((1 - error) / error)
-		else :
-			model_weight = 1
-		
-		print(f"train model{i}: error:{error}")
-
-		sample_weights *= torch.exp(model_weight * (Ypred != Y_train))
-		sample_weights /= sample_weights.sum()
 
 	# save trained SVM in output_file
 	pickle.dump(models, open(args.output_file, 'wb'))

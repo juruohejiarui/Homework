@@ -1,0 +1,1 @@
+Best params: {'learning_rate': np.float64(0.06618690193747616), 'max_depth': 6, 'min_samples_leaf': 9, 'min_samples_split': 6, 'n_estimators': 64, 'subsample': np.float64(0.6652669390630025)}

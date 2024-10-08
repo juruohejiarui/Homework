@@ -8,7 +8,7 @@ import pickle
 import sys
 import numpy as np
 
-from sklearn.ensemble import AdaBoostClassifier
+from sklearn.ensemble import AdaBoostClassifier, VotingClassifier
 from sklearn.model_selection import RandomizedSearchCV
 from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import StandardScaler
@@ -29,7 +29,7 @@ if __name__ == '__main__':
   args = parser.parse_args()
 
   # 1. load mlp model
-  mlps : list[MLPClassifier] = pickle.load(open(args.model_file, "rb"))
+  voteClassifier : AdaBoostClassifier = pickle.load(open(args.model_file, "rb"))
   scaler : StandardScaler = pickle.load(open('models/scaler', 'rb'))
 
   # 2. Create array containing features of each sample
@@ -50,11 +50,7 @@ if __name__ == '__main__':
 
   # 3. Get predictions
   # (num_samples) with integer
-  pred = np.zeros((X.shape[0], 10))
-  for mlp in mlps :
-    preds = mlp.predict_proba(X)
-    pred += preds
-  pred = np.argmax(pred, axis=1)
+  pred = voteClassifier.predict(X)
 
   # 4. save for submission
   with open(args.output_file, "w") as f:
