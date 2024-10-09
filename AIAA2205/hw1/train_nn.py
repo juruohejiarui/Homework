@@ -46,7 +46,7 @@ def testModels(models: NNModel, batchLoader : torch.utils.data.DataLoader) -> tu
 			if outputs[i].item() == corY[i].item() : accCnt += 1
 			freq[outputs[i].item()] += 1
 			tot += 1
-	return (accCnt / tot, freq / tot)
+	return (accCnt * 100 / tot, freq / tot)
 
 class FocalLoss(nn.Module):
 	def __init__(self, gamma=2, weight=None):
@@ -92,7 +92,7 @@ if __name__ == '__main__':
 
 	p = [i for i in range(len(label_list))]
 	random.shuffle(p)
-	validateSize = X.shape[0] // 20
+	validateSize = X.shape[0] // 10
 	trainSize = X.shape[0] - validateSize
 	X1_train, Y_train = torch.zeros((trainSize, args.feat_dim)), torch.zeros(trainSize)
 	X1_valid, Y_valid = torch.zeros((validateSize, args.feat_dim)), torch.zeros(validateSize)

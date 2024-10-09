@@ -8,11 +8,13 @@ import numpy as np
 from tensorboardX import SummaryWriter
 from tqdm import tqdm
 import random
+import sklearn.preprocessing as preprocess
 
 class MFCCDataset(torch.utils.data.Dataset):
-	def __init__(self, X, orgX, Y):
+	def __init__(self, X, orgX, Xfreq, Y):
 		self.X = X
 		self.Xlen = [len(orgX[i]) for i in range(len(X))]
+		self.Xfreq = Xfreq
 		self.Y = Y
 
 	def __len__(self):
@@ -21,7 +23,7 @@ class MFCCDataset(torch.utils.data.Dataset):
 	def __getitem__(self, idx):
 		labelMap = torch.zeros(10)
 		labelMap[self.Y[idx]] = 1
-		return (torch.tensor(self.X[idx], dtype=torch.float32), (torch.tensor(self.Xlen[idx]))), labelMap
+		return (torch.tensor(self.X[idx], dtype=torch.float32), torch.tensor(self.Xlen[idx])), labelMap
 	
 # 对数据进行填充，使得每个序列长度一致
 def pad_sequences(sequences, maxlen=None):
@@ -41,9 +43,11 @@ class RNNModel(nn.Module):
 		
 		self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True)
 		self.fc = nn.Linear(hidden_size, num_classes)
-		
-		for param in self.parameters() :
-			torch.nn.init.normal_(param, 0, 0.1)
+
+		for m in self.modules():
+			if isinstance(m, torch.nn.Linear) :
+				torch.nn.init.orthogonal_(m.weight)
+
 
 	def forward(self, x, lengths):
 		# 打包序列以处理不同长度
@@ -51,6 +55,7 @@ class RNNModel(nn.Module):
 		packed_output, (hn, cn) = self.lstm(packed_input)
 		# 仅使用最后一个时间步的隐藏状态
 		out = self.fc(hn[-1])
+		
 		return out
 
 class FocalLoss(nn.Module):
@@ -67,24 +72,24 @@ class FocalLoss(nn.Module):
 
 
 # 训练模型
-def train_rnn_model(X, Y, logger : SummaryWriter, input_size, hidden_size, num_layers, num_classes, num_epochs=20, batch_size=32, learning_rate=0.001):
+def train_rnn_model(X, Xfreq, Y, logger : SummaryWriter, input_size, hidden_size, num_layers, num_classes, num_epochs=20, batch_size=32, learning_rate=0.001):
 	# 数据预处理
 	p = [i for i in range(len(X))]
 	random.shuffle(p)
-	newX, newY = [X[p[i]] for i in range(len(X))], [Y[p[i]] for i in range(len(X))]
-	X, Y = newX, newY
+	newX, newXfreq, newY = [X[p[i]] for i in range(len(X))], [Xfreq[p[i]] for i in range(len(X))], [Y[p[i]] for i in range(len(X))]
+	X, Xfreq, Y = newX, newXfreq, newY
 	X_padded, lengths = pad_sequences(X)
 	validSize = len(X) // 10
 	trainSize = len(X) - validSize
-	trainset = MFCCDataset(X_padded[0 : trainSize], X[0 : trainSize], Y[0 : trainSize])
+	trainset = MFCCDataset(X_padded[0 : trainSize], X[0 : trainSize], Xfreq[0 : trainSize], Y[0 : trainSize])
 	trainLoader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True)
-	validset = MFCCDataset(X_padded[trainSize : ], X[trainSize : ], Y[trainSize : ])
+	validset = MFCCDataset(X_padded[trainSize : ], X[trainSize : ], Xfreq[trainSize : ], Y[trainSize : ])
 	validLoader = torch.utils.data.DataLoader(validset, batch_size=batch_size, shuffle=True, drop_last=False)
 	
 	# 初始化模型、损失函数和优化器
 	model = RNNModel(input_size, hidden_size, num_layers, num_classes).cuda()
 	criterion = FocalLoss()
-	optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
+	optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.7)
 	scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer,  num_epochs * len(trainLoader))
 
 	for epoch in tqdm(range(num_epochs)):
@@ -103,6 +108,7 @@ def train_rnn_model(X, Y, logger : SummaryWriter, input_size, hidden_size, num_l
 
 			# if (i+1) % 10 == 0:
 			#	 print(f'Epoch [{epoch+1}/{num_epochs}], Step [{i+1}/{len(dataloader)}], Loss: {loss.item():.4f}')
+		if (epoch + 1) % 100 == 0 : torch.save(model, f"backups/model-epoch{epoch + 1}")
 		logger.add_scalar("loss/rnn", lossSum.item(), epoch + 1)
 		logger.add_scalar("accuracy/validate", test_rnn_model(model, validLoader), epoch + 1)
 		logger.add_scalar("accuracy/train", test_rnn_model(model, trainLoader), epoch + 1)

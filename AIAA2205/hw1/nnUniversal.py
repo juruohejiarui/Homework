@@ -68,14 +68,17 @@ class NNModel(nn.Module) :
 		super(NNModel, self).__init__()
 		self.fc1 = nn.Linear(input_dim, 25600)
 		self.drop1 = nn.Dropout(p=0.2)
-		self.fc2 = nn.Linear(25600, 4096)
+		self.fc2 = nn.Linear(25600, 8192)
 		self.drop2 = nn.Dropout(p=0.1)
-		self.fc3 = nn.Linear(4096, 512)
+		self.fc3 = nn.Linear(8192, 512)
 		self.fc4 = nn.Linear(512, 512)
 		self.fc5 = nn.Linear(512, 10)
+
+		for m in self.modules():
+			if isinstance(m, torch.nn.Conv2d):
+				torch.nn.kaiming_normal_(m.weight, mode = 'fan_in')
 	def forward(self, X) :
 		X = F.leaky_relu(self.fc1(X))
-		# X = self.drop1(X)
 		X = F.leaky_relu(self.fc2(X))
 		# X = self.drop2(X)
 		X = F.leaky_relu(self.fc3(X))

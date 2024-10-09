@@ -26,9 +26,12 @@ import rnn
 parser = argparse.ArgumentParser()
 parser.add_argument("mfcc_dir")
 parser.add_argument("mfcc_dim", type=int)
+parser.add_argument("freq_dir")
+parser.add_argument("freq_dim", type=int)
 parser.add_argument("list_videos")
 parser.add_argument("output_file")
-parser.add_argument("--feat_appendix", default=".mfcc.csv")
+parser.add_argument("--mfcc_appendix", default=".mfcc.csv")
+parser.add_argument("--freq_appendix", default=".csv")
 parser.add_argument("--lr", default=0.001, type=float)
 parser.add_argument("--epochs", default=300, type=int)
 parser.add_argument("--hidden_size", default=512, type=int)
@@ -46,11 +49,13 @@ if __name__ == '__main__':
 	num_layers = args.num_layers
 	batch_size = args.batch_size
 
+	scaler : preprocessing.StandardScaler = pickle.load(open('models/scaler', 'rb'))
+
 	logger = SummaryWriter(comment=args.log_prefix, filename_suffix=".tfevent", flush_secs=1)
 
 	# 1. read all features in one array.
 	fread = open(args.list_videos, "r")
-	feat_list = []
+	seqList, freqList = [], []
 	# labels are [0-9]
 	label_list = []
 	# load video names and events in dict
@@ -61,17 +66,19 @@ if __name__ == '__main__':
 
 	for line in fread.readlines()[1:]:
 		video_id = line.strip().split(",")[0]
-		seq_filepath = os.path.join(args.mfcc_dir, video_id + args.feat_appendix)
+		seq_filepath = os.path.join(args.mfcc_dir, video_id + args.mfcc_appendix)
+		freq_filepath = os.path.join(args.freq_dir, video_id + args.freq_appendix)
 		# for videos with no audio, ignore
 		if os.path.exists(seq_filepath):
-			feat_list.append(np.genfromtxt(seq_filepath, delimiter=";", dtype="float"))
+			seqList.append(np.genfromtxt(seq_filepath, delimiter=";", dtype="float"))
+			freqList.append(np.genfromtxt(freq_filepath, delimiter=';', dtype='float'))
 			label_list.append(int(df_videos_label[video_id]))
 			
 
-	print("number of samples: %s" % len(feat_list))
+	print("number of samples: %s" % len(seqList))
 
 	Y = torch.tensor(np.array(label_list, dtype=np.float32)).long()
-	model = rnn.train_rnn_model(feat_list, Y, logger, mfcc_dim, hidden_size, num_layers, 10, epochs, batch_size, lr)
+	model = rnn.train_rnn_model(seqList, scaler.transform(np.array(freqList)), Y, logger, mfcc_dim, hidden_size, num_layers, 10, epochs, batch_size, lr)
 			
 	
 	# save trained SVM in output_file
