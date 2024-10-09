@@ -75,7 +75,9 @@ class FocalLoss(nn.Module):
 
 
 # 训练模型
-def train_rnn_model(X, Xfreq, Y, logger : SummaryWriter, input_size, hidden_size, num_layers, num_classes, num_epochs=20, batch_size=32, learning_rate=0.001, gra_accumulate=20):
+def train_rnn_model(X, Xfreq, Y, logger : SummaryWriter, input_size, hidden_size, num_layers, num_classes, num_epochs, batch_size, learning_rate, gradient_accumulations,
+					lr_decay_interval,
+					lr_decay_rate):
 	# 数据预处理
 	p = [i for i in range(len(X))]
 	random.shuffle(p)
@@ -88,6 +90,10 @@ def train_rnn_model(X, Xfreq, Y, logger : SummaryWriter, input_size, hidden_size
 	trainLoader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True)
 	validset = MFCCDataset(X_padded[trainSize : ], X[trainSize : ], Xfreq[trainSize : ], Y[trainSize : ])
 	validLoader = torch.utils.data.DataLoader(validset, batch_size=batch_size, shuffle=True, drop_last=False)
+
+	def update_lr(optimizer : torch.optim.AdamW, lr) :
+		for param_group in optimizer.param_groups :
+			param_group['lr'] = lr
 	
 	# 初始化模型、损失函数和优化器
 	model = RNNModel(input_size, hidden_size, num_layers, num_classes).cuda()
@@ -95,6 +101,7 @@ def train_rnn_model(X, Xfreq, Y, logger : SummaryWriter, input_size, hidden_size
 	optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
 	optimizer.zero_grad()
 	# scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer,  num_epochs * len(trainLoader))
+	curLr = learning_rate
 
 	for epoch in tqdm(range(num_epochs)):
 		lossSum = 0
@@ -107,17 +114,20 @@ def train_rnn_model(X, Xfreq, Y, logger : SummaryWriter, input_size, hidden_size
 			# 反向传播和优化
 			loss.backward()
 			
-			if (i + 1) % gra_accumulate == 0 :
+			if (i + 1) % gradient_accumulations == 0 :
 				optimizer.step()
 				optimizer.zero_grad()
-			# scheduler.step()
 
 			# if (i+1) % 10 == 0:
 			#	 print(f'Epoch [{epoch+1}/{num_epochs}], Step [{i+1}/{len(dataloader)}], Loss: {loss.item():.4f}')
+		if (epoch + 1) % lr_decay_interval == 0 :
+			curLr *= lr_decay_rate
+			update_lr(optimizer, curLr)
+			logger.add_scalar("loss/rnn", lossSum.item(), epoch + 1)
+			logger.add_scalar("accuracy/validate", test_rnn_model(model, validLoader), epoch + 1)
+			logger.add_scalar("accuracy/train", test_rnn_model(model, trainLoader), epoch + 1)
 		if (epoch + 1) % 100 == 0 : torch.save(model, f"backups/model-epoch{epoch + 1}")
-		logger.add_scalar("loss/rnn", lossSum.item(), epoch + 1)
-		logger.add_scalar("accuracy/validate", test_rnn_model(model, validLoader), epoch + 1)
-		logger.add_scalar("accuracy/train", test_rnn_model(model, trainLoader), epoch + 1)
+		
 
 	print("Training finished.")
 	return model

@@ -37,6 +37,9 @@ parser.add_argument("--epochs", default=300, type=int)
 parser.add_argument("--hidden_size", default=240, type=int)
 parser.add_argument("--num_layers", default=3, type=int)
 parser.add_argument("--batch_size", default=30, type=int)
+parser.add_argument("--gradient_accumulations", default=16, type=int)
+parser.add_argument("--lr_decay_interval", default=5, type=int)
+parser.add_argument("--lr_decay_rate", default=0.8, type=int)
 parser.add_argument("log_prefix")
 
 
@@ -48,6 +51,9 @@ if __name__ == '__main__':
 	hidden_size = args.hidden_size
 	num_layers = args.num_layers
 	batch_size = args.batch_size
+	gradient_accumulations = args.gradient_accumulations
+	lr_decay_interval = args.lr_decay_interval
+	lr_decay_rate = args.lr_decay_rate
 
 	scaler : preprocessing.StandardScaler = pickle.load(open('models/scaler', 'rb'))
 
@@ -78,7 +84,19 @@ if __name__ == '__main__':
 	print("number of samples: %s" % len(seqList))
 
 	Y = torch.tensor(np.array(label_list, dtype=np.float32)).long()
-	model = rnn.train_rnn_model(seqList, scaler.transform(np.array(freqList)), Y, logger, mfcc_dim, hidden_size, num_layers, 10, epochs, batch_size, lr)
+	model = rnn.train_rnn_model(
+		seqList, scaler.transform(np.array(freqList)), Y, 
+		logger, 
+		input_size=mfcc_dim, 
+		hidden_size=hidden_size, 
+		num_layers=num_layers, 
+		num_classes=10, 
+		num_epochs=epochs, 
+		batch_size=batch_size,
+		learning_rate=lr,
+		gradient_accumulations=gradient_accumulations,
+		lr_decay_interval=lr_decay_interval,
+		lr_decay_rate=lr_decay_rate)
 			
 	
 	# save trained SVM in output_file
