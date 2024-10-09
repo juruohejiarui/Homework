@@ -7,7 +7,7 @@ from sklearn.svm import SVC
 import pickle
 import sys
 import numpy as np
-import nnUniversal as nn
+import rnn
 import torch
 
 from sklearn.preprocessing import StandardScaler
@@ -31,7 +31,7 @@ if __name__ == '__main__':
 	args = parser.parse_args()
 
 	# 1. load svm model
-	model : nn.NNModel = pickle.load(open(args.model_file, "rb"))
+	model : rnn.CNNModel = pickle.load(open(args.model_file, "rb"))
 	scaler : StandardScaler = pickle.load(open('models/scaler', "rb"))
 
 	# 2. Create array containing features of ach sample
@@ -59,7 +59,7 @@ if __name__ == '__main__':
 	for i in range(len(feat_list)) :
 		x = torch.tensor(feat_list[i])
 		x = x.reshape((1, x.shape[0], x.shape[1]))
-		scoress[i, : ] = model(x.cuda(), xlen[i].reshape((1, 1)))
+		scoress[i, : ] = model(x.float().cuda())
 
 	# 4. save the argmax decisions for submission
 	with open(args.output_file, "w") as f:

@@ -9,6 +9,7 @@ from tensorboardX import SummaryWriter
 from tqdm import tqdm
 import random
 import sklearn.preprocessing as preprocess
+from torchvision.models import ResNet
 
 class MFCCDataset(torch.utils.data.Dataset):
 	def __init__(self, X, orgX, Xfreq, Y):
@@ -60,6 +61,46 @@ class RNNModel(nn.Module):
 		out = self.fc(out[:, -1, :])
 		
 		return out
+	
+class CNNModel(nn.Module) :
+	def __init__(self, num_classes):
+		super().__init__()
+		conv_layers = []
+		self.conv1 = nn.Conv2d(1, 8, kernel_size=(5, 5), stride=(2, 2), padding=(2, 2))
+		self.relu1 = nn.ReLU()
+		self.bn1 = nn.BatchNorm2d(8)
+		conv_layers += [self.conv1, self.relu1, self.bn1]
+
+		self.conv2 = nn.Conv2d(8, 16, kernel_size=(4, 4), stride=(3, 3), padding=(2, 2))
+		self.relu2 = nn.ReLU()
+		self.bn2 = nn.BatchNorm2d(16)
+		conv_layers += [self.conv2, self.relu2, self.bn2]
+
+		self.conv3 = nn.Conv2d(16, 32, kernel_size=(4, 4), stride=(3, 3), padding=(2, 2))
+		self.relu3 = nn.ReLU()
+		self.bn3 = nn.BatchNorm2d(32)
+		conv_layers += [self.conv3, self.relu3, self.bn3]
+
+		self.conv4 = nn.Conv2d(32, 64, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1))
+		self.relu4 = nn.ReLU()
+		self.bn4 = nn.BatchNorm2d(64)
+		conv_layers += [self.conv4, self.relu4, self.bn4]
+
+		self.ap = nn.AdaptiveAvgPool2d(output_size=1)
+		self.classification = nn.Linear(in_features=64, out_features=num_classes)
+
+		self.conv = nn.Sequential(*conv_layers)
+	def forward(self, x):
+		x = x[: , torch.newaxis, : , :]
+		x = self.conv(x)
+
+		# flatten
+		x = self.ap(x)
+		x = x.view(x.shape[0], -1)
+
+		x = self.classification(x)
+
+		return x
 
 class FocalLoss(nn.Module):
 	def __init__(self, gamma=2, weight=None):
@@ -96,36 +137,37 @@ def train_rnn_model(X, Xfreq, Y, logger : SummaryWriter, input_size, hidden_size
 			param_group['lr'] = lr
 	
 	# 初始化模型、损失函数和优化器
-	model = RNNModel(input_size, hidden_size, num_layers, num_classes).cuda()
-	criterion = nn.CrossEntropyLoss()
-	optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
-	optimizer.zero_grad()
-	# scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer,  num_epochs * len(trainLoader))
+	model = CNNModel(num_classes=num_classes).cuda()
+	criterion = FocalLoss()
+	optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.78)
+	scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer,  num_epochs * len(trainLoader))
 	curLr = learning_rate
 
 	for epoch in tqdm(range(num_epochs)):
 		lossSum = 0
 		model.train()
 		for i, ((inputs, inputLengths), labels) in enumerate(trainLoader):
+			optimizer.zero_grad()
 			# 前向传播
-			outputs = model(inputs.cuda(), inputLengths)
+			outputs = model(inputs.cuda())
 			loss = criterion(outputs, labels.cuda())
 			lossSum += loss
 			# 反向传播和优化
 			loss.backward()
 			
-			if (i + 1) % gradient_accumulations == 0 :
-				optimizer.step()
-				optimizer.zero_grad()
+			# if (i + 1) % gradient_accumulations == 0 :
+			optimizer.step()
+			scheduler.step()
 
 			# if (i+1) % 10 == 0:
 			#	 print(f'Epoch [{epoch+1}/{num_epochs}], Step [{i+1}/{len(dataloader)}], Loss: {loss.item():.4f}')
-		if (epoch + 1) % lr_decay_interval == 0 :
-			curLr *= lr_decay_rate
-			update_lr(optimizer, curLr)
-			logger.add_scalar("loss/rnn", lossSum.item(), epoch + 1)
-			logger.add_scalar("accuracy/validate", test_rnn_model(model, validLoader), epoch + 1)
-			logger.add_scalar("accuracy/train", test_rnn_model(model, trainLoader), epoch + 1)
+		# if (epoch + 1) % lr_decay_interval == 0 :
+		# curLr *= lr_decay_rate
+		# update_lr(optimizer, curLr)
+
+		logger.add_scalar("loss/rnn", lossSum.item(), epoch + 1)
+		logger.add_scalar("accuracy/validate", test_rnn_model(model, validLoader), epoch + 1)
+		logger.add_scalar("accuracy/train", test_rnn_model(model, trainLoader), epoch + 1)
 		if (epoch + 1) % 100 == 0 : torch.save(model, f"backups/model-epoch{epoch + 1}")
 		
 
@@ -140,7 +182,7 @@ def test_rnn_model(model, validLoader):
 
 	with torch.no_grad():  # 测试阶段不需要计算梯度
 		for (inputs, inputLengths), labels in validLoader:
-			outputs = model(inputs.cuda(), inputLengths)
+			outputs = model(inputs.cuda())
 			predicted = torch.argmax(outputs, dim=1)  # 获取预测结果
 			total += labels.shape[0]
 			correct += (predicted.cpu() == labels.argmax(dim=1)).sum().item()

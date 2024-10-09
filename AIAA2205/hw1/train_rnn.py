@@ -39,7 +39,7 @@ parser.add_argument("--num_layers", default=6, type=int)
 parser.add_argument("--batch_size", default=30, type=int)
 parser.add_argument("--gradient_accumulations", default=16, type=int)
 parser.add_argument("--lr_decay_interval", default=5, type=int)
-parser.add_argument("--lr_decay_rate", default=0.8, type=int)
+parser.add_argument("--lr_decay_rate", default=0.99, type=int)
 parser.add_argument("log_prefix")
 
 
