@@ -71,12 +71,12 @@ class CNNModel(nn.Module) :
 		self.bn1 = nn.BatchNorm2d(8)
 		conv_layers += [self.conv1, self.relu1, self.bn1]
 
-		self.conv2 = nn.Conv2d(8, 16, kernel_size=(4, 4), stride=(3, 3), padding=(2, 2))
+		self.conv2 = nn.Conv2d(8, 16, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1))
 		self.relu2 = nn.ReLU()
 		self.bn2 = nn.BatchNorm2d(16)
 		conv_layers += [self.conv2, self.relu2, self.bn2]
 
-		self.conv3 = nn.Conv2d(16, 32, kernel_size=(4, 4), stride=(3, 3), padding=(2, 2))
+		self.conv3 = nn.Conv2d(16, 32, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1))
 		self.relu3 = nn.ReLU()
 		self.bn3 = nn.BatchNorm2d(32)
 		conv_layers += [self.conv3, self.relu3, self.bn3]
