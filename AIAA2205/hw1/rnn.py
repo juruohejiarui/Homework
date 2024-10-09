@@ -41,6 +41,7 @@ class RNNModel(nn.Module):
 		self.hidden_size = hidden_size
 		self.num_layers = num_layers
 		
+		
 		self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True)
 		self.fc = nn.Linear(hidden_size, num_classes)
 
@@ -51,10 +52,12 @@ class RNNModel(nn.Module):
 
 	def forward(self, x, lengths):
 		# 打包序列以处理不同长度
-		packed_input = nn.utils.rnn.pack_padded_sequence(x, lengths, batch_first=True, enforce_sorted=False).cuda()
-		packed_output, (hn, cn) = self.lstm(packed_input)
+		h0, c0 = torch.zeros((self.num_layers, x.shape[0], self.hidden_size)).cuda(), torch.zeros((self.num_layers, x.shape[0], self.hidden_size)).cuda()
+		 
+		out, _ = self.lstm(x, (h0, c0))
+		# print(out.shape)
 		# 仅使用最后一个时间步的隐藏状态
-		out = self.fc(hn[-1])
+		out = self.fc(out[:, -1, :])
 		
 		return out
 
@@ -72,7 +75,7 @@ class FocalLoss(nn.Module):
 
 
 # 训练模型
-def train_rnn_model(X, Xfreq, Y, logger : SummaryWriter, input_size, hidden_size, num_layers, num_classes, num_epochs=20, batch_size=32, learning_rate=0.001):
+def train_rnn_model(X, Xfreq, Y, logger : SummaryWriter, input_size, hidden_size, num_layers, num_classes, num_epochs=20, batch_size=32, learning_rate=0.001, gra_accumulate=20):
 	# 数据预处理
 	p = [i for i in range(len(X))]
 	random.shuffle(p)
@@ -88,23 +91,26 @@ def train_rnn_model(X, Xfreq, Y, logger : SummaryWriter, input_size, hidden_size
 	
 	# 初始化模型、损失函数和优化器
 	model = RNNModel(input_size, hidden_size, num_layers, num_classes).cuda()
-	criterion = FocalLoss()
-	optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.7)
-	scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer,  num_epochs * len(trainLoader))
+	criterion = nn.CrossEntropyLoss()
+	optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
+	optimizer.zero_grad()
+	# scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer,  num_epochs * len(trainLoader))
 
 	for epoch in tqdm(range(num_epochs)):
 		lossSum = 0
 		model.train()
 		for i, ((inputs, inputLengths), labels) in enumerate(trainLoader):
-			optimizer.zero_grad()
 			# 前向传播
 			outputs = model(inputs.cuda(), inputLengths)
 			loss = criterion(outputs, labels.cuda())
 			lossSum += loss
 			# 反向传播和优化
 			loss.backward()
-			optimizer.step()
-			scheduler.step()
+			
+			if (i + 1) % gra_accumulate == 0 :
+				optimizer.step()
+				optimizer.zero_grad()
+			# scheduler.step()
 
 			# if (i+1) % 10 == 0:
 			#	 print(f'Epoch [{epoch+1}/{num_epochs}], Step [{i+1}/{len(dataloader)}], Loss: {loss.item():.4f}')
