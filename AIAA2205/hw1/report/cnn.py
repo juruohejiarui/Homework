@@ -108,7 +108,9 @@ def train_cnn_model(X, Y, logger : SummaryWriter, num_classes, num_epochs, batch
 	model = CNNModel(num_classes=num_classes).cuda()
 
 	criterion = FocalLoss()
+	# SGDM
 	optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=momentum)
+	# learning rate scheduler, multiple the base learing rate with a consine function 
 	scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer,  num_epochs * len(trainLoader))
 	curLr = learning_rate
 

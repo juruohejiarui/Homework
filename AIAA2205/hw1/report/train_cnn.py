@@ -29,6 +29,7 @@ parser.add_argument("mfcc_dim", type=int)
 parser.add_argument("list_videos")
 parser.add_argument("output_file")
 parser.add_argument("--mfcc_appendix", default=".mfcc.csv")
+# copy from previous NN model, actually, the size of parameters of this model is smaller than that of NN
 parser.add_argument("--lr", default=0.001, type=float)
 parser.add_argument("--epochs", default=300, type=int)
 parser.add_argument("--batch_size", default=30, type=int)
