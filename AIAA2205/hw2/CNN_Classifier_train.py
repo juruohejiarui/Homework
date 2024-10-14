@@ -13,6 +13,17 @@ from models import Net
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
+class FocalLoss(nn.Module):
+	def __init__(self, gamma=2, weight=None):
+		super(FocalLoss, self).__init__()
+		self.gamma = gamma
+		self.weight = weight
+
+	def forward(self, inputs, targets):
+		ce_loss = nn.CrossEntropyLoss(weight=self.weight)(inputs, targets)  # 使用交叉熵损失函数计算基础损失
+		pt = torch.exp(-ce_loss)  # 计算预测的概率
+		focal_loss = (1 - pt) ** self.gamma * ce_loss  # 根据Focal Loss公式计算Focal Loss
+		return focal_loss
     
 class MyDataset(Dataset):
     def __init__(self, root, csv_file, transform=None):
@@ -53,15 +64,16 @@ val_loader = DataLoader(val_data, batch_size=32, shuffle=False)
 net = Net().to(device)
 
 optimizer = torch.optim.SGD(net.parameters(), lr=0.001, momentum=0.9, weight_decay=0.01)
-criterion = nn.CrossEntropyLoss()
+criterion = FocalLoss()
 
 
 for epoch in range(50):
     # Metrics here ...
-
     
     for i, (inputs, labels) in enumerate(train_loader, 0):
         # Training code ...
+        optimizer.zero_grad()
+        
 
     with torch.no_grad():
         for val_inputs, val_labels in val_loader:

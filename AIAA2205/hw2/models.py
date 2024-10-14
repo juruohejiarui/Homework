@@ -25,3 +25,47 @@ class Net(nn.Module):
         x = self.fc2(x)
         return x
 
+class CNNModel(nn.Module) :
+    def __init__(self, 
+                 convDesc : list[tuple[int, int, int]], 
+                 convOutputSize : int,
+                 numClass : int) :
+        super(CNNModel, self).__init__()
+        self.convDesc = convDesc
+        self.convOutputSize = convOutputSize
+        self.numClass = numClass
+
+        seq = []
+        lstChannel = 1
+        for partDesc in convDesc :
+            convLyr = nn.Conv2d(lstChannel, partDesc[0], kernel_size=partDesc[1], padding=partDesc[2])
+            reluLyr = nn.ReLU()
+            normLyr = nn.BatchNorm2d(partDesc[0])
+            lstChannel = partDesc[0]
+            seq += [convLyr, reluLyr, normLyr]
+        self.conv = nn.Sequential(*seq)
+        self.ap = nn.AdaptiveAvgPool2d(convOutputSize)
+        self.fc = nn.Linear(convOutputSize, numClass)
+
+    def forward(self, x : torch.Tensor) :
+        batchSize, seqLength, sizeX, sizeY = x.shape
+        x = self.conv(x.view((batchSize * seqLength, 1, sizeX, sizeY)))
+        x = self.ap
+        x = self.fc(x)
+        return F.leaky_relu(x)
+    
+
+class LSTMModel(nn.Module) :
+    def __init__(self,
+                 convModel : CNNModel,
+                 hiddenSize : int, numLayers : int, bidirectional : bool,
+                 numClass : int) :
+        super(LSTMModel, self).__init__()
+        self.convModel = convModel
+        self.lstm = nn.LSTM(input_size=convModel.convOutputSize, hidden_size=hiddenSize, num_layers=numLayers, bidirectional=bidirectional)
+        self.relu1 = nn.LeakyReLU()
+        self.fc = nn.Linear(hiddenSize, numClass)
+        self.relu2 = nn.LeakyReLU()
+    
+    def forward(self, x) :
+        
