@@ -25,47 +25,39 @@ class Net(nn.Module):
         x = self.fc2(x)
         return x
 
-class CNNModel(nn.Module) :
+class CNN_LSTMModel(nn.Module) :
     def __init__(self, 
-                 convDesc : list[tuple[int, int, int]], 
+                 convDesc : list[tuple[int, int, int, int]], 
                  convOutputSize : int,
+                 hiddenSize : int, numLayers : int, bidirectional : bool,
                  numClass : int) :
-        super(CNNModel, self).__init__()
+        super(CNN_LSTMModel, self).__init__()
         self.convDesc = convDesc
         self.convOutputSize = convOutputSize
         self.numClass = numClass
 
         seq = []
-        lstChannel = 1
+        lstChannel = 3
         for partDesc in convDesc :
-            convLyr = nn.Conv2d(lstChannel, partDesc[0], kernel_size=partDesc[1], padding=partDesc[2])
+            convLyr = nn.Conv2d(lstChannel, partDesc[0], kernel_size=partDesc[1], padding=partDesc[2], stride=partDesc[3])
             reluLyr = nn.ReLU()
             normLyr = nn.BatchNorm2d(partDesc[0])
             lstChannel = partDesc[0]
             seq += [convLyr, reluLyr, normLyr]
         self.conv = nn.Sequential(*seq)
         self.ap = nn.AdaptiveAvgPool2d(convOutputSize)
-        self.fc = nn.Linear(convOutputSize, numClass)
+
+        self.lstm = nn.LSTM(input_size=convOutputSize * convDesc[-1][0], 
+                            hidden_size=hiddenSize, num_layers=numLayers, bidirectional=bidirectional)
+        self.fc = nn.Linear(hiddenSize if bidirectional == False else hiddenSize * 2, numClass)
 
     def forward(self, x : torch.Tensor) :
-        batchSize, seqLength, sizeX, sizeY = x.shape
-        x = self.conv(x.view((batchSize * seqLength, 1, sizeX, sizeY)))
-        x = self.ap
+        batchSize, seqLength, channel, sizeX, sizeY = x.shape
+        x = self.conv(x.view((batchSize * seqLength, channel, sizeX, sizeY)))
+        x = self.ap(x)
+        x = x.view((batchSize, seqLength, -1))
+        x, _ = self.lstm(x)
+        x = x[:, -1, :]
         x = self.fc(x)
         return F.leaky_relu(x)
     
-
-class LSTMModel(nn.Module) :
-    def __init__(self,
-                 convModel : CNNModel,
-                 hiddenSize : int, numLayers : int, bidirectional : bool,
-                 numClass : int) :
-        super(LSTMModel, self).__init__()
-        self.convModel = convModel
-        self.lstm = nn.LSTM(input_size=convModel.convOutputSize, hidden_size=hiddenSize, num_layers=numLayers, bidirectional=bidirectional)
-        self.relu1 = nn.LeakyReLU()
-        self.fc = nn.Linear(hiddenSize, numClass)
-        self.relu2 = nn.LeakyReLU()
-    
-    def forward(self, x) :
-        
