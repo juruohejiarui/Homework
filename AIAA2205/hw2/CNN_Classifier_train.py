@@ -48,6 +48,7 @@ class MyDataset(Dataset):
 			self.labelList.append(label)
 		self.labelList = torch.tensor(self.labelList)
 		self.classes = sorted(self.labelList.unique())
+		self.numClass = len(self.classes)
 
 	def __len__(self):
 		return len(self.df)
@@ -67,7 +68,9 @@ class MyDataset(Dataset):
 		imgs = torch.stack(imgs)
 		pad_imgs = torch.zeros((self.mxSeqLength, 3, 224, 224))
 		pad_imgs[0 : imgs.size(0)] = imgs
-		return pad_imgs, self.classes.index(self.labels[index])
+		labelMap = torch.zeros(self.numClass)
+		labelMap[self.classes.index(self.labels[index])] = 1
+		return pad_imgs, labelMap
 
 def train_model(
 				logger : SummaryWriter, 
@@ -103,7 +106,7 @@ def train_model(
 			
 			pred : torch.Tensor = output.argmax(1)
 			tot += pred.size(0)
-			acc += (pred == target).sum().item()
+			acc += (pred == target.argmax(1)).sum().item()
 			
 			optimizer.step()
 			scheduler.step()
@@ -117,15 +120,12 @@ def train_model(
 		for (img, target) in val_loader :
 			img, target = img.cuda(), target.cuda()
 			output : torch.Tensor = model(img)
-			loss : torch.Tensor = criterion(output, target)
-			lossSum += loss
 			
 			pred : torch.Tensor = output.argmax(1)
 			tot += pred.size(0)
-			acc += (pred == target).sum().item()
+			acc += (pred == target.argmax(1)).sum().item()
 		
 		logger.add_scalar("accuracy/valid", acc * 100 / tot, epoch + 1)
-		logger.add_scalar("loss/valid", lossSum, epoch + 1)
 
 		if (epoch + 1) % 100 == 0 :
 			torch.save(model, f"backups/{model_name}{epoch + 1}")
@@ -135,7 +135,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("model_name")
 parser.add_argument("--lr", default=1e-3, type=float)
 parser.add_argument("--epochs", default=300, type=int)
-parser.add_argument("--batchSize", default=16, type=int)
+parser.add_argument("--batchSize", default=20, type=int)
 parser.add_argument("--momentum", default=0.9, type=float)
 parser.add_argument("--weight_decay", default=0.1, type=float)
 parser.add_argument("loggerSuffix", type=str)
@@ -167,9 +167,10 @@ if __name__ == "__main__" :
 	validSize = len(df) // 10
 	trainSize = len(df) - validSize
 	df_train = [df.iloc[p[index], : ] for index in range(trainSize)]
-	df_test = [df.iloc[p[index], :] for index in range(trainSize, len(df))]
+	df_valid = [df.iloc[p[index], : ] for index in range(trainSize, len(df))]
 	train_data = MyDataset("./data/video_frames_30fpv_320p", df_train, transform)
-	val_data = MyDataset("./data/video_frames_30fpv_320p", df_test, transform)
+	val_data = MyDataset("./data/video_frames_30fpv_320p", df_valid, transform)
+	train_data.numClass = val_data.numClass = max(val_data.numClass, train_data.numClass)
 
 	print(f"train size : {len(train_data)} valid size : {len(val_data)}")
 
@@ -184,9 +185,9 @@ if __name__ == "__main__" :
 			 epochs=epochs,
 			 momentum=momentum,
 			 weight_decay=weight_decay,
-			 convDesc=[(8,5,4,2),(16,3,2,2),(32,2,1,1),(64,2,1,1)],
+			 convDesc=[(8,5,4,2), (16,3,2,2), (32,3,2,1), (64,3,2,1)],
 			 ConvOutputSize=1,
 			 hiddenSize=64,
-			 numLayers=3,
-			 numClass=10)
+			 numLayers=1,
+			 numClass=train_data.numClass)
 
