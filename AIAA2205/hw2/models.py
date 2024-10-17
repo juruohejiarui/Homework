@@ -25,44 +25,59 @@ class Net(nn.Module):
 		x = self.fc2(x)
 		return x
 
-class CNN_LSTMModel(nn.Module) :
-	def __init__(self, 
-				 convDesc : list[tuple[int, int, int, int]], 
-				 convOutputSize : int,
-				 hiddenSize : int, numLayers : int, bidirectional : bool,
-				 numClass : int) :
-		super(CNN_LSTMModel, self).__init__()
-		self.convDesc = convDesc
-		self.convOutputSize = convOutputSize
-		self.numClass = numClass
+class CNN3D(nn.Module) :
+	def __init__(self,
+				inChannel : int,
+				hiddenSize : list[int],
+				numClass : int
+				) :
+		super(CNN3D, self).__init__()
+		self.conv = nn.Sequential()
+		self.conv.append(nn.Conv3d(inChannel, 32, kernel_size=(3, 3, 3), padding=(1, 1, 1)))
+		self.conv.append(nn.ReLU())
+		self.conv.append(nn.BatchNorm3d(32))
+		self.conv.append(nn.MaxPool3d(kernel_size=(1, 2, 2), stride=(1, 2, 2)))
 
-		seq = []
-		lstChannel = 3
-		for partDesc in convDesc :
-			convLyr = nn.Conv2d(lstChannel, partDesc[0], kernel_size=partDesc[1], padding=partDesc[2], stride=partDesc[3])
-			reluLyr = nn.ReLU()
-			normLyr = nn.BatchNorm2d(partDesc[0])
-			lstChannel = partDesc[0]
-			seq += [convLyr, reluLyr, normLyr]
-		self.conv = nn.Sequential(*seq)
-		self.ap = nn.AdaptiveAvgPool2d(convOutputSize)
+		self.conv.append(nn.Conv3d(32, 64, kernel_size=(3, 3, 3), padding=(1, 1, 1)))
+		self.conv.append(nn.ReLU())
+		self.conv.append(nn.BatchNorm3d(64))
+		self.conv.append(nn.MaxPool3d(kernel_size=(2, 2, 2), stride=(2, 2, 2)))
 
-		self.lstm = nn.LSTM(input_size=(convOutputSize ** 2) * convDesc[-1][0], 
-							hidden_size=hiddenSize, num_layers=numLayers, bidirectional=bidirectional)
-		self.fc = nn.Linear(hiddenSize if bidirectional == False else hiddenSize * 2, numClass)
+		self.conv.append(nn.Conv3d(64, 128, kernel_size=(3, 3, 3), padding=(1, 1, 1)))
+		self.conv.append(nn.ReLU())
+		self.conv.append(nn.BatchNorm3d(128))
+		self.conv.append(nn.Conv3d(128, 128, kernel_size=(3, 3, 3), padding=(1, 1, 1)))
+		self.conv.append(nn.ReLU())
+		self.conv.append(nn.BatchNorm3d(128))
+		self.conv.append(nn.MaxPool3d(kernel_size=(2, 2, 2), stride=(2, 2, 2)))
 
-		self.forward = self.forward_cnn
-	
-	def forward_lstm(self, x : torch.Tensor) :
-		pass
+		self.conv.append(nn.Conv3d(128, 256, kernel_size=(3, 3, 3), padding=(1, 1, 1)))
+		self.conv.append(nn.ReLU())
+		self.conv.append(nn.BatchNorm3d(256))
+		self.conv.append(nn.Conv3d(256, 256, kernel_size=(3, 3, 3), padding=(1, 1, 1)))
+		self.conv.append(nn.ReLU())
+		self.conv.append(nn.BatchNorm3d(256))
+		self.conv.append(nn.MaxPool3d(kernel_size=(2, 2, 2), stride=(2, 2, 2)))
 
-	def forward_cnn(self, x : torch.Tensor) :
-		batchSize, seqLength, channel, sizeX, sizeY = x.shape
-		x = self.conv(x.view((batchSize * seqLength, channel, sizeX, sizeY)))
-		x = self.ap(x)
-		x = x.view((batchSize, seqLength, -1))
-		x, _ = self.lstm(x)
-		x = x[:, -1, :]
-		x = self.fc(x)
-		return F.leaky_relu(x)
-	
+		self.conv.append(nn.Conv3d(256, 256, kernel_size=(3, 3, 3), padding=(1, 1, 1)))
+		self.conv.append(nn.ReLU())
+		self.conv.append(nn.BatchNorm3d(256))
+		self.conv.append(nn.Conv3d(256, 256, kernel_size=(3, 3, 3), padding=(1, 1, 1)))
+		self.conv.append(nn.ReLU())
+		self.conv.append(nn.BatchNorm3d(256))
+		self.conv.append(nn.MaxPool3d(kernel_size=(2, 2, 2), stride=(2, 2, 2), padding=(0, 1, 1)))
+
+		self.fc = nn.Sequential()
+		self.convOutputSize = 16384
+		for i in range(len(hiddenSize) + 1) :
+			self.fc.append(nn.Linear(self.convOutputSize if i == 0 else hiddenSize[i - 1], hiddenSize[i] if i != len(hiddenSize) else numClass))
+			self.fc.append(nn.LeakyReLU())
+	def forward(self, x) :
+		x = self.conv(x)
+		# print(x.shape)
+		x = self.fc(x.flatten(1))
+		return x
+		
+class ResNetLSTM(nn.Module) :
+	def __init__(self) :
+		self.resnet = torch.resnet
