@@ -62,32 +62,35 @@ class MyDataset(Dataset):
 			if self.transforms is not None:
 				img = self.transforms(img)
 			imgs.append(img)
+		# while len(imgs) < self.mxSeqLength : imgs.append(torch.zeros((3, img_size, img_size)))
 		labelMap = torch.zeros(10)
 		labelMap[self.labels[index]] = 1
 
-		imgs = torch.stack(imgs).permute(1, 0, 2, 3)
+		imgs = torch.stack(imgs)
 		return imgs, labelMap
-	
-		# pad_imgs = torch.zeros((3, self.mxSeqLength, self.imgSize, self.imgSize))
-		# pad_imgs[:, 0 : len(imgs), :, :] = imgs.permute(1, 0, 2, 3)
-		# return pad_imgs, labelMap
 
 def train_model(
+				model : nn.Module,
 				logger : SummaryWriter, 
 				model_name : str,
 				train_loader : DataLoader, val_loader : DataLoader, 
-				epochs : int, lr : float, momentum : float, weight_decay : float,
-				model : nn.Module) :
+				adamEpochs : int = 6,
+				epochs : int = 300, lr : float = 1e-3, momentum : float = 0.78, weight_decay : float = 0.1,
+				) :
 	model = model.cuda()
 	
-	optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=momentum, weight_decay=weight_decay)
+	adamOptimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
+	sgdOptimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=momentum, weight_decay=weight_decay)
 	criterion = FocalLoss()
-	scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, epochs * len(train_loader), 1e-6)
+	sgdScheduler = torch.optim.lr_scheduler.CosineAnnealingLR(sgdOptimizer, epochs * len(train_loader), 1e-6)
 
 	for epoch in tqdm(range(epochs)) :
 		tot, acc, lossSum = 0, 0, 0
 		model.train()
+		optimizer = sgdOptimizer if epoch >= adamEpochs else adamOptimizer
+		scheduler = sgdScheduler if epoch >= adamEpochs else None
 		for (img, target) in train_loader :
+			
 			optimizer.zero_grad()
 			img, target = img.cuda(), target.cuda()
 			output : torch.Tensor = model(img)
@@ -100,7 +103,7 @@ def train_model(
 			acc += (pred == target.argmax(1)).sum().item()
 			
 			optimizer.step()
-			scheduler.step()
+			if scheduler != None : scheduler.step()
 		
 		logger.add_scalar("accuracy/train", acc * 100 / tot, epoch + 1)
 		logger.add_scalar("loss/train", lossSum, epoch + 1)
@@ -126,9 +129,10 @@ def train_model(
 parser = argparse.ArgumentParser()
 parser.add_argument("model_name")
 parser.add_argument("--img_size", default=224, type=int)
-parser.add_argument("--lr", default=1e-4, type=float)
-parser.add_argument("--epochs", default=300, type=int)
-parser.add_argument("--batchSize", default=10, type=int)
+parser.add_argument("--lr", default=4e-5, type=float)
+parser.add_argument("--adamEpochs", default=5, type=int)
+parser.add_argument("--epochs", default=40, type=int)
+parser.add_argument("--batchSize", default=25, type=int)
 parser.add_argument("--momentum", default=0.78, type=float)
 parser.add_argument("--weight_decay", default=0.1, type=float)
 parser.add_argument("loggerSuffix", type=str)
@@ -144,6 +148,7 @@ if __name__ == "__main__" :
 	model_name = args.model_name
 	img_size = args.img_size
 	lr = args.lr
+	adamEpochs = args.adamEpochs
 	epochs = args.epochs
 	batchSize = args.batchSize
 	momentum = args.momentum
@@ -181,15 +186,22 @@ if __name__ == "__main__" :
 		hiddenSize=(512, 100),
 		numClass=10
 	)
-	print(cnn3d)
-	print(get_parameter_number(cnn3d))
-	train_model(logger=logger,
-			 model_name=model_name,
-			 train_loader=train_loader,
-			 val_loader=val_loader,
-			 lr=lr,
-			 epochs=epochs,
-			 momentum=momentum,
-			 weight_decay=weight_decay,
-			 model=cnn3d)
+	resnetLSTM = models.ResnetLSTM(
+		resOutputSize=2048,
+		numLayers=3,
+		hiddenSize=256,
+		numClasses=10
+	)
+	train_model(
+			model=resnetLSTM,
+			logger=logger,
+			model_name=model_name,
+			train_loader=train_loader,
+			val_loader=val_loader,
+			lr=lr,
+			adamEpochs=adamEpochs,
+			epochs=epochs,
+			momentum=momentum,
+			weight_decay=weight_decay,
+			)
 
