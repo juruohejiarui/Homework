@@ -78,6 +78,33 @@ class CNN3D(nn.Module) :
 		x = self.fc(x.flatten(1))
 		return x
 		
-class ResNetLSTM(nn.Module) :
-	def __init__(self) :
-		self.resnet = torch.resnet
+from torchvision import models
+
+class ResnetLSTM(nn.Module) :
+	def __init__(self, resOutputSize = 2048, numLayers = 3, hiddenSize = 128, numClasses = 10) :
+		super(ResnetLSTM, self).__init__()
+		self.resnet = models.resnet50(weights=models.ResNet50_Weights.DEFAULT)
+		self.resnet = nn.Sequential(*list(self.resnet.children())[: -1])
+		
+		self.resOuputSize = resOutputSize
+		self.numLayers = numLayers
+		self.hiddenSize = hiddenSize
+		self.numClass = numClasses
+
+		self.resOutputSize = 2048
+		self.lstm = nn.LSTM(input_size=self.resOutputSize, hidden_size=hiddenSize, num_layers=numLayers, batch_first=True)
+		self.fc = nn.Linear(hiddenSize, numClasses)
+
+	def forward(self, x : torch.Tensor) :
+		# print(x.shape)
+		batchSize, seqLen, C, H, W = x.shape
+		features = torch.zeros((batchSize, seqLen, self.resOuputSize)).cuda()
+		for t in range(seqLen) :
+			with torch.no_grad() :
+				features[:, t, :] = self.resnet(x[:, t, :, :, :]).flatten(1)
+		lstmOut, (_, _) = self.lstm(features)
+		lstmOut = lstmOut[:, -1, :]
+
+		return self.fc(lstmOut)
+
+		
