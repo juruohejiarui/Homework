@@ -40,7 +40,7 @@ class MyDataset(Dataset):
 		img_list = self.imgList[index]
 		imgs = []
 
-		for img in img_list[len(img_list) // 2 - 8 : len(img_list) // 2 + 8]:
+		for img in img_list[len(img_list) // 2 : len(img_list) // 2 + 1]:
 			img_path = os.path.join(self.imgPath[index], img)
  
 			img = Image.open(img_path).convert('RGB')

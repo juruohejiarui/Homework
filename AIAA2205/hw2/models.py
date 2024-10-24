@@ -80,6 +80,18 @@ class CNN3D(nn.Module) :
 		
 from torchvision import models
 
+class Resnet(nn.Module) :
+	def __init__(self, numClass = 10) :
+		super(Resnet, self).__init__()
+		self.resnet = models.resnet50(weights=models.ResNet50_Weights.DEFAULT)
+		self.resnet = nn.Sequential(*list(self.resnet.children())[: -1])
+		self.fc = nn.Linear(2048, numClass)
+	def forward(self, x) :
+		batchSize, seqLen, C, H, W = x.shape
+		if seqLen != 1 : raise IndexError('Sequence length must be 1')
+		features = self.resnet(x[:, 0, :, :, :]).flatten(1)
+		return self.fc(features)
+
 class ResnetLSTM(nn.Module) :
 	def __init__(self, resOutputSize = 2048, numLayers = 3, hiddenSize = 128, numClasses = 10) :
 		super(ResnetLSTM, self).__init__()

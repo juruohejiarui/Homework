@@ -31,13 +31,14 @@ class FocalLoss(nn.Module):
 		return focal_loss
 	
 class MyDataset(Dataset):
-	def __init__(self, root, df : list[tuple[str, int]], img_size : int, transform=None):
+	def __init__(self, root, df : list[tuple[str, int]], img_seqlen : int, img_size : int, transform=None):
 		self.root = root
 		self.transforms = transform
 		self.df = df
 		self.imgList : list[list[str]] = [None for _ in range(len(self.df))]
 		self.imgPath : list[str] = [None for _ in range(len(self.df))]
 		self.imgSize = img_size
+		self.imgSeqLen = img_seqlen
 		self.labels = torch.zeros(len(self.df))
 		self.mxSeqLength = 0
 		for i in tqdm(range(len(self.df))) :
@@ -55,7 +56,7 @@ class MyDataset(Dataset):
 		img_list = self.imgList[index]
 		imgs = []
 
-		for img in img_list[len(img_list) // 2 - 8 : len(img_list) // 2 + 8]:
+		for img in img_list[len(img_list) // 2 - self.imgSeqLen // 2 : len(img_list) // 2 + self.imgSeqLen // 2 + self.imgSeqLen % 2]:
 			img_path = os.path.join(self.imgPath[index], img)
  
 			img = Image.open(img_path).convert('RGB')
@@ -128,6 +129,7 @@ def train_model(
 
 parser = argparse.ArgumentParser()
 parser.add_argument("model_name")
+parser.add_argument("--img_seqlen", default=1, type=int)
 parser.add_argument("--img_size", default=224, type=int)
 parser.add_argument("--lr", default=4e-5, type=float)
 parser.add_argument("--adamEpochs", default=5, type=int)
@@ -146,6 +148,7 @@ def get_parameter_number(model):
 if __name__ == "__main__" :
 	args = parser.parse_args()
 	model_name = args.model_name
+	img_seqlen = args.img_seqlen
 	img_size = args.img_size
 	lr = args.lr
 	adamEpochs = args.adamEpochs
@@ -172,8 +175,8 @@ if __name__ == "__main__" :
 	trainSize = len(df) - validSize
 	df_train = [df.iloc[p[index], : ] for index in range(trainSize)]
 	df_valid = [df.iloc[p[index], : ] for index in range(trainSize, len(df))]
-	train_data = MyDataset("./data/video_frames_30fpv_320p", df_train, img_size, transform)
-	val_data = MyDataset("./data/video_frames_30fpv_320p", df_valid, img_size, transform)
+	train_data = MyDataset("./data/video_frames_30fpv_320p", df_train, img_seqlen, img_size, transform)
+	val_data = MyDataset("./data/video_frames_30fpv_320p", df_valid, img_seqlen, img_size, transform)
 
 	print(f"train size : {len(train_data)} valid size : {len(val_data)}")
 
@@ -192,8 +195,9 @@ if __name__ == "__main__" :
 		hiddenSize=256,
 		numClasses=10
 	)
+	resnet = models.Resnet(numClass=10)
 	train_model(
-			model=resnetLSTM,
+			model=resnet,
 			logger=logger,
 			model_name=model_name,
 			train_loader=train_loader,
