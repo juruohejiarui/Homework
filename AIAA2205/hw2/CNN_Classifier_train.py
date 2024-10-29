@@ -83,7 +83,7 @@ def train_model(
 	adamOptimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
 	sgdOptimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=momentum, weight_decay=weight_decay)
 	criterion = FocalLoss()
-	sgdScheduler = torch.optim.lr_scheduler.CosineAnnealingLR(sgdOptimizer, epochs * len(train_loader), 1e-6)
+	sgdScheduler = torch.optim.lr_scheduler.CosineAnnealingLR(sgdOptimizer, (epochs - adamEpochs) * len(train_loader), 1e-7)
 
 	for epoch in tqdm(range(epochs)) :
 		tot, acc, lossSum = 0, 0, 0
@@ -131,12 +131,12 @@ parser = argparse.ArgumentParser()
 parser.add_argument("model_name")
 parser.add_argument("--img_seqlen", default=1, type=int)
 parser.add_argument("--img_size", default=224, type=int)
-parser.add_argument("--lr", default=4e-5, type=float)
-parser.add_argument("--adamEpochs", default=5, type=int)
-parser.add_argument("--epochs", default=40, type=int)
+parser.add_argument("--lr", default=3e-5, type=float)
+parser.add_argument("--adamEpochs", default=6, type=int)
+parser.add_argument("--epochs", default=10, type=int)
 parser.add_argument("--batchSize", default=25, type=int)
 parser.add_argument("--momentum", default=0.78, type=float)
-parser.add_argument("--weight_decay", default=0.1, type=float)
+parser.add_argument("--weight_decay", default=0.12, type=float)
 parser.add_argument("loggerSuffix", type=str)
 
 def get_parameter_number(model):
