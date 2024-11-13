@@ -1,13 +1,8 @@
-/AIAA2205/hw1/data/
-/AIAA2205/hw1/models/
-/AIAA2205/hw1/mfcc-*.csv
-/AIAA2205/hw1/runs
-/AIAA2205/hw1/output
-/AIAA2205/hw2/data
-/AIAA2205/hw2/backups
-/AIAA2205/hw2/models
-/AIAA2205/hw2/run
-/AIAA2205/hw2/output
+/AIAA2205/hw*/data
+/AIAA2205/hw*/backups
+/AIAA2205/hw*/models
+/AIAA2205/hw*/run
+/AIAA2205/hw*/output
 __pycache__
 
 UFUG2601/HW3/Game2048/GUI/debug/object_script.Game2048.Debug

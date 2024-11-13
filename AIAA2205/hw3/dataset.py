@@ -1,49 +1,44 @@
+import os
+import random
+import pandas as pd
+
+from PIL import Image
+from sklearn.model_selection import train_test_split
+
 import torch
 from torch.utils.data import Dataset, DataLoader
 import torchvision.transforms as transforms
-import pandas as pd
-import os
-from PIL import Image
-from sklearn.model_selection import train_test_split
-import random
+
+gloDf = None
+
+def loadDf(csv_file : str) :
+	return pd.read_csv(csv_file, header=None, skiprows=1)
 
 class MyDataset(Dataset):
-    def __init__(self, root, csv_file,stage="train",ratio=0.2, transform=None):
-        self.root = root
-        self.transforms = transform
-        self.df = pd.read_csv(csv_file, header=None, skiprows=1)
-        self.stage = stage
-        self.ratio = ratio
-        self.files = None
-        filenames = self.df[0].unique()
-        if self.stage == "test":
-            self.files = filenames
-        else:
-            filenames = sorted(filenames)
-            length = len(filenames)
-            train_files = filenames[int(length * self.ratio):]
-            val_files = filenames[:int(length * self.ratio)]
-            if self.stage == "train":
-                self.files = train_files
-            elif self.stage == "val":
-                self.files = val_files
+	def __init__(self, root, df, stage="train", transform=None):
+		self.root = root
+		self.transforms = transform
+		self.df = df
+		self.stage = stage
+		self.files = [self.df[i][0] for i in range(len(self.df))]
+		self.frame_file_list = []
+		self.labels = []
 
-    def __len__(self):
-        return len(self.files)
+		for i in range(len(self.files)) :
+			vid = self.files[i].split(".mp4")[0]
+			img_list = os.listdir(os.path.join(self.root, f"{vid}.mp4"))
+			img_list = sorted(img_list)
+			label = torch.zeros(10)
+			label[self.df[i][1]] = 1
+			self.frame_file_list.append(img_list)
+			self.labels.append(label)
+			if i == 0 : print(self.files[0], self.frame_file_list[0], self.labels[0])
 
-    def __getitem__(self, index):
-        vid = self.files[index]
-        vid = vid.split('.mp4')[0]
-        label = self.df.loc[self.df[0] == vid, 1].values[0]
-        img_list = os.listdir(os.path.join(self.root, f"{vid}.mp4"))
-        img_list = sorted(img_list)
-        img_16fpv = []    
-        for i in range(len(img_list)):
-            img_path = os.path.join(self.root, f"{vid}.mp4", img_list[i])
-            img = Image.open(img_path).convert('RGB')
-            if self.transforms is not None:
-                img = self.transforms(img)
-            img_16fpv.append(img)
-        img_16fpv_tensor = torch.stack(img_16fpv).permute(1,0,2,3)
-        return img_16fpv_tensor, label
+	def __len__(self):
+		return len(self.files)
 
+	def __getitem__(self, index):
+		vid = self.files[index]
+		img_16fpv = [self.transforms(Image.open(os.path.join(self.root, f"{vid}.mp4", img_path)).convert('RGB')) for img_path in self.frame_file_list[index]]
+		img_16fpv_tensor = torch.stack(img_16fpv).permute(1,0,2,3)
+		return img_16fpv_tensor, self.labels[index]

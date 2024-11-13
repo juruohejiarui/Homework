@@ -1,58 +1,49 @@
 import os
-os.environ['CUDA_VISIBLE_DEVICES'] = '1'
+import pandas as pd
+from PIL import Image
+from dataset import MyDataset
+from models import VideoResNet
+from tqdm import tqdm
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import pandas as pd
 from torch.utils.data import Dataset, DataLoader
 import torchvision.transforms as transforms
-from PIL import Image
-from dataset import MyDataset
-from models import resnet18
 
-
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
-
-
+# Define aug
 transforms = transforms.Compose([
-        transforms.Resize((224, 224)),
-        transforms.ToTensor(),
-        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)) 
+	transforms.Resize((224, 224)),
+	transforms.ToTensor(),
+	# transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)) # Normalization
 ])
 
-
-test_dataset = MyDataset("/hw3_16fpv", "test_for_student.csv", stage="test",ratio=0.2,transform=transforms)
+# Load test dataset
+test_dataset = MyDataset("data/hw3_16fpv", "data/test.csv", stage="test", ratio=0.2, transform=transforms)
 test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
-print(len(test_loader))
+print(f"Length of test loader: {len(test_loader)}")
 
+# Load model
+model = VideoResNet(num_classes=10).cuda()
+model.load_state_dict(torch.load('models/ResNet18_last.pth'))
 
-net = resnet18(num_classes=10, sample_size=224, sample_duration=16).to(device)
-net.load_state_dict(torch.load('ResNet18_best.pth'))
+# Load video ID
+fread = open("data/test_for_student.label", "r")
+video_ids = [os.path.splitext(line.strip())[0] for line in fread.readlines()]
 
-
-
-net.eval()
+# Val stage
+model.eval()
 result = []
 with torch.no_grad():
-    for data in test_loader:
-        inputs, labels = data
-        inputs, labels = inputs.to(device), labels.to(device)
-        outputs = net(inputs)
-        _, predicted = torch.max(outputs.data, 1)
-        result.extend(predicted.cpu().numpy())
-        
-fread = open("test_for_student.label", "r")
-video_ids = []
-for line in fread.readlines():
-    video_id = os.path.splitext(line.strip())[0]
-    video_ids.append(video_id)
+	for data in tqdm(test_loader):
+		inputs, labels = data
+		inputs, labels = inputs.cuda(), labels.cuda()
+		outputs = model(inputs)
+		_, predicted = torch.max(outputs.data, 1)
+		result.extend(predicted.cpu().numpy())
 
-
-
+# Save result
 with open('result_ResNet18_3D.csv', "w") as f:
-    f.writelines("Id,Category\n")
-    for i, pred_class in enumerate(result):
-        f.writelines("%s,%d\n" % (video_ids[i], pred_class))
-
-
+	f.writelines("Id,Category\n")
+	for i, pred_class in enumerate(result):
+		f.writelines(f"{video_ids[i]},{pred_class}\n")
