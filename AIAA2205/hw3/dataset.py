@@ -21,8 +21,8 @@ class MyDataset(Dataset):
 		self.df = df
 		self.stage = stage
 		self.files = [self.df[i][0] for i in range(len(self.df))]
-		self.frame_file_list = []
-		self.labels = []
+		self.frame_file_list = [None] * len(self.files)
+		self.labels = [None] * len(self.files)
 
 		for i in range(len(self.files)) :
 			vid = self.files[i].split(".mp4")[0]
@@ -30,8 +30,8 @@ class MyDataset(Dataset):
 			img_list = sorted(img_list)
 			label = torch.zeros(10)
 			label[self.df[i][1]] = 1
-			self.frame_file_list.append(img_list)
-			self.labels.append(label)
+			self.frame_file_list[i] = img_list
+			self.labels[i] = label
 			if i == 0 : print(self.files[0], self.frame_file_list[0], self.labels[0])
 
 	def __len__(self):
@@ -41,4 +41,5 @@ class MyDataset(Dataset):
 		vid = self.files[index]
 		img_16fpv = [self.transforms(Image.open(os.path.join(self.root, f"{vid}.mp4", img_path)).convert('RGB')) for img_path in self.frame_file_list[index]]
 		img_16fpv_tensor = torch.stack(img_16fpv).permute(1,0,2,3)
+		# print(vid, self.labels[index])
 		return img_16fpv_tensor, self.labels[index]
