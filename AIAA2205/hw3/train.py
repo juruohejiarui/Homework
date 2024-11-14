@@ -67,11 +67,11 @@ if __name__ == "__main__" :
 	# model = models.VideoResNet(num_classes=10).cuda()
 	model = models.VGGLSTM(num_classes=10).cuda()
 	if optimizer_name == "adam" :
-		optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
+		optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 		scheduler = None
 		print("optimizer : adam")
 	else :
-		optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=momentum, weight_decay=weight_decay)
+		optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=momentum)
 		scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, epochs * len(train_loader), 1e-7)
 		print("optimizer: SGD")
 	criterion = models.FocalLoss()

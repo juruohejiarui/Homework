@@ -51,7 +51,6 @@ class VGGLSTM(nn.Module) :
 		self.cnn = models.vgg16(weights=models.VGG16_Weights.DEFAULT).features.cuda()
 		for param in self.cnn.parameters() :
 			param.requires_grad = False
-		self.avg_pool = nn.AdaptiveAvgPool2d((7, 7))
 		self.fc1 = nn.Linear(512 * 7 * 7, input_size)
 		self.lstm = nn.LSTM(input_size, hidden_size=hidden_size, num_layers=num_layers, batch_first=True)
 		self.fc2 = nn.Linear(hidden_size, num_classes)
@@ -63,7 +62,6 @@ class VGGLSTM(nn.Module) :
 		frame_features = torch.zeros((batch_size, seq_len, self.input_size)).cuda()
 		for t in range(seq_len) :
 			feature = self.cnn(x[:, t, :, :, :])
-			feature = self.avg_pool(feature)
 			feature = feature.view(batch_size, -1)
 			frame_features[:, t, :] = self.fc1(feature)
 		lstm_out, _ = self.lstm(frame_features)
