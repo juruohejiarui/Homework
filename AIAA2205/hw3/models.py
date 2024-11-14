@@ -43,7 +43,7 @@ class VideoResnetLSTM(nn.Module) :
 		return self.fc(lstmOut)
 	
 class VGGLSTM(nn.Module) :
-	def __init__(self, num_classes, input_size=1000, hidden_size=256, num_layers=3) :
+	def __init__(self, num_classes, input_size=1000, hidden_size=400, num_layers=4) :
 		super(VGGLSTM, self).__init__()
 		self.hidden_size = hidden_size
 		self.num_layers = num_layers
