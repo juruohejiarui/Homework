@@ -67,7 +67,7 @@ class VGGLSTM(nn.Module) :
 			feature = feature.view(batch_size, -1)
 			frame_features[:, t, :] = self.fc1(feature)
 		lstm_out, _ = self.lstm(frame_features)
-		return self.sigmoid(self.fc2(lstm_out[:, -1, :]))
+		return self.fc2(lstm_out[:, -1, :])
 			
 
 class FocalLoss(nn.Module):
