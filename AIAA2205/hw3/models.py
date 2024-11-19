@@ -41,7 +41,18 @@ class VideoResnetLSTM(nn.Module) :
 		lstmOut = lstmOut[:, -1, :]
 
 		return self.fc(lstmOut)
-	
+class VideoTransformer(nn.Module) :
+	def __init__(self, num_classes=10) :
+		super(VideoTransformer, self).__init__()
+		self.swin = models.video.swin_transformer.swin3d_b(weights=models.video.swin_transformer.Swin3D_B_Weights.DEFAULT)
+		in_feature = self.swin.head.in_features
+		for name, param in self.swin.named_parameters() :
+			if not name.startswith("head") :
+				param.requires_grad = False
+		self.swin.head = nn.Linear(in_feature, num_classes)
+	def forward(self, x) :
+		return self.swin(x)
+
 class VGGLSTM(nn.Module) :
 	def __init__(self, num_classes, input_size=1000, hidden_size=400, num_layers=4) :
 		super(VGGLSTM, self).__init__()

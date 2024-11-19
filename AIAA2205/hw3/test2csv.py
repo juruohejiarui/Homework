@@ -2,7 +2,9 @@ import os
 import pandas as pd
 from PIL import Image
 from dataset import MyDataset
-from models import VideoResNet
+import models
+import dataset
+import random
 from tqdm import tqdm
 
 import torch
@@ -15,17 +17,22 @@ import torchvision.transforms as transforms
 transforms = transforms.Compose([
 	transforms.Resize((224, 224)),
 	transforms.ToTensor(),
-	# transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)) # Normalization
+	transforms.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)) 
 ])
 
 # Load test dataset
-test_dataset = MyDataset("data/hw3_16fpv", "data/test.csv", stage="test", ratio=0.2, transform=transforms)
-test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
+oridf = dataset.loadDf("data/test_for_student.csv")
+df = [oridf.iloc[i, :] for i in range(len(oridf))]
+
+test_dataset = dataset.MyDataset('data/hw3_16fpv', df, stage="val", transform=transforms)
+
+print('dataset loaded')
+test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False, drop_last=False)
 print(f"Length of test loader: {len(test_loader)}")
 
 # Load model
-model = VideoResNet(num_classes=10).cuda()
-model.load_state_dict(torch.load('models/ResNet18_last.pth'))
+model = models.VideoTransformer(num_classes=10).cuda()
+model.load_state_dict(torch.load('models/transformer-base.pth'))
 
 # Load video ID
 fread = open("data/test_for_student.label", "r")
@@ -39,11 +46,11 @@ with torch.no_grad():
 		inputs, labels = data
 		inputs, labels = inputs.cuda(), labels.cuda()
 		outputs = model(inputs)
-		_, predicted = torch.max(outputs.data, 1)
+		predicted = torch.argmax(outputs.data, 1)
 		result.extend(predicted.cpu().numpy())
 
 # Save result
-with open('result_ResNet18_3D.csv', "w") as f:
+with open('output/result_transformer.csv', "w") as f:
 	f.writelines("Id,Category\n")
 	for i, pred_class in enumerate(result):
 		f.writelines(f"{video_ids[i]},{pred_class}\n")

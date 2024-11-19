@@ -22,7 +22,7 @@ torch.backends.cudnn.benchmark = True
 parser = argparse.ArgumentParser()
 parser.add_argument("model_name", type=str)
 parser.add_argument("--optimizer", type=str, default='adam')
-parser.add_argument("--lr", type=float, default=1e-2)
+parser.add_argument("--lr", type=float, default=1e-3)
 parser.add_argument("--weight_decay", type=float, default=0.1)
 parser.add_argument("--epochs", type=int, default=20)
 parser.add_argument("--momentum", type=float, default=0.78)
@@ -31,7 +31,7 @@ parser.add_argument("--log_suffix", type=str, default="def")
 transforms = transforms.Compose([
 	transforms.Resize((224, 224)),
 	transforms.ToTensor(),
-	# transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)) 
+	transforms.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)) 
 ])
 
 if __name__ == "__main__" :
@@ -64,8 +64,10 @@ if __name__ == "__main__" :
 	print('train ', len(train_loader))
 	print('val ', len(val_loader))
 
+	model = models.VideoTransformer(num_classes=10).cuda()
 	# model = models.VideoResNet(num_classes=10).cuda()
-	model = models.VGGLSTM(num_classes=10).cuda()
+	# model = models.VideoResNet(num_classes=10).cuda()
+	# model = models.VGGLSTM(num_classes=10).cuda()
 	if optimizer_name == "adam" :
 		optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 		scheduler = None
