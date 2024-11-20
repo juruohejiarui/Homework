@@ -54,26 +54,27 @@ if __name__ == "__main__" :
 	trainSize = len(p) - validSize
 	print(f"trainSize:{trainSize} validSize:{validSize}")
 
-	val_dataset = dataset.MyDataset('data/hw3_16fpv', df[trainSize : ], stage="val", transform=transforms)
-	train_dataset = dataset.MyDataset('data/hw3_16fpv', df[: trainSize], stage="train", transform=transforms)
+	val_dataset = dataset.MyDataset('data/hw3_32fpv', df[trainSize : ], stage="val", transform=transforms)
+	train_dataset = dataset.MyDataset('data/hw3_32fpv', df[: trainSize], stage="train", transform=transforms)
 
 	print('dataset loaded')
-	train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True, num_workers=5, pin_memory=True, drop_last=False)
-	val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False, num_workers=5, pin_memory=True)
+	train_loader = DataLoader(train_dataset, batch_size=16, shuffle=True, num_workers=3, pin_memory=True, drop_last=False)
+	val_loader = DataLoader(val_dataset, batch_size=16, shuffle=False, num_workers=3, pin_memory=True)
 
 	print('train ', len(train_loader))
 	print('val ', len(val_loader))
 
 	model = models.VideoTransformer(num_classes=10).cuda()
+	train_param = filter(lambda p : p.requires_grad, model.parameters())
 	# model = models.VideoResNet(num_classes=10).cuda()
 	# model = models.VideoResNet(num_classes=10).cuda()
 	# model = models.VGGLSTM(num_classes=10).cuda()
 	if optimizer_name == "adam" :
-		optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+		optimizer = torch.optim.Adam(train_param, lr=lr)
 		scheduler = None
 		print("optimizer : adam")
 	else :
-		optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=momentum)
+		optimizer = torch.optim.SGD(train_param, lr=lr, momentum=momentum)
 		scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, epochs * len(train_loader), 1e-7)
 		print("optimizer: SGD")
 	criterion = models.FocalLoss()

@@ -24,15 +24,15 @@ transforms = transforms.Compose([
 oridf = dataset.loadDf("data/test_for_student.csv")
 df = [oridf.iloc[i, :] for i in range(len(oridf))]
 
-test_dataset = dataset.MyDataset('data/hw3_16fpv', df, stage="val", transform=transforms)
+test_dataset = dataset.MyDataset('data/hw3_32fpv', df, stage="val", transform=transforms)
 
 print('dataset loaded')
-test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False, drop_last=False)
+test_loader = DataLoader(test_dataset, batch_size=16, shuffle=False, drop_last=False)
 print(f"Length of test loader: {len(test_loader)}")
 
 # Load model
 model = models.VideoTransformer(num_classes=10).cuda()
-model.load_state_dict(torch.load('models/transformer-base.pth'))
+model.load_state_dict(torch.load('models/transformer-32fpv.pth'))
 
 # Load video ID
 fread = open("data/test_for_student.label", "r")
