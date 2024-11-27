@@ -32,7 +32,7 @@ print(f"Length of test loader: {len(test_loader)}")
 
 # Load model
 model = models.VideoTransformer(num_classes=10).cuda()
-model.load_state_dict(torch.load('models/transformer-32fpv.pth'))
+model.load_state_dict(torch.load('models/transformer_32fpv.pth'))
 
 # Load video ID
 fread = open("data/test_for_student.label", "r")
