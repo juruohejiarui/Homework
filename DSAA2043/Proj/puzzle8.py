@@ -19,9 +19,6 @@ class State :
         if isinstance(mtx, list) :
             self.mtx = mtx.copy()        
             self._calcHsPred()
-        elif isinstance(mtx, State) :
-            self.mtx = mtx.mtx.copy()
-            self.hs, self.pred = mtx.hs, mtx.pred
             
     def __getitem__(self, x) -> int :
         return self.mtx[x[0]][x[1]]
@@ -42,8 +39,8 @@ class State :
     def swap(self, p1 : tuple[int, int], p2 : tuple[int, int]) :
         self.mtx[p1[0]][p1[1]], self.mtx[p2[0]][p2[1]] = self.mtx[p2[0]][p2[1]], self.mtx[p1[0]][p1[1]]
         self._calcHsPred()
-    def print(self, outputFile) :
-        if isinstance(outputFile, None) :
+    def print(self, outputFile = None) :
+        if outputFile == None :
             for i in range(3) :
                 for j in range(3) :
                     print(f"{self.mtx[i][j] if self.mtx[i][j] != 9 else 0} ", end='')
@@ -133,4 +130,3 @@ if __name__ == "__main__" :
     astar(initState, outputFile)
     
     # print(time.time() - st)
-        
