@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-rgl, rgr = -2 * np.pi, 2 * np.pi
+rgl, rgr = -1, 2 * np.pi
 
 
 def f(x : np.ndarray) -> np.ndarray :
@@ -13,10 +13,8 @@ def f(x : np.ndarray) -> np.ndarray :
 		  + 20 * np.exp((-5 * (x - 1) ** 2)))
 
 def genNew(x, T) :
-	while True :
-		x_new = x + T * (2 * np.random.random() - 1)
-		if x_new < rgl or x_new > rgr : continue
-		return x_new
+	l, r = max(rgl, x - T), min(rgr, x + T)
+	return np.random.random_sample() * (r - l) + l
 
 def metropolis(x_old, x_new, T) :
 	y_new, y_old = f(x_new), f(x_old)
@@ -29,12 +27,11 @@ def metropolis(x_old, x_new, T) :
 
 
 def SA(T_0, T_f, n_thread = 1, alpha = 0.99) :
-	x0 = rgl + (rgr - rgl) * np.random.random_sample(n_thread)
-
+	x0 = rgr + (rgr - rgl) * np.random.random_sample(n_thread)
 	T = T_0
 	while T > T_f :
 		for i in range(n_thread) :
-			x_new = genNew(x[i], T)
+			x_new = genNew(x0[i], T)
 			x0[i] = metropolis(x0[i], x_new, T)
 		T = T * alpha
 	
@@ -42,7 +39,7 @@ def SA(T_0, T_f, n_thread = 1, alpha = 0.99) :
 	return np.array([x0, f(x0)])
 
 if __name__ == "__main__" :
-	x = np.arange(rgl, rgr, 0.001)
+	x = np.arange(rgl, rgr, 5e-6)
 	y = f(x)
 
 	minX, maxX = min(x), max(x)
@@ -57,7 +54,7 @@ if __name__ == "__main__" :
 	# plt.hlines(y = maxY, xmin = minX, xmax=maxX, color='r', linestyles=':')
 
 	
-	x, y = SA(5000, 0.001, 500, alpha=0.99)
+	x, y = SA(rgr - rgl, 0.001, 500, alpha=0.99)
 
 	plt.vlines(x = x, ymin = y, ymax=maxY, colors='g', linestyles='-', linewidth=1)
 
