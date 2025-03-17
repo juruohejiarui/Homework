@@ -48,3 +48,23 @@ We say $X_n\xrightarrow{d}X$ as $n\rightarrow \infty$ if
 $$
 \lim_{n\rightarrow \infty}F_{X_n}(x)=F(x)~\forall x \text{  where }f\text{ is continuous}
 $$
+
+### Model Sensitivity
+
+MLE is sensitive to model assumptions, and incorrect assumptions can lead to biased or inconsistent estimates. MLE 对模型的选择比较敏感，错误的模型选择会导致偏差'
+
+## Linear Algebra
+
+### Symbols
+For a matrix $\mathrm{X}\in \mathbb{R}^{m\times n}$ , $\mathrm{X}^{(k)}$ represents the $k$-th colutmn of $\mathrm{X}$ , which is a vector in $n$-dimensional vector space.
+
+### Rouch´ e-Capelli Theorem
+For sytem $\mathrm{X}\mathbf{w}=\mathbf{y}$ where $\mathrm{X}\in \mathbb{R}^{m\times n}, \mathbf{w}\in \mathbb{R}^{n}, \mathbf{y}\in \mathbb{R}^m$ , where we need to find a solution of variable $\mathbf{w}$. 
+
+let $\~{\mathrm{X}}=[\mathrm{X}~\mathbf{y}]$
+- this system admits a **unique** solution $\Longleftrightarrow$ $\mathrm{rank}(\mathrm{X})=\mathrm{rank}(\~{\mathrm{X}})=n$
+- this system has **no** solution $\Longleftrightarrow$ $\mathrm{rank}(\mathrm{X})<\mathrm{rank}(\~{\mathrm{X}})$
+- this system has **infinity** many solution $\Longleftrightarrow$ $\mathrm{rank}(\mathrm{X})=\mathrm{rank}(\~{\mathrm{X}})<n$
+
+### Unamed Theorems
+- $\mathrm{rank}(\mathrm{A})=\mathrm{rank}(\mathrm{A^\top A})$
