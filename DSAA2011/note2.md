@@ -264,3 +264,23 @@ $$
 $$
 
 SGD leads to **no** significant change on average when the gradient of the full objective equals zero.
+
+### Regularization in Logistic Regression 正则化
+
+likelihood function is strictly increasing as function of $y_i\left(\left<\vec\theta, \mathbf{x}\right>+\theta_0\right)$ . Then we can infinitely scale the parameters to obtains the higher likelihood. This can make the model emphasis too much on the partial features and noise, which leads to overfitting. 参数无限制增大会导致模型过度关注噪声和局部特征，导致过拟合。
+
+e.g. $l_2$-norm :
+
+$$
+\argmin_{\vec\theta, \theta_0}\left\{ \frac{\lambda}{2}\left\Vert\vec\theta\right\Vert^2 + l(\vec\theta, \theta_0|\mathcal{D}) \right\}
+$$
+
+### Multi-Class Logistic Regression
+
+If we have $h\ge 2$ classes, replace $\mathrm{Pr}(y=1|\mathbf{x},\vec\theta,\theta_0)$ by **soft-max** function:
+
+$$
+\mathrm{Pr}(y=c|\mathbf{x},\vec\theta, \theta_0)=\frac
+	{\exp\left(\left<\vec\theta_c, \mathbf{x}\right>+\theta_{0,c}\right)}
+	{\sum_{i=1}^h {\exp\left(\left<\vec\theta_i, \mathbf{x}\right>+\theta_{0,i}\right)}}
+$$
