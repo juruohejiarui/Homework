@@ -2,6 +2,12 @@
 
 ## Probability and Statistic
 
+### Logistic Function / Sigmoid Function
+
+$$
+f(x)=\frac{1}{1 + \exp(-x)}
+$$
+
 ### Guassian Noise 高斯噪声
 
 $$
@@ -89,7 +95,9 @@ $$
 ## Linear Algebra
 
 ### Symbols
-For a matrix $\mathrm{X}\in \mathbb{R}^{m\times n}$ , $\mathrm{X}^{(k)}$ represents the $k$-th colutmn of $\mathrm{X}$ , which is a vector in $n$-dimensional vector space.
+- For a matrix $\mathrm{X}\in \mathbb{R}^{m\times n}$ , $\mathrm{X}^{(k)}$ represents the $k$-th colutmn of $\mathrm{X}$ , which is a vector in $n$-dimensional vector space.
+
+- $\mathrm{I}_n$ , an $n\times n$ matrix where the element on the main diagonal is $1$, otherwise $0$. 
 
 ### Rouch´ e-Capelli Theorem
 For sytem $\mathrm{X}\mathbf{w}=\mathbf{y}$ where $\mathrm{X}\in \mathbb{R}^{m\times n}, \mathbf{w}\in \mathbb{R}^{n}, \mathbf{y}\in \mathbb{R}^m$ , where we need to find a solution of variable $\mathbf{w}$. 
@@ -99,5 +107,11 @@ let $\~{\mathrm{X}}=\begin{bmatrix}\mathrm{X}&\mathbf{y}\end{bmatrix}$ be an arg
 - this system has **no** solution $\Longleftrightarrow$ $\mathrm{rank}(\mathrm{X})<\mathrm{rank}(\~{\mathrm{X}})$
 - this system has **infinity** many solution $\Longleftrightarrow$ $\mathrm{rank}(\mathrm{X})=\mathrm{rank}(\~{\mathrm{X}})<n$
 
+### Woodbury Formula
+$$
+(\mathrm{I}-\mathrm{U}\mathrm{V})^{-1}=\mathrm{I}-\mathrm{U}(\mathrm{I}+\mathrm{V}\mathrm{U})^{-1}\mathrm{V}
+$$
 ### Unamed Theorems
+
 - $\mathrm{rank}(\mathrm{A})=\mathrm{rank}(\mathrm{A^\top A})$
+- if $\mathrm{A}\in \mathbb{R}^{n\times n}$ is positive or negative definite, then $\mathrm{A}$ is invertible.

@@ -41,8 +41,7 @@ $$
 $$
 
 then let $J(\overline{\mathbf{w}})=(\mathrm{X}\overline{\mathbf{w}}-\mathbf{y})^{\top}(\mathrm{X}\overline{\mathbf{w}}-\mathbf{y})=2\overline{\mathbf{w}}^{\top}\mathrm{X}^{\top}\mathrm{X}\overline{\mathbf{w}}-2\overline{\mathbf{w}}^{\top}\mathrm{X}^{\top}\mathbf{y}+\mathbf{y}^{\top}\mathbf{y}$.
-the derivative is $\frac{\mathrm{d}J}{\mathrm{d}\overline{\mathbf{w}}}=2\overline{\mathbf{w}}^{\top}\mathrm{X}^{\top}\mathrm{X}-2\mathbf{y}^{\top}\mathrm{X}$
-then we have $\color{red}{\overline{\mathbf{w}}^*}=(\mathrm{X}^{\top}\mathrm{X})^{-1}\mathrm{X}^{\top}\mathbf{y}$
+the derivative is $\frac{\mathrm{d}J}{\mathrm{d}\overline{\mathbf{w}}}=2\overline{\mathbf{w}}^{\top}\mathrm{X}^{\top}\mathrm{X}-2\mathbf{y}^{\top}\mathrm{X}$ . Then we have $\color{red}{\overline{\mathbf{w}}^*}=(\mathrm{X}^{\top}\mathrm{X})^{-1}\mathrm{X}^{\top}\mathbf{y}$
 
 ### MLE
 let the likelihood function be
@@ -140,6 +139,125 @@ $$
 
 ## Ridge Regresion
 
-Assume that when the data have many variables/attributes and the dimension ($d$) is large, and few samples ($m$) is small.
+Assume that when the data have many variables/attributes and the dimension ($d$) is large, and few samples ($m$) is small. Then $\mathrm{X}\in \mathbb{R}^{m\times (d+1)}$ which is hard to be full rank, then $\mathrm{X}^\top\mathrm{X}$ may not exist.
 
-Then $\mathrm{X}$ 
+Then modify the loss function with a positive constant $\lambda$ : 
+
+$$
+\begin{aligned}
+J(\overline{\mathbf{w}})&=\sum_{i=1}^m (\overline{\mathbf{x}}^\top_i\overline{\mathbf{w}}-y_i)^2+\lambda\sum_{i=1}^{d+1}\overline{w}_i^2 \\
+&=(\mathrm{X}\overline{\mathbf{w}}-\mathbf{y})^\top(\mathrm{X}\overline{\mathbf{w}}-\mathbf{y})+\lambda\overline{\mathbf{w}}^\top\overline{\mathbf{w}}
+\end{aligned}
+$$
+
+Then we get 
+
+$$
+\color{red}{
+\overline{\mathbf{w}}^*=(\mathrm{X}^\top\mathrm{X}+\lambda \mathrm{I}_{d+1})^{-1}\mathrm{X}^\top\mathbf{y}}
+$$
+
+This form is called **Primal Form**. 
+
+where $\mathrm{X}^\top\mathrm{X}+\lambda \mathrm{I}_{d+1}$ is always invertible. 
+
+Since $\mathrm{X}^\top\mathrm{X}+\lambda \mathrm{I}_{d+1}\in \mathbb{R}^{(d+1)\times (d+1)}$ can be large and computation of its inverse is costly, we need **Dual Form**, which is :
+
+
+$$
+\color{red}{
+\overline{\mathbf{w}}^*=\mathrm{X}^\top(\mathrm{X}\mathrm{X}^\top+\lambda \mathrm{I}_m)^{-1}\mathbf{y}}
+$$
+
+Which is equivalent to **Primal Form**. It can be obtained from **Primal Form** applying *Woodbury Formula*.
+
+PS: polynomial ridge regression is which just replace $\mathrm{X}$ by $\mathrm{P}$ .
+
+## Logistic Regression
+Give an input vector $\mathbf{x}\in \mathbb{R}^{d}$ . The parameters of logistic regression are $\vec{\theta}\in \mathbb{R}^d, \theta_0\in \mathbb{R}$ . let $g$ be the sigmoid function.
+
+$$
+\mathrm{Pr}(y=1|\mathbf{x},\vec{\theta},\theta_0)=g\left(\left<\vec\theta,\mathbf{x}\right>+\theta_0\right)=\frac{1}{1 + \exp\left(-\left<\vec\theta,\mathbf{x}\right>-\theta_0\right)}
+$$
+
+More generally, we have 
+
+$$
+\mathrm{Pr}(y=y_0|\mathbf{x}=\mathbf{x}_0,\vec\theta,\theta_0)=g\left(y_0\left(\left<\vec\theta,\mathbf{x}_0\right>+\theta_0\right)\right)
+$$
+
+where $y_0\in\{-1, 1\}$
+
+### Why?
+**logs-odd** should be linear function:
+
+$$
+\log\frac{\mathrm{Pr(y=1|\mathbf{x},\vec\theta,\theta_0)}}{\mathrm{Pr(y=-1|\mathbf{x},\vec\theta,\theta_0)}}=\left<\vec\theta,\mathbf{x}\right>+\theta_0
+$$
+
+Decision boundary:
+where $\left<\vec\theta,\mathbf{x}\right>+\theta_0=0$
+
+### MLE
+
+Likelihood function of $(\mathrm{x_0},y_0)$ of given $(\vec\theta, \theta_0)$: 
+
+$$
+L(\vec\theta, \theta_0|\mathrm{x_0},y_0)=\mathrm{Pr}(y=y_0|\mathbf{x}=\mathbf{x}_0,\vec\theta,\theta_0)
+$$
+
+For likelihood function data set $\mathcal{D}=\{(\mathrm{x}_i, y_i)_i\}$
+
+$$
+L(\vec\theta, \theta_0|\mathcal{D})=\prod_{i=1}^m \mathrm{Pr}(y=y_i|\mathbf{x}=\mathbf{x}_i,\vec\theta,\theta_0)
+$$
+
+we need to maximum the value of $L(\vec\theta, \theta_0|\mathcal{D})$ .
+
+$$
+\begin{aligned}
+\argmax_{\vec\theta, \theta_0}\left\{L(\vec\theta, \theta_0|\mathcal{D})\right\}
+&=\argmax_{\vec\theta, \theta_0}
+    \sum_{i=1}^m 
+        \log \mathrm{Pr}\left(y=y_i|\mathbf{x}=\mathbf{x}_i,\vec\theta,\theta_0\right) \\
+&=\argmin_{\vec\theta, \theta_0}
+    \sum_{i=1}^m 
+        \log \mathrm{Pr}\left(y=y_i|\mathbf{x}=\mathbf{x}_i,\vec\theta,\theta_0\right) \\
+&=\argmin_{\vec\theta, \theta_0}
+    \sum_{i=1}^m 
+        \log \left[1+\exp\left(-y_i\left(\left<\vec\theta,\mathbf{x}\right>+\theta_0\right)\right)\right]
+\end{aligned}
+$$
+
+Denote that 
+$$
+l(\vec\theta, \theta_0|\mathcal{D})=\sum_{i=1}^m \log \left[1+\exp\left(-y_i\left(\left<\vec\theta,\mathbf{x}\right>+\theta_0\right)\right)\right]
+$$
+
+### Applying Stochastic Gradient Descent
+
+$$
+\begin{aligned}
+\frac{\mathrm{d}}{\mathrm{d}\theta_0}\left(\log \left[1+\exp\left(-y_i\left(\left<\vec\theta,\mathbf{x}\right>+\theta_0\right)\right)\right]\right)
+&= -y_i\frac
+    {\exp\left(-y_i\left(\left<\vec\theta,\mathbf{x}\right>+\theta_0\right)\right)}
+    {1+\exp\left(-y_i\left(\left<\vec\theta,\mathbf{x}\right>+\theta_0\right)\right)} \\
+&= \color{red}{-y_i\left[1-\mathrm{Pr}\left(y=y_i|\mathbf{x}=\mathbf{x}_i,\vec\theta,\theta_0\right)\right]}\\
+\frac{\mathrm{d}}{\mathrm{d}\vec\theta}\left(\log \left[1+\exp\left(-y_i\left(\left<\vec\theta,\mathbf{x}\right>+\theta_0\right)\right)\right]\right)
+&=
+\color{red}{-y_i\mathbf{x}_i\left[1-\mathrm{Pr}\left(y=y_i|\mathbf{x}=\mathbf{x}_i,\vec\theta,\theta_0\right)\right]}\\
+\end{aligned}
+$$
+
+Then 
+
+$$
+\frac{\mathrm{d}l(\vec\theta, \theta_0|\mathcal{D})}{\mathrm{d}\theta_0}
+= \sum_{i=1}^n 
+    -y_i\left[1-\mathrm{Pr}\left(y=y_i|\mathbf{x}=\mathbf{x}_i,\vec\theta,\theta_0\right)\right] \\
+\frac{\mathrm{d}l(\vec\theta, \theta_0|\mathcal{D})}{\mathrm{d}\vec\theta}
+= \sum_{i=1}^n
+    -y_i\mathbf{x}_i\left[1-\mathrm{Pr}\left(y=y_i|\mathbf{x}=\mathbf{x}_i,\vec\theta,\theta_0\right)\right]
+$$
+
+SGD leads to **no** significant change on average when the gradient of the full objective equals zero.
