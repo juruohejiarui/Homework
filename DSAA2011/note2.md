@@ -3,7 +3,9 @@
 ## $d$-Dimension Vector to $\mathbb{R}$
 
 $m$: size of dataset 数据点个数
+
 $d$: dimension/length of each feature vector (input) 输入的维度/长度
+
 $y_i$: scaler or real-valued target/output 输出
 
 Design a function $f_{\mathbf{W}, b}(\mathbf{x})$ i.e.
@@ -55,6 +57,7 @@ MLE of distribution of error: $e_i\sim \mathcal{N}(0, \hat{\sigma}^2)$
 ## $d$-Dimensional Vector to $h$-Dimensional Vector
 
 $h$: dimension/length of output vector
+
 $\mathbf{y}$: output $\in \mathbb{R}^h$
 
 Then $\mathrm{W}\in \mathbb{R}^{h\times d}, \mathbf{b}\in \mathbb{R}^d, \overline{\mathrm{W}}=\begin{bmatrix}\mathbf{b}^{\top}\\\mathrm{W}\end{bmatrix}\in \mathbb{R}^{(d+1)\times h}$ 
