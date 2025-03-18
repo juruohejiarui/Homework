@@ -109,3 +109,37 @@ $$
 
 ## Polynomial Regression
 
+Treat different polynomial items of one input as items of different dimensions of input.
+
+Assume that we have an $p$-ordered input, then $d'=\binom{d+p}{p}$. And the input can be like this:
+
+$$
+\mathbf{p}=\begin{bmatrix}1&x_1&x_2&\dots&x_1x_2&\dots&x_1x_2x_3&\dots&\prod_{i=1}^p x_i&\dots\end{bmatrix}^\top \in \mathbb{R}^{\binom{d+p}{p}}
+$$
+
+Then for 1-d output, weight vector is $\mathbf{w}\in\mathbb{R}^{\binom{d+p}{p}}$ 
+For multi-dimensional output, weight matrix is $\mathrm{W}\in \mathbb{R}^{\binom{d+p}{p}\times h}$
+
+and
+
+$$
+y=\mathbf{p}^\top \mathbf{w} \\
+\mathbf{y}=\mathbf{p}^\top \mathrm{W}
+$$
+
+Then we have $\mathrm{P}=\begin{bmatrix}\mathbf{p}_1^\top&\mathbf{p}_2^\top&\dots&\mathbf{p}_n^\top\end{bmatrix}^\top\in \mathbb{R}^{m\times \binom{d+p}{p}}$
+
+
+
+Similarly, we have 
+
+$$
+\mathbf{w}^*=\mathrm{P}^\top(\mathrm{P}\mathrm{P}^\top)^{-1}\mathbf{y} \\
+\mathrm{W}^*=\mathrm{P}^\top(\mathrm{P}\mathrm{P}^\top)^{-1}\mathrm{Y} \\
+$$
+
+## Ridge Regresion
+
+Assume that when the data have many variables/attributes and the dimension ($d$) is large, and few samples ($m$) is small.
+
+Then $\mathrm{X}$ 
