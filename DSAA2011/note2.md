@@ -7,6 +7,7 @@ $d$: dimension/length of each feature vector (input) 输入的维度/长度
 $y_i$: scaler or real-valued target/output 输出
 
 Design a function $f_{\mathbf{W}, b}(\mathbf{x})$ i.e.
+
 $$
 f_{\mathbf{w}, b}(\mathbf{x})=\mathbf{w}^{\top}\mathbf{x}+b
 $$
@@ -14,6 +15,7 @@ $$
 - bias/offset: $b\in \mathbb{R}$
 
 written in vector form:
+
 $$
 f_{\mathbf{w}, b}=\begin{bmatrix}
 b\\
@@ -28,6 +30,7 @@ let $\overline {\mathbf{x}} = \begin{bmatrix}1\\\mathbf{x}\end{bmatrix}, \overli
 
 ### Objective (loss) Function 
 let $\mathrm{X}=[\overline{\mathbf{x}}^{\top}_1, \overline{\mathbf{x}}^{\top}_2, \dots, \overline{\mathbf{x}}^{\top}_m]^{\top} \in \mathbb{R}^{m\times (d+1)}$ and $\mathbf{y}=[y_1, y_2, \dots, y_m]^{\top}\in \mathbb{R}^m$ , then loss function is 
+
 $$
 \begin{aligned}
 \mathrm{Loss}(\mathbf{w}, b)
@@ -42,9 +45,10 @@ the derivative is $\frac{\mathrm{d}J}{\mathrm{d}\overline{\mathbf{w}}}=2\overlin
 then we have $\color{red}{\overline{\mathbf{w}}^*}=(\mathrm{X}^{\top}\mathrm{X})^{-1}\mathrm{X}^{\top}\mathbf{y}$
 
 ### MLE
-let
+let the likelihood function be
+
 $$
-L(\overline{\mathbf{w}}, \sigma^2 | {y_i, \mathbf{x}_i})=\frac{1}{\sqrt{2\pi \sigma^2}}\prod_{i=1}^m \exp\left(-\frac{(y_i - \overline{\mathbf{w}}^\top \mathbf{x}_i)^2}{2\sigma^2}\right)
+L(\overline{\mathbf{w}}, \sigma^2 | \{y_i, \mathbf{x}_i\})=\frac{1}{\sqrt{2\pi \sigma^2}}\prod_{i=1}^m \exp\left(-\frac{(y_i - \overline{\mathbf{w}}^\top \mathbf{x}_i)^2}{2\sigma^2}\right)
 $$
 
 MLE of distribution of error: $e_i\sim \mathcal{N}(0, \hat{\sigma}^2)$
@@ -56,9 +60,10 @@ $\mathbf{y}$: output $\in \mathbb{R}^h$
 
 Then $\mathrm{W}\in \mathbb{R}^{h\times d}, \mathbf{b}\in \mathbb{R}^d, \overline{\mathrm{W}}=\begin{bmatrix}\mathbf{b}^{\top}\\\mathrm{W}\end{bmatrix}\in \mathbb{R}^{(d+1)\times h}$ 
 
-then $f_{\mathrm{W}, \mathbf{d}}(\mathbf{x})=\mathrm{W}\mathbf{x}+\mathbf{b}$
+then $f_{\mathrm{W}, \mathbf{d}}(\mathbf{x})=\mathrm{W}^\top\mathbf{x}+\mathbf{b}$
 
 then we have
+
 $$
 \hat{\mathrm{w}}=(\overline{\mathbf{X}}^\top\overline{\mathbf{X}})^{-1}\overline{\mathbf{X}}^\top\mathbf{y}\\
 \hat{\sigma}^2=\frac{1}{m}\sum_{i=1}^m \left(y_i-\begin{bmatrix}1&\mathbf{x}_i^\top\end{bmatrix}\hat{\mathrm{w}}\right)^2=\frac{1}{m}(\overline{\mathrm{X}}\hat{\mathbf{w}}-\mathbf{y})^\top(\overline{\mathrm{X}}\hat{\mathbf{w}}-\mathbf{y})
@@ -69,6 +74,7 @@ $$
 let $\overline{\mathrm{Y}}=[\mathbf{y}_1^\top, \mathbf{y}_2^\top, \dots, \mathbf{y}_m^\top]^\top \in \mathbb{R}^{m\times h}$ and $\mathrm{X}$ is the same as the previous definition.
 
 then
+
 $$
 \mathrm{Loss}(\overline{\mathrm{W}})=\sum_{k=1}^h (\mathrm{X}\overline{\mathrm{W}}^{(k)}-\mathrm{Y}^{(k)})^\top(\mathrm{X}\overline{\mathrm{W}}^{(k)}-\mathrm{Y}^{(k)})
 $$
@@ -76,3 +82,30 @@ $$
 Then the least squares solution is $\overline{\mathrm{W}}^*=\argmin_{\mathrm{W},\mathbf{b}} \mathrm{Loss}(\overline{\mathrm{W}})=\color{red}{(\mathrm{X}^\top\mathrm{X})^{-1}\mathrm{X}^\top\mathrm{Y}}$
 
 we need to guarantee that $\mathrm{X}$ is full rank to make $(\mathrm{X}^\top\mathrm{X})^{-1}$ exist. 
+
+## For Binary Classification
+
+let $\mathrm{sign}(x)=\begin{cases}1 & \text{if } x>0 \\ 0 &\text{if }x=0 \\ -1 &\text{otherwise}\end{cases}$
+
+we just need to modify the output with 
+
+$$
+g_{\mathbf{w}, b}(\mathbf{x})=\mathrm{sign}(f_{\mathbf{w},b}(\mathbb{x}))=\mathrm{sign}\left(\overline{\mathbf{x}}^\top\mathbf{w}\right)
+$$
+
+PS: output $=0$ declares error.
+
+## For Multi-class Classification
+
+Apply **one-hot encoding** . Assume that there are $h$ labels, then for one output $\mathbf{y}\in\mathbb{R}^h$, which is $t$-th label, then we have $\forall i\in \mathbb{Z}\cap [1, h]\backslash\{x\}, y_i=0, y_t=1$ . 用人话来说就是在正确的标签上面打一个 $1$, 其余位置为 $0$. 
+
+Then the output label can be 
+
+$$
+\mathrm{output}=\argmax_{k\in \{1, 2, ... h\}} \left\{\overline{\mathbf{x}}^\top \overline{\mathrm{W}}^{(k)}\right\}
+$$
+
+选取值最大的一个
+
+## Polynomial Regression
+
