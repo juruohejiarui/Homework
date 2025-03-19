@@ -92,7 +92,7 @@ let $\mathrm{sign}(x)=\begin{cases}1 & \text{if } x>0 \\ 0 &\text{if }x=0 \\ -1 
 we just need to modify the output with 
 
 $$
-g_{\mathbf{w}, b}(\mathbf{x})=\mathrm{sign}(f_{\mathbf{w},b}(\mathbb{x}))=\mathrm{sign}\left(\overline{\mathbf{x}}^\top\mathbf{w}\right)
+g_{\mathbf{w}, b}(\mathbf{x})=\mathrm{sign}(f_{\mathbf{w},b}(\mathbf{x}))=\mathrm{sign}\left(\overline{\mathbf{x}}^\top\mathbf{w}\right)
 $$
 
 PS: output $=0$ declares error.
@@ -162,7 +162,7 @@ $$
 
 This form is called **Primal Form**. 
 
-where $\mathrm{X}^\top\mathrm{X}+\lambda \mathrm{I}_{d+1}$ is always invertible. 
+where $\mathrm{X}^\top\mathrm{X}+\lambda \mathrm{I}_{d+1}$ is always invertible. This can be proved by applying theorems mentioned in *Mathematical Tools* .
 
 Since $\mathrm{X}^\top\mathrm{X}+\lambda \mathrm{I}_{d+1}\in \mathbb{R}^{(d+1)\times (d+1)}$ can be large and computation of its inverse is costly, we need **Dual Form**, which is :
 
