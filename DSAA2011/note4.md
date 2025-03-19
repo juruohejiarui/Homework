@@ -153,3 +153,23 @@ The solution of SVM depends on a small number of data samples $(\mathbf{x}_i, y_
 
 ## Evaluation
 
+Let $\left(\vec\theta^t,\theta_0^t\right)$ be the parameters learnt from $\mathcal{D}\backslash\{(\mathbf{x}_t,y_t)\}$ i.e.
+
+$$
+\left(\vec\theta^t,\theta_0^t\right)=\argmin_{\left(\vec\theta,\theta_0\right)\in\mathbb{R}^d\times\mathbb{R}}\left\{
+	\frac{1}{2}
+	\left\lVert\vec\theta\right\rVert^2 \text{ s.t. } 
+	y_i\left(\mathbf{x}^\top\vec\theta+\theta_0\right)\ge 1~\forall i\in [1,n]\cap\mathbb{Z}\backslash\{t\}
+\right\}
+$$
+
+**Leave-one-out cross-validation error (LOOCV)** : a value that can assess the robustness of the SVM :
+
+$$
+\mathrm{LOOCV}=\frac{1}{n}\sum_{t=1}^n
+	\mathrm{Loss}\left(y_t,f_{\vec\theta^t,\theta_0^t}(\mathbf{x})\right)
+$$
+
+Where $\mathrm{Loss}(a,b)=\mathbb{I}\{a\ne b\}$
+
+LOOCV is small, the model generalizes well.
