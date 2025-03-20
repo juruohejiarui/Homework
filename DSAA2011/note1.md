@@ -28,6 +28,7 @@ $$
 $$
 \mathbb{E} Y= \mathbb{E}[g(X)]=\sum_{y\in \mathcal{Y}} y\cdot p_Y(y)=\sum_{x\in \mathcal{X}} g(x)p_X(x)
 $$
+
 - Continuous case 连续情况：
 where $f$ is the probability density funtion 概率密度函数
 
@@ -40,8 +41,8 @@ Assume we get a probability function $p_X(x; \theta)$ with unconfirmed parameter
 
 $$
 \begin{aligned}
-\hat{\theta}_{\mathrm{ML}} &= \argmax_{\theta} p_{X}(x_1, x_2, \dots, x_n; \theta) \\
-&=\argmax_{\theta} \log p_{X}(x_1, x_2, \dots, x_n; \theta)
+\hat{\theta}_{\mathrm{ML}} &= \arg\max_{\theta} p_{X}(x_1, x_2, \dots, x_n; \theta) \\
+&=\arg\max_{\theta} \log p_{X}(x_1, x_2, \dots, x_n; \theta)
 \end{aligned}
 $$
 
@@ -49,8 +50,8 @@ if $x_1, x_2, \dots, x_n$ are independent, then:
 
 $$
 \begin{aligned}
-\hat{\theta}_{\mathrm{ML}} &= \argmax_{\theta} \prod_{i=1}^n p_{X}(x_i; \theta) \\
-&= \argmax_{\theta} \sum_{i=1}^n \log p_{X}(x_i; \theta)
+\hat{\theta}_{\mathrm{ML}} &= \arg\max_{\theta} \prod_{i=1}^n p_{X}(x_i; \theta) \\
+&= \arg\max_{\theta} \sum_{i=1}^n \log p_{X}(x_i; \theta)
 \end{aligned}
 $$
 
@@ -96,6 +97,7 @@ $$
 ## Linear Algebra
 
 ### Symbols
+
 - For a matrix $\mathrm{X}\in \mathbb{R}^{m\times n}$ , $\mathrm{X}^{(k)}$ represents the $k$-th colutmn of $\mathrm{X}$ , which is a vector in $n$-dimensional vector space.
 
 - $\mathrm{I}_n$ , an $n\times n$ matrix where the element on the main diagonal is $1$, otherwise $0$. 
@@ -104,6 +106,7 @@ $$
 For sytem $\mathrm{X}\mathbf{w}=\mathbf{y}$ where $\mathrm{X}\in \mathbb{R}^{m\times n}, \mathbf{w}\in \mathbb{R}^{n}, \mathbf{y}\in \mathbb{R}^m$ , where we need to find a solution of variable $\mathbf{w}$. 
 
 let $\~{\mathrm{X}}=\begin{bmatrix}\mathrm{X}&\mathbf{y}\end{bmatrix}$ be an argumented matrix.
+
 - this system admits a **unique** solution $\Longleftrightarrow$ $\mathrm{rank}(\mathrm{X})=\mathrm{rank}(\~{\mathrm{X}})=n$
 - this system has **no** solution $\Longleftrightarrow$ $\mathrm{rank}(\mathrm{X})<\mathrm{rank}(\~{\mathrm{X}})$
 - this system has **infinity** many solution $\Longleftrightarrow$ $\mathrm{rank}(\mathrm{X})=\mathrm{rank}(\~{\mathrm{X}})<n$
@@ -112,6 +115,7 @@ let $\~{\mathrm{X}}=\begin{bmatrix}\mathrm{X}&\mathbf{y}\end{bmatrix}$ be an arg
 $$
 (\mathrm{I}-\mathrm{U}\mathrm{V})^{-1}=\mathrm{I}-\mathrm{U}(\mathrm{I}+\mathrm{V}\mathrm{U})^{-1}\mathrm{V}
 $$
+
 ### Unamed Theorems
 
 - $\mathrm{rank}(\mathrm{A})=\mathrm{rank}(\mathrm{A^\top A})$

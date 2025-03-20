@@ -13,6 +13,7 @@ Design a function $f_{\mathbf{W}, b}(\mathbf{x})$ i.e.
 $$
 f_{\mathbf{w}, b}(\mathbf{x})=\mathbf{w}^{\top}\mathbf{x}+b
 $$
+
 - weight: $\mathbf{w}\in \mathbb{R}^d$
 - bias/offset: $b\in \mathbb{R}$
 
@@ -81,7 +82,7 @@ $$
 \mathrm{Loss}(\overline{\mathrm{W}})=\sum_{k=1}^h (\mathrm{X}\overline{\mathrm{W}}^{(k)}-\mathrm{Y}^{(k)})^\top(\mathrm{X}\overline{\mathrm{W}}^{(k)}-\mathrm{Y}^{(k)})
 $$
 
-Then the least squares solution is $\overline{\mathrm{W}}^*=\argmin_{\mathrm{W},\mathbf{b}} \mathrm{Loss}(\overline{\mathrm{W}})=\color{red}{(\mathrm{X}^\top\mathrm{X})^{-1}\mathrm{X}^\top\mathrm{Y}}$
+Then the least squares solution is $\overline{\mathrm{W}}^*=\arg\min_{\mathrm{W},\mathbf{b}} \mathrm{Loss}(\overline{\mathrm{W}})=\color{red}{(\mathrm{X}^\top\mathrm{X})^{-1}\mathrm{X}^\top\mathrm{Y}}$
 
 we need to guarantee that $\mathrm{X}$ is full rank to make $(\mathrm{X}^\top\mathrm{X})^{-1}$ exist. 
 
@@ -104,7 +105,7 @@ Apply **one-hot encoding** . Assume that there are $h$ labels, then for one outp
 Then the output label can be 
 
 $$
-\mathrm{output}=\argmax_{k\in \{1, 2, ... h\}} \left\{\overline{\mathbf{x}}^\top \overline{\mathrm{W}}^{(k)}\right\}
+\mathrm{output}=\arg\max_{k\in \{1, 2, ... h\}} \left\{\overline{\mathbf{x}}^\top \overline{\mathrm{W}}^{(k)}\right\}
 $$
 
 选取值最大的一个
@@ -219,14 +220,14 @@ we need to maximum the value of $L(\vec\theta, \theta_0|\mathcal{D})$ .
 
 $$
 \begin{aligned}
-\argmax_{\vec\theta, \theta_0}\left\{L(\vec\theta, \theta_0|\mathcal{D})\right\}
-&=\argmax_{\vec\theta, \theta_0}
+\arg\max_{\vec\theta, \theta_0}\left\{L(\vec\theta, \theta_0|\mathcal{D})\right\}
+&=\arg\max_{\vec\theta, \theta_0}
     \sum_{i=1}^m 
         \log \mathrm{Pr}\left(y=y_i|\mathbf{x}=\mathbf{x}_i,\vec\theta,\theta_0\right) \\
-&=\argmin_{\vec\theta, \theta_0}
+&=\arg\min_{\vec\theta, \theta_0}
     \sum_{i=1}^m 
         \log \mathrm{Pr}\left(y=y_i|\mathbf{x}=\mathbf{x}_i,\vec\theta,\theta_0\right) \\
-&=\argmin_{\vec\theta, \theta_0}
+&=\arg\min_{\vec\theta, \theta_0}
     \sum_{i=1}^m 
         \log \left[1+\exp\left(-y_i\left(\left<\vec\theta,\mathbf{x}\right>+\theta_0\right)\right)\right]
 \end{aligned}
@@ -272,7 +273,7 @@ likelihood function is strictly increasing as function of $y_i\left(\left<\vec\t
 e.g. $l_2$-norm :
 
 $$
-\argmin_{\vec\theta, \theta_0}\left\{ \frac{\lambda}{2}\left\Vert\vec\theta\right\Vert^2 + l(\vec\theta, \theta_0|\mathcal{D}) \right\}
+\arg\min_{\vec\theta, \theta_0}\left\{ \frac{\lambda}{2}\left\Vert\vec\theta\right\Vert^2 + l(\vec\theta, \theta_0|\mathcal{D}) \right\}
 $$
 
 ### Multi-Class Logistic Regression

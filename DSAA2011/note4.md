@@ -17,6 +17,7 @@ $$
 
 ### Definitions: 
 **Margin of Classifier**: The margin of classifier $f_{\vec\theta}$ on sample $(\mathbf{x},y)$ is $y{\vec\theta}\mathbf{x}$ or $y\left<{\vec\theta}, \mathbf{x}\right>$
+
 - **Positive Margin**: $(\mathbf{x},y)$ is correctly classified by $\vec{\theta}$ . 
 - **Negative Margin**: $(\mathbf{x},y)$ is not correctly classified by $\vec{\theta}$
 - **Bigger Margin**: $(\mathbf{x},y)$ is more correctly clasified by $\vec{\theta}$
@@ -28,6 +29,7 @@ y_i=\mathrm{sign}\left({\vec{\theta}}^\top \mathbf{x}\right)\text{ or }y_i{\vec{
 $$
 
 There is some hyperplane that (strictly) separates the data into positive and negative samples:
+
 - $\vec\theta$ has positive margin $y_i\left<\vec\theta, \mathbf{x}_i\right> > 0~\forall i$
 - Minimum margin: $\gamma=\min_{1\leq i\leq n} \left\{y_i\left<\vec\theta, \mathbf{x}_i\right>\right\}>0$
 
@@ -73,8 +75,8 @@ Then we have :
 
 $$
 \begin{aligned}
-&\argmin_{\vec\theta'\in \mathbb{R}^d} \left\lVert\vec\theta'\right\rVert \text{ s.t. } \forall i=1,2,\dots,n,  y_i\mathbf{x}_i^\top \vec\theta' \ge 1 \\
-\Leftrightarrow& \argmin_{\vec\theta'\in \mathbb{R}^d} \frac{1}{2}\left\lVert\vec\theta'\right\rVert^2 \text{ s.t. } \forall i=1,2,\dots,n,  y_i\mathbf{x}_i^\top \vec\theta' \ge 1 & \text{Primal form of SVM}
+& \arg\min_{\vec\theta'\in \mathbb{R}^d} \left\lVert\vec\theta'\right\rVert \text{ s.t. } \forall i=1,2,\dots,n,  y_i\mathbf{x}_i^\top \vec\theta' \ge 1 \\
+\Leftrightarrow& \arg\min_{\vec\theta'\in \mathbb{R}^d} \frac{1}{2}\left\lVert\vec\theta'\right\rVert^2 \text{ s.t. } \forall i=1,2,\dots,n,  y_i\mathbf{x}_i^\top \vec\theta' \ge 1 & \text{Primal form of SVM}
 \end{aligned}
 $$
 
@@ -82,7 +84,7 @@ $$
 
 $$
 \color{red}{
-\argmin_{\vec\theta'\in \mathbb{R}^d} \frac{1}{2}\left\lVert\vec\theta'\right\rVert^2 \text{ s.t. } \forall i=1,2,\dots,n,  y_i\mathbf{x}_i^\top \vec\theta' \ge 1}
+\arg\min_{\vec\theta'\in \mathbb{R}^d} \frac{1}{2}\left\lVert\vec\theta'\right\rVert^2 \text{ s.t. } \forall i=1,2,\dots,n,  y_i\mathbf{x}_i^\top \vec\theta' \ge 1}
 $$
 
 and the SVM algorithm is that finds the maximuim (geometric) margin linear classifier.
@@ -136,14 +138,16 @@ Then the decision boundary is $L=\left\{\mathbf{x}\in\mathbb{R}^d: \vec{\theta}^
 Then the optimization problem becomes:
 
 $$
-\argmin_{\left(\vec\theta',\theta_0'\right)\in \mathbb{R}^d\times\mathbb{R}} \frac{1}{2}\left\lVert\vec\theta'\right\rVert^2 \text{ s.t. } \forall i=1,2,\dots,n,  y_i\left(\mathbf{x}_i^\top \vec\theta'+\theta_0'\right) \ge 1
+\arg\min_{\left(\vec\theta',\theta_0'\right)\in \mathbb{R}^d\times\mathbb{R}} \frac{1}{2}\left\lVert\vec\theta'\right\rVert^2 \text{ s.t. } \forall i=1,2,\dots,n,  y_i\left(\mathbf{x}_i^\top \vec\theta'+\theta_0'\right) \ge 1
 $$
 
 **Remarks**:
+
 - $\theta_0$ only appears in constrains. $\theta_0$ 只会出现在约束中.
 - This is different from $\overline{\mathbf{x}}=\begin{bmatrix}\mathbf{x}&1\end{bmatrix}$ in linear regression. We do not bias in any way where the separating hyperplane should appear, only that it should maximize the geometric margin. 我们不预设分离超平面必须处于某个固定的位置（即不人为地“偏置”超平面的出现位置），而是完全依赖于最大化几何间隔这一原则来决定超平面的位置和方向。
 
 Support Vectors:
+
 - samples exactly on the margin
 - Quatify the quality of this binary classifier
 
@@ -156,7 +160,7 @@ The solution of SVM depends on a small number of data samples $(\mathbf{x}_i, y_
 Let $\left(\vec\theta^t,\theta_0^t\right)$ be the parameters learnt from $\mathcal{D}\backslash\{(\mathbf{x}_t,y_t)\}$ i.e.
 
 $$
-\left(\vec\theta^t,\theta_0^t\right)=\argmin_{\left(\vec\theta,\theta_0\right)\in\mathbb{R}^d\times\mathbb{R}}\left\{
+\left(\vec\theta^t,\theta_0^t\right)=\arg\min_{\left(\vec\theta,\theta_0\right)\in\mathbb{R}^d\times\mathbb{R}}\left\{
 	\frac{1}{2}
 	\left\lVert\vec\theta\right\rVert^2 \text{ s.t. } 
 	y_i\left(\mathbf{x}^\top\vec\theta+\theta_0\right)\ge 1~\forall i\in [1,n]\cap\mathbb{Z}\backslash\{t\}
@@ -192,7 +196,7 @@ Then modify the problem to this:
 
 $$
 \begin{aligned}
-&\argmin_{
+& \arg\min_{
 	\left(\vec\theta,\theta_0,\vec\xi\right)
 	\in
 	\mathbb{R}^d\times \mathbb{R}\times \mathbb{R}_+^n
@@ -205,7 +209,7 @@ $$
 	y_i\left(\mathbf{x}_i^\top\vec\theta+\theta_0\right)\ge 1-\xi_i
 \right\} \\
 \Leftrightarrow
-&\argmin_{
+&\arg\min_{
 	\left(\vec\theta,\theta_0\right)
 	\in
 	\mathbb{R}^d\times \mathbb{R}
