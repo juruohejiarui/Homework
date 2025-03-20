@@ -4,6 +4,7 @@
 
 - **Logistic Function / Sigmoid Function**: $f(x)=\frac{1}{1 + \exp(-x)}$
 - $\mathbb{I}\{\text{statement}\}=\begin{cases}1 & \text{statement is true} \\ 0 & \text{otherwise}\end{cases}$
+- $[x]^+=\max\{0,x\}$ 
 
 
 ## Probability and Statistic

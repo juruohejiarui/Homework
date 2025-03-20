@@ -113,7 +113,7 @@ $$
 
 $\text{Q.E.D}$
 
-## Incorporating an offset
+## Incorporating An Offset
 
 If data are not "centered" at zero, we can incorporate an offset $\theta_0\in \mathbb{R}$ :
 
@@ -173,3 +173,53 @@ $$
 Where $\mathrm{Loss}(a,b)=\mathbb{I}\{a\ne b\}$
 
 LOOCV is small, the model generalizes well.
+
+Let $N\in\{0, 1, 2,\dots,n\}$ be the number of support vectors. Then we have:
+
+$$
+\mathrm{LOOCV}\leq \frac{N}{n}
+$$
+
+Hint: Only the support vectors can contribute to $\mathrm{LOOCV}$ .
+
+## Allowing Misclassified Example
+
+Permit some errors to increase robustness.
+
+Let $\vec{\xi}=[\xi_1,\xi_2,\dots,\xi_n]~(\forall i=1,2,\dots,n, \xi_i\ge 0)$ be **slack variables**, and $C>0$ be pre-specified constant.
+
+Then modify the problem to this:
+
+$$
+\begin{aligned}
+&\argmin_{
+	\left(\vec\theta,\theta_0,\vec\xi\right)
+	\in
+	\mathbb{R}^d\times \mathbb{R}\times \mathbb{R}_+^n
+}
+\left\{
+	\frac{1}{2}\left\lVert\vec{\theta}\right\rVert^2
+	+C\sum_{i=1}^n \xi_i
+	\text{ s.t. }
+	\forall i\in\{1, 2, \dots, n\},
+	y_i\left(\mathbf{x}_i^\top\vec\theta+\theta_0\right)\ge 1-\xi_i
+\right\} \\
+\Leftrightarrow
+&\argmin_{
+	\left(\vec\theta,\theta_0\right)
+	\in
+	\mathbb{R}^d\times \mathbb{R}
+}
+\left\{
+	\frac{1}{2}\left\lVert\vec\theta\right\rVert^2
+	+C\sum_{i=1}^n \left[1-y_i\left(\mathbf{x}_i^\top\vec\theta+\theta_0\right)\right]^+
+\right\}
+\end{aligned}
+$$
+
+- The constrain is violated if some $\xi_i>0$ .
+- Penalty for one violation: $C\xi_i$ .
+- If $C\rightarrow \infty$, then $\xi_i\rightarrow 0$ , returns to the original max margin classifier.
+- If $C\approx0$, some violation is allowed. 
+
+![Sample](image-2.png)
