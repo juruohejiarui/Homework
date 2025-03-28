@@ -21,6 +21,7 @@ UFUG1601/TicTacToe/__pycache__/
 DSAA2011/*.html
 DSAA2011/*.pdf
 DSAA2011/.*
+DSAA2011/*-sol.ipynb
 *.stash
 a.out
 .vscode/c_cpp_properties.json
