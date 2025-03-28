@@ -16,6 +16,7 @@ $$
 $$
 
 ### Definitions: 
+
 **Margin of Classifier**: The margin of classifier $f_{\vec\theta}$ on sample $(\mathbf{x},y)$ is $y{\vec\theta}\mathbf{x}$ or $y\left<{\vec\theta}, \mathbf{x}\right>$
 
 - **Positive Margin**: $(\mathbf{x},y)$ is correctly classified by $\vec{\theta}$ . 
@@ -40,6 +41,7 @@ y_i{\vec{\theta}}^\top\mathbf{x}_i\ge\gamma~\forall i=1,2,\dots,n
 $$
 
 **Geometric margin**: 
+
 $$
 \gamma_{\mathrm{geom}}:=\frac{\gamma}{\left\lVert\vec\theta\right\rVert}=\frac{\min_{1\leq i\leq n} y_i\mathbf{x}_i^\top\vec\theta}{\left\lVert\vec\theta\right\rVert}
 $$

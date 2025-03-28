@@ -116,6 +116,14 @@ $$
 (\mathrm{I}-\mathrm{U}\mathrm{V})^{-1}=\mathrm{I}-\mathrm{U}(\mathrm{I}+\mathrm{V}\mathrm{U})^{-1}\mathrm{V}
 $$
 
+### Least Square Solution
+
+For a linearly system $\mathrm{X}\mathbf{w}=\mathbf{y}$ , where $\mathrm{X}\in \mathbb{R}^{m\times n}, \mathbf{w}\in \mathbb{R}^n, \mathbf{y}\in\mathbb{R}^m$, the least square solution is :
+
+$$
+\~{\mathbf{w}}=\left(\mathrm{X}^\top\mathrm{X}\right)^{-1}\mathrm{X}^\top\mathbf{y}
+$$
+
 ### Unamed Theorems
 
 - $\mathrm{rank}(\mathrm{A})=\mathrm{rank}(\mathrm{A^\top A})$

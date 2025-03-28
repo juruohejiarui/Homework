@@ -137,8 +137,10 @@ Then we have $\mathrm{P}=\begin{bmatrix}\mathbf{p}_1^\top&\mathbf{p}_2^\top&\dot
 Similarly, we have 
 
 $$
-\mathbf{w}^*=\mathrm{P}^\top(\mathrm{P}\mathrm{P}^\top)^{-1}\mathbf{y} \\
-\mathrm{W}^*=\mathrm{P}^\top(\mathrm{P}\mathrm{P}^\top)^{-1}\mathrm{Y} \\
+\begin{aligned}
+\mathbf{w}^*&=\mathrm{P}^\top(\mathrm{P}\mathrm{P}^\top)^{-1}\mathbf{y} \\
+\mathrm{W}^*&=\mathrm{P}^\top(\mathrm{P}\mathrm{P}^\top)^{-1}\mathrm{Y}
+\end{aligned}
 $$
 
 ## Ridge Regresion
@@ -178,16 +180,17 @@ Which is equivalent to **Primal Form**. It can be obtained from **Primal Form** 
 PS: polynomial ridge regression is which just replace $\mathrm{X}$ by $\mathrm{P}$ .
 
 ## Logistic Regression
+
 Give an input vector $\mathbf{x}\in \mathbb{R}^{d}$ . The parameters of logistic regression are $\vec{\theta}\in \mathbb{R}^d, \theta_0\in \mathbb{R}$ . let $g$ be the sigmoid function.
 
 $$
-\mathrm{Pr}(y=1|\mathbf{x},\vec{\theta},\theta_0)=g\left(\left<\vec\theta,\mathbf{x}\right>+\theta_0\right)=\frac{1}{1 + \exp\left(-\left<\vec\theta,\mathbf{x}\right>-\theta_0\right)}
+\mathrm{Pr}\left(y=1|\mathbf{x},\vec{\theta},\theta_0\right)=g\left(\left<\vec\theta,\mathbf{x}\right>+\theta_0\right)=\frac{1}{1 + \exp\left(-\left<\vec\theta,\mathbf{x}\right>-\theta_0\right)}
 $$
 
 More generally, we have 
 
 $$
-\mathrm{Pr}(y=y_0|\mathbf{x}=\mathbf{x}_0,\vec\theta,\theta_0)=g\left(y_0\left(\left<\vec\theta,\mathbf{x}_0\right>+\theta_0\right)\right)
+\mathrm{Pr}\left(y=y_0|\mathbf{x}=\mathbf{x}_0,\vec\theta,\theta_0\right)=g\left(y_0\left(\left<\vec\theta,\mathbf{x}_0\right>+\theta_0\right)\right)
 $$
 
 where $y_0\in\{-1, 1\}$
@@ -196,7 +199,7 @@ where $y_0\in\{-1, 1\}$
 **logs-odd** should be linear function:
 
 $$
-\log\frac{\mathrm{Pr(y=1|\mathbf{x},\vec\theta,\theta_0)}}{\mathrm{Pr(y=-1|\mathbf{x},\vec\theta,\theta_0)}}=\left<\vec\theta,\mathbf{x}\right>+\theta_0
+\log\frac{\mathrm{Pr}\left(y=1|\mathbf{x},\vec\theta,\theta_0\right)}{\mathrm{Pr}\left(y=-1|\mathbf{x},\vec\theta,\theta_0\right)}=\left<\vec\theta,\mathbf{x}\right>+\theta_0
 $$
 
 Decision boundary:
@@ -234,6 +237,7 @@ $$
 $$
 
 Denote that 
+
 $$
 l(\vec\theta, \theta_0|\mathcal{D})=\sum_{i=1}^m \log \left[1+\exp\left(-y_i\left(\left<\vec\theta,\mathbf{x}\right>+\theta_0\right)\right)\right]
 $$

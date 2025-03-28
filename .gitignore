@@ -20,9 +20,11 @@ UFUG2601/HW3/Game2048/GUI/release/moc_gameboard.cpp
 UFUG1601/TicTacToe/__pycache__/
 DSAA2011/*.html
 DSAA2011/*.pdf
+DSAA2011/.*
 *.stash
 a.out
 .vscode/c_cpp_properties.json
 a.log
 AIAA2205/hw1/backups
 a.out.dSYM
+DSAA2011/output.csv
