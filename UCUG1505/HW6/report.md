@@ -18,10 +18,10 @@ $$
 F\varpropto y=\frac{1}{R_{\mathrm{fsr}}}=\frac{1024-x}{x\times 10k\Omega}
 $$
 
-Then we map $y$ to $[0, c\times 10^4]$, then we get
+Then we map $y$ to a specific interval, for example $[0, 10^4]$, and I choose this formula :
 
 $$
-y'=\frac{1024-x}{x}\times 10^4
+y'=\frac{1024-x}{x}\times 510
 $$
 
 # Step 2

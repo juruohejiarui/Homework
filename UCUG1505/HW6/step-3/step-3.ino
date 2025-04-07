@@ -9,7 +9,7 @@ void setup() {
 }
 
 uint16_t calcFreq(uint8_t btns, uint16_t pressure) {
-  float res = 0;
+  uint16_t res = 0;
   uint8_t keyCnt = 0;
   for (int i = 0; i < 8; i++) if (btns & (1u << i)) 
     res += freqMap[i];
@@ -20,11 +20,11 @@ uint16_t calcFreq(uint8_t btns, uint16_t pressure) {
 void loop() {
     uint8_t btns = 0;
     for (int i = 0; i < 8; i++) {
-        if (digitalRead(btnsPin[i]) == HIGH) {
+        if (digitalRead(btnsPin[i])) {
             btns |= (1u << i);
         }
     }
     if (btns == 0) noTone(buzzerPin);
-    tone(buzzerPin, calcFreq(btns, 0));
+    else tone(buzzerPin, calcFreq(btns, 0));
     delay(10);
 }
