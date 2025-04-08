@@ -13,14 +13,14 @@ struct MidAvgFilter {
   uint8_t idx = 0;
   MidAvgFilter() {
     this->idx = 0;
-    memset(this->buf, 0, sizeof(this->buf));
+    memset(this->buf, 0, sizeof(T) * MidAvgFilterSz);
   }
   T getVal(T newData) {
     uint8_t i, j;
     static T tmpArr[MidAvgFilterSz];
     this->buf[this->idx] = newData;
     this->idx = (this->idx + 1) % MidAvgFilterSz;
-    memcpy(tmpArr, buf, sizeof(buf));
+    memcpy(tmpArr, buf, sizeof(T) * MidAvgFilterSz);
     for (i = 0; i < MidAvgFilterSz - 1; i++) {
       uint8_t flag = 0;
       for (j = i + 1; j < MidAvgFilterSz; j++)
@@ -33,8 +33,8 @@ struct MidAvgFilter {
       if (!flag) break;
     }
     if (MidAvgFilterSz & 1)
-      return tmpArr[(MidAvgFilterSz | 1) >> 1];
-    else return (tmpArr[MidAvgFilterSz >> 1] + tmpArr[(MidAvgFilterSz >> 1) | 1]) >> 1;
+      return tmpArr[(MidAvgFilterSz >> 1) + 1];
+    else return (tmpArr[MidAvgFilterSz >> 1] + tmpArr[(MidAvgFilterSz >> 1) + 1]) >> 1;
   }
 };
 
@@ -77,11 +77,12 @@ inline uint32_t calcPressure(uint32_t fsr) {
   return (uint32_t)(1023 - fsr) * forceConstant / fsr;
 }
 
-uint16_t calcFreq(uint8_t btns, uint32_t pressure) {
-  uint16_t res = 0;
+uint32_t calcFreq(uint8_t btns, uint32_t pressure) {
+  uint32_t res = 0;
   for (int i = 0; i < 8; i++) if (btns & (1u << i)) 
     res += freqMap[i];
-  res += map(constrain(pressure, 0, 70000), 0, 70000, 0, 100);
+  if (pressure > 10)
+    res = res * (950 + map(constrain(pressure, 0, 70000), 0, 70000, 0, 100)) / 1000;
   return res;
 }
 
@@ -103,13 +104,13 @@ void loop() {
   // read button states
   uint8_t btnState = digitalRead(musicPin);
   #ifndef AutoMode
-  if (musicBtnState != lstMusicBtnState) {
-    if (musicBtnState) {
+  if (btnState != lstMusicBtnState) {
+    if (btnState) {
       musicIdx = (musicIdx + 1) % sizeof(music);
     }
-    lstMusicBtnState = musicBtnState;
+    lstMusicBtnState = btnState;
   }
-  if (musicBtnState) {
+  if (btnState) {
     // find the tone
     tone(buzzerPin, freqMap[music[musicIdx]]);
   #else
@@ -127,7 +128,7 @@ void loop() {
   #endif
   } else {
     uint32_t fsr = calcPressure(analogRead(SensorPin));
-      Serial.println(fsr);
+    Serial.println(fsr);
     for (int i = 0; i < 8; i++) btnState |= (digitalRead(btnsPin[i]) << i);
     if (!btnState) { noTone(buzzerPin); delay(10); }
     else {
