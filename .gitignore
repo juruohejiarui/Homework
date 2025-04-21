@@ -4,6 +4,8 @@
 /AIAA2205/hw*/run
 /AIAA2205/hw*/output
 /AIAA2205/hw3-*
+/AIAA2900/Proj-examples/dataset
+/AIAA2900/Proj-examples/run
 __pycache__
 .DS_Store
 UFUG2601/HW3/Game2048/GUI/debug/object_script.Game2048.Debug
