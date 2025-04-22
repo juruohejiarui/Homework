@@ -1,4 +1,3 @@
-import tkinter
 import detect
 import time
 import math
