@@ -1,79 +1,40 @@
-# only adversarial attack
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from tensorboardX import SummaryWriter
+import lib.perturb as perturb
 from torch.utils.data import DataLoader
-
-import math
+from tensorboardX import SummaryWriter
 from tqdm import tqdm
 
-def train(model : nn.Module, 
-          epochs : int,
-          learning_rate : float, 
-          momentum : float,
-          alpha : float,
-          epsilon : float,
-          k : int,
-          train_data : DataLoader, 
-          test_data : DataLoader,
-          logger : SummaryWriter) :
-    optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, epochs * len(train_data), 1e-7)
+def test(
+		model : nn.Module,
+		epoch_id : int,
+		test_loader : DataLoader,
+		epsilon : float,
+		alpha : float,
+		num_iterate : int,
+		logger : SummaryWriter,
+		logger_tag : str,
+		example_root : str | None = None
+) :
+	acc_test, loss_test = 0, 0
 
-    for epoch in tqdm(range(epochs)) :
-        acc_train = 0
-        loss_train = 0
-        acc_test = 0
-        loss_test = 0
-        for i, (x, y) in enumerate(train_data) :
-            x : torch.Tensor = x.cuda()
-            y : torch.Tensor = y.cuda()
-            
-            y_pred = model(x)
+	with torch.no_grad() :
+		for i, (x, y) in enumerate(test_loader) :
+			x : torch.Tensor = x.cuda()
+			y : torch.Tensor = y.cuda()
+			x_a = x.clone()
 
-            loss = F.cross_entropy(y_pred, y)
-            loss.backward()
-            
-            optimizer.step()
-            scheduler.step()
+			for k in range(num_iterate) :
+				x_a = perturb.preturb(model, x, x_a.data, y, epsilon=epsilon, alpha=alpha, val_max=1, val_min=0)
 
-            model.zero_grad()
+			y_pred : torch.Tensor = model(x_a, eval=True)
+			loss = F.cross_entropy(y_pred, y)
 
-            # update acc and loss
+			acc_test += (y_pred.argmax(1) == y.argmax(1)).sum().item()
+			loss_test += loss.sum().item()
 
-            acc_train += (y_pred.argmax(1) == y.argmax(1)).sum().item()
-            loss_train += loss.sum().item()
-
-        # test
-        for i, (x, y) in enumerate(test_data) :
-            x : torch.Tensor = x.cuda()
-            y : torch.Tensor = y.cuda()
-            delta : torch.Tensor = torch.zeros(x.shape).cuda()
-            for j in range(k + 1) :
-                x_a : torch.Tensor = (x + delta).cuda()
-                x_a.requires_grad = True
-                y_pred : torch.Tensor = model(x_a)
-
-                loss = F.cross_entropy(y_pred, y)
-                loss.backward()
-
-                x_grad = x_a.grad.clone()
-                
-                delta = (delta + alpha * x_grad.norm()).clamp(-epsilon, epsilon)
-
-                model.zero_grad()
-
-            # update acc and loss
-            acc_test += (y_pred.argmax(1) == y.argmax(1)).sum().item()
-            loss_test += loss.sum().item()
-
-        # log
-        acc_train /= len(train_data.dataset)
-        loss_train /= len(train_data.dataset)
-        acc_test /= len(test_data.dataset)
-        loss_test /= len(test_data.dataset)
-        logger.add_scalar(f"train/acc", acc_train, epoch)
-        logger.add_scalar(f"train/loss", loss_train, epoch)
-        logger.add_scalar(f"test/acc", acc_test, epoch)
-        logger.add_scalar(f"test/loss", loss_test, epoch)
+	acc_test /= len(test_loader) * test_loader.batch_size
+	loss_test /= len(test_loader)
+	logger.add_scalar(f"{logger_tag}/loss", loss_test, epoch_id)
+	logger.add_scalar(f"{logger_tag}/acc", acc_test, epoch_id)
