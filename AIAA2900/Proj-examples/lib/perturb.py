@@ -9,7 +9,6 @@ def preturb(    model : nn.Module,
                 epsilon : float,
                 alpha : float, val_max : float, val_min : float) -> torch.Tensor :
     x.requires_grad = True
-    model.eval()
     with torch.enable_grad() :
         y_pred = model(x, eval=True)
         loss = F.cross_entropy(y_pred, y)
@@ -22,5 +21,4 @@ def preturb(    model : nn.Module,
         x = torch.max(torch.min(x, max_x), min_x)
         x.clamp_(val_min, val_max)
 
-    model.train()
-    return x.data
+    return x.data.clone()
