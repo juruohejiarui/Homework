@@ -34,16 +34,3 @@ if __name__ == "__main__" :
         logger=logger,
         model_name=args.log
     )
-
-    # yopo.train( model=model,
-    #             train_loader=train_loader,
-    #             test_loader=test_loader,
-    #             epochs=args.epochs,
-    #             lr=args.lr,
-    #             num_iterate_outer=5,
-    #             num_iterate_inner=10,
-    #             num_attack_iterate=40,
-    #             epsilon=args.epsilon,
-    #             alpha=args.alpha,
-    #             logger=logger
-    # )

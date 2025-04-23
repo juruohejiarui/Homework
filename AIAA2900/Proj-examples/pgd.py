@@ -58,7 +58,7 @@ def train(
                 logger=logger,
                 logger_tag=f"test-{attack_iterate}"
             )
-    model._save_to_state_dict(f"./model_pth/{model_name}.pth", prefix="model.", keep_vars=True)
+    model._save_to_state_dict(f"./model_pth/", prefix=model_name, keep_vars=True)
     pgdattack.test(
         model=model,
         epoch_id=epoch + 1,

@@ -22,7 +22,7 @@ def getLoader(batch_size : int) :
     train_data = SelfDataSet(True)
     test_data = SelfDataSet(False)
 
-    train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True, num_workers=2)
-    test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=True, num_workers=2)
+    train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True, num_workers=4)
+    test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=True, num_workers=4)
 
     return (train_loader, test_loader)
