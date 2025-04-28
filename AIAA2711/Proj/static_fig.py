@@ -1,29 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import lib
 
-rgl, rgr = -1, 2 * np.pi
-
-
-def f(x : np.ndarray) -> np.ndarray :
-	return (
-		np.log((x ** 2 - 4) ** 2) + 5 * np.sin(2 * np.pi * x)
-		  + 3 * np.cos(4 * np.pi * x) + 2 * np.sin(6 * np.pi * x)
-		  - 1 * np.cos(8 * np.pi * x) + 2 * np.sin(10 * np.pi * x)
-		  + np.exp(np.sin(5 * np.pi * x))
-		  + 20 * np.exp((-5 * (x - 1) ** 2)))
+rgl, rgr = lib.f_range()
 
 def genNew(x, T) :
 	l, r = max(rgl, x - T), min(rgr, x + T)
 	return np.random.random_sample() * (r - l) + l
-
-def metropolis(x_old, x_new, T) :
-	y_new, y_old = f(x_new), f(x_old)
-	if y_new < y_old :
-		return x_new
-	elif np.random.random() < np.exp((y_old - y_new) / T) :
-		return x_new
-	else :
-		return x_old
 
 
 def SA(T_0, T_f, n_thread = 1, alpha = 0.99) :
@@ -32,15 +15,15 @@ def SA(T_0, T_f, n_thread = 1, alpha = 0.99) :
 	while T > T_f :
 		for i in range(n_thread) :
 			x_new = genNew(x0[i], T)
-			x0[i] = metropolis(x0[i], x_new, T)
+			x0[i] = lib.metropolis(x0[i], x_new, T, lib.f)
 		T = T * alpha
 	
 	# print(x0, f(x0))
-	return np.array([x0, f(x0)])
+	return np.array([x0, lib.f(x0)])
 
 if __name__ == "__main__" :
 	x = np.arange(rgl, rgr, 5e-6)
-	y = f(x)
+	y = lib.f(x)
 
 	minX, maxX = min(x), max(x)
 	minY, maxY = min(y), max(y)
