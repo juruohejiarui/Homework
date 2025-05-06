@@ -194,3 +194,35 @@ $$
 
 - Leave-one-out cross-validation: $|\mathcal{D}'|=1$, accurate, but slow, e.g. validation of SVM.
 - $n$-fold cross-validation: $|\mathcal{D}'|=\frac{1}{n}(\text{size of entire dataset})$, decently accurate, not too slow.
+
+### Objective Function
+
+$$
+\text{Objective Function}=\text{Error} + \text{Regularizer}
+$$
+
+**Pros & Cons** of Regularization:
+
+- **Pros**:
+  - reduce variance of the model (make the model more stable) 使模型的表现更稳定
+  - Prevent overfitting 防止过拟合
+  - Impose prior structural knowledge 施加先验的结构知识
+  - Improve interpretability: simpler model, automatic feature selection 增强可解释性
+- **Cons**: 
+  - *Gauss-Markov* theorem: Least squares is the best linear unbiased estimator
+  - regularization increases bias
+
+$$
+\text{expected prediction error}=\text{bias}^2+\text{noise}+\color{red}\text{variance}
+$$
+
+- $\text{bias}^2$: average prediction error over all datasets (squared)
+- $\text{variance}$: how much solutions for different datasets vary (stability)
+- $\text{noise}$: deviation of measurements from the treu value (unavoidable error)
+
+**No free lunch! Theorem**: low bias comes with high variance and low variances comes with high bias! $\text{bias}$ 和 $\text{variance}$ 负相关
+
+- Too high bias $\Rightarrow$ cannot fit the data well, due to the restricted solutions
+- Too low bias $\Rightarrow$ have too high variance, sensitive to data changes (overfitting)
+
+So we need to find the sweet spot between $\text{bias}$ and $\text{variance}$
