@@ -128,3 +128,69 @@ $$
 
 - $\mathrm{rank}(\mathrm{A})=\mathrm{rank}(\mathrm{A^\top A})$
 - if $\mathrm{A}\in \mathbb{R}^{n\times n}$ is positive or negative definite, then $\mathrm{A}$ is invertible.
+
+### Norm of Vector
+
+$$
+\lVert\mathbf{w}\rVert _p=\left(\sum_{i=1}^p |\mathbf{w}|^p\right)^{\frac{1}{p}}
+$$
+
+when $p=0$: not actually a norm, $\lVert\mathbf{w}\rVert _0=\sum_{i=1}^d \mathbb{I}(w_i\ne 0)$
+
+when $p=\infty$: $\lVert\mathbf{w}\rVert _{\inf}=\max_i|w_i|$
+
+## Evaluation of Model
+
+### Error Metric
+
+**Confusion Matrix**: 
+
+| | Positive Prediction | Negative Predition |
+| :---: | :---: | :---: |
+| Positive (P) | True Positive (TP) | False Negative (FN) |
+| Negative (N) | False Positive (FP) | True Negative (TN) |
+
+**Precision**: Accuracy of positive predictions, $\frac{\mathrm{TP}}{\mathrm{TP}+\mathrm{FP}}$
+
+**Recall**: Ability to find all the positive instances, $\frac{\mathrm{TP}}{\mathrm{TP}+\mathrm{FN}}$
+
+**Accuracy**: $\frac{\mathrm{TP}+\mathrm{TN}}{\mathrm{TP}+\mathrm{TN}+\mathrm{FP}+\mathrm{TN}}$
+
+**F1 sorce**: Harmonic mean of precision and recall, $\frac{2}{\mathrm{Precision}^{-1}+\mathrm{Recall}^{-1}}$
+
+
+let $y$ be the true answer, and $y'$ be the prediction.
+
+- **Regression**: 
+  - Square error: $\mathbf{error}_{\mathrm{sq}}(y,y')=(y-y')^2$
+  - Absolute error: $\mathbf{error}_{\mathrm{abs}}(y,y')=|y-y'|$
+
+- **Classification**:
+  - Misclassification error: $\mathbf{error}_{\mathrm{mis}}(y,y')=\mathbb{I}\{y\ne y'\}$
+  - Weighted misclassification error: If false positive are $\beta$ times worse than false negatives: $\mathbf{error}_{\mathrm{beta}}(y,y')=\beta \mathbb{I}\{y'=1,y=-1\}+(1-\beta)\mathbb{I}\{y'=-1,y=1\}$
+  - Balanced error rate: For data with $n_+$ postive samples and $n_-$ negative samples: 
+
+$$
+\begin{aligned}
+&\text{For one sample: }\\
+&\mathbf{error}_{\mathrm{bal}}(y,y')=\frac{\frac{1}{2}(n_++n_-)\cdot \mathbb{I}(y\ne y')}{n_+\mathbb{I}(y)} \\
+&\text{For a whole dataset: }\\
+&\mathrm{BER}=\frac{1}{2}\left(\frac{\mathrm{FN}}{\mathrm{TP}+\mathrm{FN}}+\frac{\mathrm{FP}}{\mathrm{FP}+\mathrm{TN}}\right)
+\end{aligned}
+$$
+
+### Validation
+Split dateset into training set $\mathcal{D}_\mathrm{train}$ and validation set $\mathcal{D}_\mathrm{valid}$, and pick different model classes $\phi_1, \phi_2, \dots, \phi_m$; Then trains these $m$ models with $\mathcal{D}_\mathrm{train}$ to get hypothesises $h_1, h_2, \dots, h_m$. Evaluate hypothesis on $\mathcal{D}_{\mathrm{valid}}$ and chooes the lowest:
+
+$$
+h^*=\arg \min_{h_i}\left\{\mathbb{E}_{\mathcal{D}_{\mathrm{valid}}}(h)\right\}
+$$
+
+**Cross-validation** : For each possible split of data: $(\mathcal{D}_1, \mathcal{D}'_1), (\mathcal{D}_2, \mathcal{D}'_2), \dots, (\mathcal{D}_K, \mathcal{D}'_K)$ , train $i$-th model $\phi_i$ and get hypothesis $h_{\phi_i, \mathcal{D}_j}$ , then estimate with 
+
+$$
+\phi^*=\arg\min_{\phi_i}\frac{1}{K}\sum_{i=1}^K E_{\mathcal{D}'_j}\left(h_{\phi_i, \mathcal{D}_j}\right)
+$$
+
+- Leave-one-out cross-validation: $|\mathcal{D}'|=1$, accurate, but slow, e.g. validation of SVM.
+- $n$-fold cross-validation: $|\mathcal{D}'|=\frac{1}{n}(\text{size of entire dataset})$, decently accurate, not too slow.
