@@ -1,0 +1,108 @@
+% CVPR 2025 Paper Template; see https://github.com/cvpr-org/author-kit
+
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+%%%%%%%%% PAPER TYPE  - PLEASE UPDATE FOR FINAL VERSION
+\usepackage{cvpr}              % To produce the CAMERA-READY version
+% \usepackage[review]{cvpr}      % To produce the REVIEW version
+% \usepackage[pagenumbers]{cvpr} % To force page numbers, e.g. for an arXiv version
+
+% Import additional packages in the preamble file, before hyperref
+\input{preamble}
+
+% It is strongly recommended to use hyperref, especially for the review version.
+% hyperref with option pagebackref eases the reviewers' job.
+% Please disable hyperref *only* if you encounter grave issues, 
+% e.g. with the file validation for the camera-ready version.
+%
+% If you comment hyperref and then uncomment it, you should delete *.aux before re-running LaTeX.
+% (Or just hit 'q' on the first LaTeX run, let it finish, and you should be clear).
+\definecolor{cvprblue}{rgb}{0.21,0.49,0.74}
+\usepackage[pagebackref,breaklinks,colorlinks,allcolors=cvprblue]{hyperref}
+
+\usepackage{algorithm,algpseudocode,float}
+\usepackage{lipsum}
+
+\makeatletter
+\newenvironment{breakablealgorithm}
+  {% \begin{breakablealgorithm}
+   \begin{center}
+     \refstepcounter{algorithm}% New algorithm
+     \hrule height.8pt depth0pt \kern2pt% \@fs@pre for \@fs@ruled
+     \renewcommand{\caption}[2][\relax]{% Make a new \caption
+       {\raggedright\textbf{\ALG@name~\thealgorithm} ##2\par}%
+       \ifx\relax##1\relax % #1 is \relax
+         \addcontentsline{loa}{algorithm}{\protect\numberline{\thealgorithm}##2}%
+       \else % #1 is not \relax
+         \addcontentsline{loa}{algorithm}{\protect\numberline{\thealgorithm}##1}%
+       \fi
+       \kern2pt\hrule\kern2pt
+     }
+  }{% \end{breakablealgorithm}
+     \kern2pt\hrule\relax% \@fs@post for \@fs@ruled
+   \end{center}
+  }
+\makeatother
+
+%%%%%%%%% PAPER ID  - PLEASE UPDATE
+\def\paperID{*****} % *** Enter the Paper ID here
+\def\confName{CVPR}
+\def\confYear{2025}
+
+\title{Exploration of Adversarial Training}
+
+%%%%%%%%% AUTHORS - PLEASE UPDATE
+\author{Jiarui HE\\
+50013538 \\
+{\tt\small jhe218@connect.hkust-gz.edu.cn}
+}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+
+This paper first introduces adversarial training and other methods for defence again adversarial training. 
+Then some evaluation and comparation of mentioned methods. The final part is the 
+
+
+\section{Methods}
+Let $\theta$ be the parameters of models, $f_\theta(\cdot)$ be the model, $\epsilon$ be the range of perturb of attack sample and $L$ be the loss function.
+
+Then the target of adversarial training can be
+
+$$
+\theta^*=\arg\min_\theta\left\{
+    \mathbb{E}_{(\mathbf{x}, \mathbf{y})\in \mathcal{D}}
+    \left[
+        \max_{\lVert\mathbf{\delta}\rVert\leq \epsilon}
+            \left\{L(f_\theta(\mathbf{x}+\delta), y)\right\}
+    \right]
+\right\}
+$$
+
+There are some wide used algorithms for adversarial training.
+For example, one of the most classical algorithms is the projected gradient descents (PGD).
+Additionally, there are some algorithms which are base on this algorithms and make some modifies on it.
+Furthermore, some structure applies adversarial training, such as GAN.
+
+\subsection{Projected Gradient Descent}
+
+This method try to construct attack samples using iteration towards the direction that relates to the gradient of loss function w.r.t. the input, 
+which is usually the normalized value of $\nabla_{\mathbf{x}}(L(f_\theta(\mathrm{x}+\delta), y))$. People tend to use $l_0, l_2$ and $l_{\infty}$. Addtionally, the magnitude of iteration step is defined by a hyperparameter $\alpha$ .
+
+The pesuado code of this algorithm is shown below:
+
+\begin{breakablealgorithm}
+\caption{PGD training}
+\begin{algorithmic}[1] %每行显示行号
+    \Require training set $\mathcal{D}$, learning rate $\tau$, training epochs $N$, hyperparameters $\alpha, \epsilon$, model $f_\theta$ and loss function $L$
+    \State Initialize model parameters $\theta$
+
+    \While 
+    \EndWhile
+\end{algorithmic}
+\end{breakablealgorithm}
+
+
+\end{document}
