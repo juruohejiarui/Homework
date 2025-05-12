@@ -15,7 +15,8 @@ def detect() -> tuple[int, int] | None :
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
     # 检测正脸
-    faces = frontal_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30,30))
+    # faces = []
+    faces = frontal_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=8, minSize=(30,30))
     # 检测侧脸（左右侧皆可）
     profiles = profile_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30,30))
 
@@ -27,10 +28,12 @@ def detect() -> tuple[int, int] | None :
     # 绘制框
     for (x, y, w, h) in detections:
         # cv2.rectangle(frame, (x, y), (x + w, y + h), (0,255,0), 2)
-        if (w < 80 or h < 80) : continue
+        if (w < 90 or h < 80) : continue
         if lrgSz < w * h :
             lrgSz = w * h
             res = (x + w / 2, y + h / 2)
+
+    
 
     # cv2.imshow('Head Detection', frame)
     res = (res[0] / frame.shape[1], res[1] / frame.shape[0]) if res else None
