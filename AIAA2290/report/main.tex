@@ -86,23 +86,40 @@ For example, one of the most classical algorithms is the projected gradient desc
 Additionally, there are some algorithms which are base on this algorithms and make some modifies on it.
 Furthermore, some structure applies adversarial training, such as GAN.
 
-\subsection{Projected Gradient Descent}
+\subsection{Projected Gradient Descent (PGD)}
 
 This method try to construct attack samples using iteration towards the direction that relates to the gradient of loss function w.r.t. the input, 
-which is usually the normalized value of $\nabla_{\mathbf{x}}(L(f_\theta(\mathrm{x}+\delta), y))$. People tend to use $l_0, l_2$ and $l_{\infty}$. Addtionally, the magnitude of iteration step is defined by a hyperparameter $\alpha$ .
+which is usually the normalized value of $\nabla_{\mathbf{x}}(L(f_\theta(\mathrm{x}+\delta), y))$. People tend to use $l_0, l_2$ and $l_{\infty}$. Addtionally, the magnitude of iteration step is defined by a hyperparameter $\alpha$ , while the number of step for each generation of attack sample is defined by another hyperparameter $k$ .
+
+For a PGD process with specific number of iteration $k$, we can call it $k$-PGD.
 
 The pesuado code of this algorithm is shown below:
 
 \begin{breakablealgorithm}
 \caption{PGD training}
 \begin{algorithmic}[1] %每行显示行号
-    \Require training set $\mathcal{D}$, learning rate $\tau$, training epochs $N$, hyperparameters $\alpha, \epsilon$, model $f_\theta$ and loss function $L$
-    \State Initialize model parameters $\theta$
+  \Require training set $\mathcal{D}$, learning rate $\tau$, training epochs $N$, hyperparameters $\alpha, \epsilon$, model $f_\theta$ and loss function $L$
+  \State Initialize model parameters $\theta$
 
-    \While 
-    \EndWhile
+  \For {$n=1$ to $N$}
+    \State {divide $\mathcal{D}$ into list of mini-batches $\mathcal{C}=\{(\mathrm{X}, \mathbf{y})\}$}
+    \For {$(\mathrm{X}, \mathbf{y})\in \mathcal{C}}$ 
+      \State {$\delta\leftarrow$ zero matrix with shape of $X$}
+      \For {$t\leftarrow 1$ to $k$}
+        \State $g_a\leftarrow \nabla_{\mathrm{X}+\delta}(L(f_{\theta}(\mathrm{X}+\delta), y))$
+        \State $\delta\leftarrow \mathrm{clamp}(\delta + \alpha g_a, -\epsilon, \epsilon)$
+      \EndFor
+      \State $g_\theta\leftarrow \nabla_{\theta}(L(f_{\theta}(\mathrm{X}+\delta), y))$
+      \State $\theta \leftarrow \theta - \tau g_\theta$
+    \EndFor
+  \EndFor
 \end{algorithmic}
 \end{breakablealgorithm}
 
+Overall, the times of forward propagation and backpropagation of this algorithm are both $\Theta (NMk)$, where $M$ is the number of mini-batches
+
+\subsection{You can Only Propagate Once (YOPO)}
+
+To increase the efficience of adversarial training, 
 
 \end{document}

@@ -4,7 +4,8 @@
 /AIAA2205/hw*/run
 /AIAA2205/hw*/output
 /AIAA2205/hw3-*
-/AIAA2900/Proj-examples/dataset
+/AIAA2290/Proj-examples/dataset
+/AIAA2290/report/main.pdf
 __pycache__
 .DS_Store
 UFUG2601/HW3/Game2048/GUI/debug/object_script.Game2048.Debug
@@ -27,7 +28,11 @@ DSAA2011/*-sol.ipynb
 DSAA2011/Lab04/output.csv
 *.zip
 *.stash
-a.out
+*.log
+*.out
+*.synctex.gz
+*.aux
+
 .vscode/c_cpp_properties.json
 a.log
 AIAA2205/hw1/backups
