@@ -25,8 +25,9 @@ if __name__ == "__main__" :
 
 	x_dem = visualize.dimension_reduction(X, 2, "TSNE")
 
-	labels_km, centers_km = kmeans(x_dem, 24, 20)
-	labels_hc, centers_hc = hierarchical(x_dem, 24)
+	labels_dem, centers_dem = kmeans(x_dem, 6, 20)
+	# cluster using the orginal data
+	labels_org, children_org = kmeans(X, 6, 20)
 	# create two figures at the same time
-	visualize.plot([x_dem, x_dem, x_dem], [labels_hc, labels_km, y], 2, need_dimension_reduction=False)
+	visualize.plot([x_dem, x_dem, x_dem], [labels_dem, labels_org, y], 2, need_dimension_reduction=False)
 	
