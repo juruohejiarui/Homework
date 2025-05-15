@@ -102,6 +102,24 @@ $$
 
 - $\mathrm{I}_n$ , an $n\times n$ matrix where the element on the main diagonal is $1$, otherwise $0$. 
 
+### Averaging Random Variables
+
+Averaging i.i.d (independently identical distributed) variables scales their variance $\sigma^2$ to $\frac{\sigma^2}{N}$ :
+
+$$
+\mathrm{Var}\left(\overline{X}\right)=\mathrm{Var}\left(\frac{1}{N}\sum_{i=1}^N X_i\right)=\frac{1}{N}\sigma^2
+$$
+
+Averaging i.d (identical distributed) variables with correlations $\rho$ and variance $\sigma^2$ can gives final variance $\left(\rho+\frac{1-\rho}{N}\right)\sigma^2$
+
+$$
+\mathrm{Var}\left(\overline{X}\right)=\mathrm{Var}\left(\frac{1}{N}\sum_{i=1}^N X_i\right)=\sum_{i=1}^N \mathrm{Var}\left(X_i\right)
++\sum_{i=1}^n \sum_{j=1}^{i-1}2\mathrm{Cov}\left(X_i,X_j\right)=N\sigma^2+N(N-1)\rho \sigma^2
+$$
+
+- When $\rho=0$, the variance is $\frac{\sigma^2}{N}$
+- When $\rho\rightarrow 1$ , the variance $\rightarrow \sigma^2$
+
 ### Rouch´ e-Capelli Theorem
 For sytem $\mathrm{X}\mathbf{w}=\mathbf{y}$ where $\mathrm{X}\in \mathbb{R}^{m\times n}, \mathbf{w}\in \mathbb{R}^{n}, \mathbf{y}\in \mathbb{R}^m$ , where we need to find a solution of variable $\mathbf{w}$. 
 
@@ -122,6 +140,14 @@ For a linearly system $\mathrm{X}\mathbf{w}=\mathbf{y}$ , where $\mathrm{X}\in \
 
 $$
 \~{\mathbf{w}}=\left(\mathrm{X}^\top\mathrm{X}\right)^{-1}\mathrm{X}^\top\mathbf{y}
+$$
+
+### Hoeffding's Inequality
+
+Let $X_1, \dots, X_n$ be independent bounded random variables with $X_i\in [a,b] \forall i\in [1,n]\cap \mathbb{Z}$ , where $-\infty<a<b<\infty$ . Then
+
+$$
+P\left(\frac{1}{n}\sum_{i=1}^n X_i-\frac{1}{n}\sum_{i=1}^n \mathbb{E}\left[X_i\right]\leq -\delta\right) \leq \exp\left(-\frac{2N\delta^2}{(b-a)^2}\right)
 $$
 
 ### Unamed Theorems
@@ -226,3 +252,15 @@ $$
 - Too low bias $\Rightarrow$ have too high variance, sensitive to data changes (overfitting)
 
 So we need to find the sweet spot between $\text{bias}$ and $\text{variance}$
+
+
+#### Bias-Variance Decomposition
+
+Assume that $f$ is the function we aim to learn, and $\hat{f}$ is the trained models, and $\mathbb{E}\left[\hat f\right]$ is the expected model (by varying the training dataset). Then the expected error (ignore the noise) :
+
+$$
+\mathbb{E}\left[\left(f-\hat f\right)^2\right]=\mathbb{E}\left[
+  \left(
+    f-\mathbb{E}\left[\hat f\right]+\mathbb{E}\left[\hat f\right]+\hat f\right)^2\right]
+  = \color{red}\underbrace{\left(f-\mathbb{E}\left[\hat f\right]\right)^2}_{\text{bias}}+\underbrace{\mathbb{E}\left[\left(\hat f-\mathbb{E}\left[\hat f\right]\right)^2\right]}_{\text{variance}}
+$$
