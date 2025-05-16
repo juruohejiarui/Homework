@@ -76,4 +76,6 @@ if __name__ == "__main__" :
 	visualize.plot(
 		[x_dem, x_dem, x_dem, x_dem], 
 		[labels_kmeans_org, labels_kmeans_dem, labels_hierarchical_org, labels_hierarchical_dem], 
-		2, False, ["kmean org", "kmean dem", "hier org", "hier dem"], "cluster.png")
+		dim_target=2, 
+		name=["kmean org", "kmean dem", "hier org", "hier dem"], 
+		save_path="cluster.png")

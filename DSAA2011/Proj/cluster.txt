@@ -1,0 +1,44 @@
+metric of kmeans orginal
+external metric: 
+	fowlkes_mallows score : 0.5565764486238813
+	rand score : 0.8383726078439877
+	adjusted rand score : 0.4570613264665961
+	v measure score : 0.5846892635127484
+internal metric: 
+	silhouette score : 0.14667206421977227
+	calinski harabasz score : 3103.2005130085313
+	davies bouldin score : 2.1657041968621003
+
+metric of kmeans dimension reduction
+external metric: 
+	fowlkes_mallows score : 0.7094665005464664
+	rand score : 0.901847645993994
+	adjusted rand score : 0.6504151670028597
+	v measure score : 0.732855456113862
+internal metric: 
+	silhouette score : 0.3885493278503418
+	calinski harabasz score : 7769.5732421875
+	davies bouldin score : 0.9070594029423206
+
+metric of hierarchical orginal
+external metric: 
+	fowlkes_mallows score : 0.6012982642784007
+	rand score : 0.8561175972001767
+	adjusted rand score : 0.5128694931363761
+	v measure score : 0.6524080662014535
+internal metric: 
+	silhouette score : 0.10883881681249784
+	calinski harabasz score : 2941.2427132940784
+	davies bouldin score : 2.336401280110548
+
+metric of hierarchical dimension reduction
+external metric: 
+	fowlkes_mallows score : 0.7341427005247277
+	rand score : 0.9093019773759989
+	adjusted rand score : 0.6794472903409517
+	v measure score : 0.7519577418381733
+internal metric: 
+	silhouette score : 0.3709830343723297
+	calinski harabasz score : 6690.23486328125
+	davies bouldin score : 1.011212924706113
+
