@@ -4,6 +4,7 @@ import matplotlib.pylab as plt
 import matplotlib
 import sklearn as sk
 from mpl_toolkits.mplot3d import Axes3D
+import math
 
 import data
 
@@ -22,6 +23,7 @@ def plot(
         y = list[np.ndarray] | np.ndarray, 
         dim_target : int | list[int] = 3, 
         need_dimension_reduction : bool | list[bool] = True,
+        name : list[str] | None = None,
         save_path = None,
         ) :
     
@@ -33,31 +35,38 @@ def plot(
     if len(x) != len(y) or len(x) != len(dim_target) or len(x) != len(need_dimension_reduction) :
         raise ValueError("x, y, dim_target, need_dimension_reduction must have the same length")
     
+    nrow = 1 if len(x) <= 3 else 2
+    ncol = int(math.ceil(len(x) / nrow))
+
     fig = plt.figure(figsize=(8, 8))
+
+    if name is None :
+        name = [f"Plot {i}" for i in range(len(x))]
+
     # write each plot in a different subplot
     for i in range(len(x)) :
         if dim_target[i] == 2 :
-            ax = fig.add_subplot(1, len(x), i + 1)
+            ax = fig.add_subplot(nrow, ncol, i + 1)
             if need_dimension_reduction[i] :
                 x[i] = dimension_reduction(x[i], dim_target[i])
             ax.scatter(x[i][:, 0], x[i][:, 1], c=y[i], s=5)
-            ax.set_title(f"Plot {i + 1}")
+            ax.set_title(name[i])
             ax.set_xlabel("X")
             ax.set_ylabel("Y")
         elif dim_target[i] == 3 :
-            ax = fig.add_subplot(1, len(x), i + 1, projection='3d')
+            ax = fig.add_subplot(nrow, ncol, i + 1, projection='3d')
             if need_dimension_reduction[i] :
                 x[i] = dimension_reduction(x[i], dim_target[i])
             ax.scatter(x[i][:, 0], x[i][:, 1], x[i][:, 2], c=y[i], s=5)
-            ax.set_title(f"Plot {i + 1}")
+            ax.set_title(name[i])
             ax.set_xlabel("X")
             ax.set_ylabel("Y")
             ax.set_zlabel("Z")
 
-    plt.show()
-
     if save_path is not None :
         plt.savefig(save_path, dpi=300)
+    else :
+        plt.show()
 
 if __name__ == "__main__" :
     X, y = data.load_data("./Data/train", "train")
