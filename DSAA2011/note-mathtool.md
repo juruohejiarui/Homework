@@ -123,11 +123,11 @@ $$
 ### Rouch´ e-Capelli Theorem
 For sytem $\mathrm{X}\mathbf{w}=\mathbf{y}$ where $\mathrm{X}\in \mathbb{R}^{m\times n}, \mathbf{w}\in \mathbb{R}^{n}, \mathbf{y}\in \mathbb{R}^m$ , where we need to find a solution of variable $\mathbf{w}$. 
 
-let $\~{\mathrm{X}}=\begin{bmatrix}\mathrm{X}&\mathbf{y}\end{bmatrix}$ be an argumented matrix.
+let $\tilde{\mathrm{X}}=\begin{bmatrix}\mathrm{X}&\mathbf{y}\end{bmatrix}$ be an argumented matrix.
 
-- this system admits a **unique** solution $\Longleftrightarrow$ $\mathrm{rank}(\mathrm{X})=\mathrm{rank}(\~{\mathrm{X}})=n$
-- this system has **no** solution $\Longleftrightarrow$ $\mathrm{rank}(\mathrm{X})<\mathrm{rank}(\~{\mathrm{X}})$
-- this system has **infinity** many solution $\Longleftrightarrow$ $\mathrm{rank}(\mathrm{X})=\mathrm{rank}(\~{\mathrm{X}})<n$
+- this system admits a **unique** solution $\Longleftrightarrow$ $\mathrm{rank}(\mathrm{X})=\mathrm{rank}(\tilde{\mathrm{X}})=n$
+- this system has **no** solution $\Longleftrightarrow$ $\mathrm{rank}(\mathrm{X})<\mathrm{rank}(\tilde{\mathrm{X}})$
+- this system has **infinity** many solution $\Longleftrightarrow$ $\mathrm{rank}(\mathrm{X})=\mathrm{rank}(\tilde{\mathrm{X}})<n$
 
 ### Woodbury Formula
 $$
@@ -139,12 +139,12 @@ $$
 For a linearly system $\mathrm{X}\mathbf{w}=\mathbf{y}$ , where $\mathrm{X}\in \mathbb{R}^{m\times n}, \mathbf{w}\in \mathbb{R}^n, \mathbf{y}\in\mathbb{R}^m$, the least square solution is :
 
 $$
-\~{\mathbf{w}}=\left(\mathrm{X}^\top\mathrm{X}\right)^{-1}\mathrm{X}^\top\mathbf{y}
+\tilde{\mathbf{w}}=\left(\mathrm{X}^\top\mathrm{X}\right)^{-1}\mathrm{X}^\top\mathbf{y}
 $$
 
 ### Hoeffding's Inequality
 
-Let $X_1, \dots, X_n$ be independent bounded random variables with $X_i\in [a,b] \forall i\in [1,n]\cap \mathbb{Z}$ , where $-\infty<a<b<\infty$ . Then
+Let $X_1, \dots, X_n$ be independent bounded random variables with $X_i\in [a,b] \forall i\in [1,n]\cap \mathbb{Z}$ , where $-\infty<a<b<\infty$ and $\delta>0$ . Then
 
 $$
 P\left(\frac{1}{n}\sum_{i=1}^n X_i-\frac{1}{n}\sum_{i=1}^n \mathbb{E}\left[X_i\right]\leq -\delta\right) \leq \exp\left(-\frac{2N\delta^2}{(b-a)^2}\right)

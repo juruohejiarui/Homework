@@ -1,7 +1,7 @@
 import data
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import accuracy_score, classification_report
@@ -40,6 +40,17 @@ def pred_rf(X_train, y_train, X_test, y_test):
 	print("Random Forest Accuracy:", accuracy_score(y_test, y_pred))
 	print(classification_report(y_test, y_pred))
 
+def pred_ab(X_train, y_train, X_test, y_test):
+	scaler = StandardScaler()
+	X_train = scaler.fit_transform(X_train.data)
+	X_test = scaler.transform(X_test.data)
+
+	# AdaBoost
+	ab = AdaBoostClassifier(n_estimators=100, estimator=DecisionTreeClassifier(max_depth=5))
+	ab.fit(X_train, y_train)
+	y_pred = ab.predict(X_test)
+	print("AdaBoost Accuracy:", accuracy_score(y_test, y_pred))
+	print(classification_report(y_test, y_pred))
 if __name__ == "__main__":
 	# Load the data
 	X_train, y_train = data.load_data("./Data/train", "train")
@@ -52,3 +63,4 @@ if __name__ == "__main__":
 	pred_lr(X_train, y_train, X_test, y_test)
 	pred_dt(X_train, y_train, X_test, y_test)
 	pred_rf(X_train, y_train, X_test, y_test)
+	pred_ab(X_train, y_train, X_test, y_test)
