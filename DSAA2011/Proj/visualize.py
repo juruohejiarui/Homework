@@ -18,6 +18,16 @@ def dimension_reduction(x, dim_target = 3, algorithm = "PCA") :
 
     return x
 
+def get_label_color(label) :
+    global colormap, y_min, y_max
+    if "colormap" not in globals() :
+        colormap = matplotlib.cm.get_cmap("viridis")
+        _, y_train = data.load_data("./Data/train", "train")
+        y_min = np.min(y_train)
+        y_max = np.max(y_train)
+
+    return colormap((label - y_min) / (y_max - y_min))
+
 def plot(
         x = list[np.ndarray] | np.ndarray, 
         y = list[np.ndarray] | np.ndarray, 

@@ -1,4 +1,5 @@
 import numpy as np
+from sklearn.preprocessing import LabelBinarizer
 
 def load_data(root_path, suffix) -> tuple[np.ndarray, np.ndarray]:
     X = np.loadtxt(f"{root_path}/X_{suffix}.txt")
@@ -14,6 +15,15 @@ def load_label_name(root_path) -> dict[int, str] :
             label_name[int(line[0])] = line[1]
     
     return label_name
+
+def label_binarize(y) -> np.ndarray :
+    global handler
+    if "handler" not in globals() or handler is None :
+        handler = LabelBinarizer()
+        _, y_train = load_data("./Data/train", "train")
+        handler.fit(y_train)
+    
+    return handler.transform(y)
 
 if __name__ == "__main__" :
     X, y = load_data("./Data/train", "train")
