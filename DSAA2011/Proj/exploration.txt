@@ -1,0 +1,101 @@
+Best parameters: {'alpha': 1, 'max_iter': 1000}
+metric of Ridge Classifier :
+time cost : 2.80 s
+accuracy : 0.9569053274516457
+              precision    recall  f1-score   support
+
+         1.0       0.97      0.99      0.98       496
+         2.0       0.97      0.98      0.97       471
+         3.0       1.00      0.98      0.99       420
+         4.0       0.96      0.87      0.91       491
+         5.0       0.86      0.96      0.91       532
+         6.0       1.00      0.96      0.98       537
+
+    accuracy                           0.96      2947
+   macro avg       0.96      0.96      0.96      2947
+weighted avg       0.96      0.96      0.96      2947
+
+confusion matrix :
+[[491   5   0   0   0   0]
+ [ 11 460   0   0   0   0]
+ [  2   7 411   0   0   0]
+ [  0   2   0 429  60   0]
+ [  0   0   0  20 512   0]
+ [  0   0   0   0  20 517]]
+
+Best parameters: {'C': 10, 'max_iter': 1000, 'solver': 'liblinear'}
+metric of Logistic Regression :
+time cost : 77.84 s
+accuracy : 0.9623345775364778
+              precision    recall  f1-score   support
+
+         1.0       0.95      1.00      0.97       496
+         2.0       0.98      0.95      0.96       471
+         3.0       1.00      0.97      0.98       420
+         4.0       0.97      0.87      0.92       491
+         5.0       0.90      0.98      0.94       532
+         6.0       1.00      1.00      1.00       537
+
+    accuracy                           0.96      2947
+   macro avg       0.97      0.96      0.96      2947
+weighted avg       0.96      0.96      0.96      2947
+
+confusion matrix :
+[[495   0   1   0   0   0]
+ [ 22 449   0   0   0   0]
+ [  4   8 408   0   0   0]
+ [  0   3   0 427  60   1]
+ [  1   0   0  11 520   0]
+ [  0   0   0   0   0 537]]
+
+
+Best parameters: {'C': 11, 'max_iter': 1000, 'solver': 'liblinear'}
+metric of Logistic Regression :
+time cost : 275.65 s
+accuracy : 0.9619952494061758
+              precision    recall  f1-score   support
+
+         1.0       0.95      1.00      0.97       496
+         2.0       0.98      0.95      0.96       471
+         3.0       1.00      0.97      0.98       420
+         4.0       0.97      0.87      0.92       491
+         5.0       0.90      0.98      0.93       532
+         6.0       1.00      1.00      1.00       537
+
+    accuracy                           0.96      2947
+   macro avg       0.96      0.96      0.96      2947
+weighted avg       0.96      0.96      0.96      2947
+
+confusion matrix :
+[[495   0   1   0   0   0]
+ [ 22 449   0   0   0   0]
+ [  4   8 408   0   0   0]
+ [  0   3   0 427  60   1]
+ [  1   0   0  12 519   0]
+ [  0   0   0   0   0 537]]
+
+Best parameters: {'C': 11.5, 'max_iter': 1000, 'solver': 'liblinear'}
+metric of Logistic Regression :
+time cost : 144.23 s
+accuracy : 0.9616559212758737
+              precision    recall  f1-score   support
+
+         1.0       0.95      1.00      0.97       496
+         2.0       0.98      0.95      0.96       471
+         3.0       1.00      0.97      0.98       420
+         4.0       0.97      0.87      0.92       491
+         5.0       0.90      0.98      0.93       532
+         6.0       1.00      1.00      1.00       537
+
+    accuracy                           0.96      2947
+   macro avg       0.96      0.96      0.96      2947
+weighted avg       0.96      0.96      0.96      2947
+
+confusion matrix :
+[[495   0   1   0   0   0]
+ [ 23 448   0   0   0   0]
+ [  4   8 408   0   0   0]
+ [  0   3   0 427  60   1]
+ [  1   0   0  12 519   0]
+ [  0   0   0   0   0 537]]
+
