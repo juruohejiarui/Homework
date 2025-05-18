@@ -34,7 +34,7 @@ class DataSet(data.Dataset) :
 		return self.input[index], self.label[index]
 	
 if __name__ == "__main__" :
-	data_path = "./Data"
+	data_path = "./data"
 	train_set = DataSet(data_path, "train")
 	test_set = DataSet(data_path, "test")
 	print(f"{train_set[0][0].shape}")

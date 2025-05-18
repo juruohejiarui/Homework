@@ -48,7 +48,7 @@ def calcDefenderTarget(curBallPos : np.ndarray) -> np.ndarray :
 
 def calcDefenderPos(curDefenderPos : np.ndarray, nxtDefenderPos : np.ndarray) :
 	dis : np.ndarray = np.sqrt(((nxtDefenderPos - curDefenderPos) ** 2).sum()) + 1
-	return (curDefenderPos + (nxtDefenderPos - curDefenderPos) * min(max(0.05, math.log(dis.item()) / 10), 0.1))
+	return (curDefenderPos + (nxtDefenderPos - curDefenderPos) * min(max(0.1, math.log(dis.item()) / 10), 0.2))
 	
 
 def calcCofPlayer(velocity : np.ndarray) -> np.ndarray :

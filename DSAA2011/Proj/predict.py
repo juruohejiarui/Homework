@@ -41,7 +41,7 @@ def evaluate(name,
 
 	# draw AUC and ROC curve
 	if eval_roc :
-		classes_dict = data.load_label_name("./Data")
+		classes_dict = data.load_label_name("./data")
 		classes = list(classes_dict.keys())
 
 		y_test_bin = data.label_binarize(y_test)
@@ -159,9 +159,9 @@ def finetune_logistic(X_train, y_train, X_test, y_test):
 
 if __name__ == "__main__":
 	# Load the data
-	X_train, y_train = data.load_data("./Data/train", "train")
+	X_train, y_train = data.load_data("./data/train", "train")
 
-	X_test, y_test = data.load_data("./Data/test", "test")
+	X_test, y_test = data.load_data("./data/test", "test")
 
 	# Standardize the data
 	

@@ -66,8 +66,8 @@ def logistic(X_train, y_train, X_test, y_test) -> tuple[LogisticRegression, floa
 	return bst, time_cost
 
 if __name__ == "__main__":
-	X_train, y_train = data.load_data("./Data/train", "train")
-	X_test, y_test = data.load_data("./Data/test", "test")
+	X_train, y_train = data.load_data("./data/train", "train")
+	X_test, y_test = data.load_data("./data/test", "test")
 	# ridge(X_train, y_train, X_test, y_test)
 	logistic(X_train, y_train, X_test, y_test)
 

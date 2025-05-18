@@ -22,7 +22,7 @@ def get_label_color(label) :
     global colormap, y_min, y_max
     if "colormap" not in globals() :
         colormap = matplotlib.cm.get_cmap("viridis")
-        _, y_train = data.load_data("./Data/train", "train")
+        _, y_train = data.load_data("./data/train", "train")
         y_min = np.min(y_train)
         y_max = np.max(y_train)
 
@@ -96,7 +96,7 @@ def plot(
         plt.show()
 
 if __name__ == "__main__" :
-    X, y = data.load_data("./Data/train", "train")
+    X, y = data.load_data("./data/train", "train")
     X_tsne = dimension_reduction(X, 2, "TSNE")
     X_pca = dimension_reduction(X, 2, "PCA")
-    plot([X_tsne], [y], dim_target=2, name="tsne", label=data.load_label_name("./Data"), save_path="visualization.png")
+    plot([X_tsne], [y], dim_target=2, name="tsne", label=data.load_label_name("./data"), save_path="visualization.png")

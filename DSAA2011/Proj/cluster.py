@@ -54,7 +54,7 @@ def metric(name : str, X : np.ndarray, y : np.ndarray, labels : np.ndarray, cent
 
 
 if __name__ == "__main__" :
-	X, y = data.load_data("./Data/train", "train")
+	X, y = data.load_data("./data/train", "train")
 
 	x_dem = visualize.dimension_reduction(X, 2, "TSNE")
 

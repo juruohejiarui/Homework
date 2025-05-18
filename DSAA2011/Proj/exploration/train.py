@@ -91,8 +91,8 @@ def train(model : nn.Module,
 
 if __name__ == "__main__" :
 	model = CNN().cuda()
-	train_data = DataLoader(dataloader.DataSet("./Data", "train"), batch_size=100, shuffle=True, num_workers=2, drop_last=False)
-	test_data = DataLoader(dataloader.DataSet("./Data", "test"), batch_size=100, shuffle=True, num_workers=2, drop_last=False)
+	train_data = DataLoader(dataloader.DataSet("./data", "train"), batch_size=100, shuffle=True, num_workers=2, drop_last=False)
+	test_data = DataLoader(dataloader.DataSet("./data", "test"), batch_size=100, shuffle=True, num_workers=2, drop_last=False)
 	logger = SummaryWriter(f"./run/CNN-test", flush_secs=2)
 
 	train(model, train_data, test_data, 3e-4, 200, logger, "CNN-test.png")

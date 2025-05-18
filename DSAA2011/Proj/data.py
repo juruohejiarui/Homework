@@ -20,14 +20,14 @@ def label_binarize(y) -> np.ndarray :
     global handler
     if "handler" not in globals() or handler is None :
         handler = LabelBinarizer()
-        _, y_train = load_data("./Data/train", "train")
+        _, y_train = load_data("./data/train", "train")
         handler.fit(y_train)
     
     return handler.transform(y)
 
 if __name__ == "__main__" :
-    X, y = load_data("./Data/train", "train")
-    label_name = load_label_name("./Data")
+    X, y = load_data("./data/train", "train")
+    label_name = load_label_name("./data")
     print(X.shape)
     print(y.shape)
     print(label_name)
