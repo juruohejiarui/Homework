@@ -24,6 +24,8 @@ DSAA2011/*.html
 DSAA2011/*.pdf
 DSAA2011/.*
 DSAA2011/Proj/exploration/run
+DSAA2011/Proj/*.zip
+
 DSAA2011/*/*-sol.ipynb
 DSAA2011/*-sol.ipynb
 DSAA2011/Lab04/output.csv

@@ -16,33 +16,36 @@ class FocalLoss(nn.Module):
 		focal_loss = (1 - pt) ** self.gamma * ce_loss  # 根据Focal Loss公式计算Focal Loss
 		return focal_loss
 	
-class CNN(nn.Module) :
-	def __init__(self, num_classes=6) :
-		super(CNN, self).__init__()
-		self.conv = nn.Sequential(
-			nn.Conv2d(1, 32, 3, (1, 3), (1, 0)),
+class LSTMCNN(nn.Module) :
+	def __init__ (self, n_input=9, num_classes=6) :
+		super(LSTMCNN, self).__init__()
+		self.lstm = nn.LSTM(input_size=n_input, hidden_size=32, num_layers=2, batch_first=True)
+		self.conv1 = nn.Sequential(
+			nn.Conv2d(1, 64, kernel_size=5, stride=2),
 			nn.ReLU(),
-			nn.BatchNorm2d(32),
-			# nn.LayerNorm([32, 128, 3]),
-			nn.Conv2d(32, 64, 3, 1, 1),
+			nn.MaxPool2d(kernel_size=2, stride=2),
+			nn.Conv2d(64, 128, kernel_size=3, stride=1),
 			nn.ReLU(),
-			# nn.LayerNorm([64, 128, 3]),
-			nn.BatchNorm2d(64),
-			nn.Conv2d(64, 128, 3, 1, 1),
-			nn.AdaptiveAvgPool2d((64, 3))
+			nn.MaxPool2d(kernel_size=2, stride=2),
+			nn.Conv2d(128, 256, kernel_size=2, stride=1),
+			nn.ReLU(),
+			nn.AdaptiveAvgPool2d(1),
+			nn.BatchNorm2d(256)
 		)
 		self.fc = nn.Sequential(
-			nn.Linear(128 * 64 * 3, 128),
-			nn.LeakyReLU(),
-			# nn.Dropout(0.5),
-			nn.Linear(128, num_classes)
+			nn.Linear(256, num_classes),
+			nn.Softmax(dim=1)
 		)
-		
-	def forward(self, x) :
-		x = x.view(x.shape[0], 1, x.shape[1], x.shape[2])
-		x = self.conv(x)
-		x = x.view(x.shape[0], -1)
+
+	def forward(self, x : torch.Tensor) :
+		batch_size = x.size(0)
+		x, _ = self.lstm(x)
+		x = x.unsqueeze(1)
+
+		x = self.conv1(x)
+
+		x = x.view(batch_size, -1)
 		x = self.fc(x)
 		return x
+
 	
-			
