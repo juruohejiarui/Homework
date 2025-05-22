@@ -25,6 +25,8 @@
         {
             "name": "pdflatex",
             "tools": [
+                "pdflatex",
+                "bibtex",
                 "pdflatex"
             ]
         },

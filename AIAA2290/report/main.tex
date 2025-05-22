@@ -60,26 +60,32 @@
 \begin{document}
 \maketitle
 
+\begin{abstract}
+  
+\end{abstract}
+
 \section{Introduction}
 
-This paper first introduces adversarial training and other methods for defence again adversarial training. 
-Then some evaluation and comparation of mentioned methods. The final part is the 
+Adversarial training is an essential part of artificial intelligence application, especially the application of nerual network. It may increase the robustness of models and help defend against perturbed input, especially those designed specifically to attack the model. Adversarial training can enhance the security and reliability of artificial intelligence. Furthermore, related concepts also contribute to the development of generative artificial intelligence.
 
+Section 2 shows some widely used training algorithms. And Section 3 demonstrates the result of an instance of adversarial traning and its result. Section 4 aims to discuss the issues of adversarial training. Section 5 presents further application of adversarial traning.
 
-\section{Methods}
+\section{Training Algorithms}
 Let $\theta$ be the parameters of models, $f_\theta(\cdot)$ be the model, $\epsilon$ be the range of perturb of attack sample and $L$ be the loss function.
 
 Then the target of adversarial training can be
 
-$$
+\begin{equation}
 \theta^*=\arg\min_\theta\left\{
-    \mathbb{E}_{(\mathbf{x}, \mathbf{y})\in \mathcal{D}}
-    \left[
-        \max_{\lVert\mathbf{\delta}\rVert\leq \epsilon}
-            \left\{L(f_\theta(\mathbf{x}+\delta), y)\right\}
-    \right]
+  \mathbb{E}_{(\mathbf{x}, \mathbf{y})\in \mathcal{D}}
+  \left[
+      \max_{\lVert\mathbf{\delta}\rVert\leq \epsilon}
+          \left\{L(f_\theta(\mathbf{x}+\delta), y)\right\}
+  \right]
 \right\}
-$$
+\tag{2:1}
+\label{formula:adversarial_target}
+\end{equation}
 
 There are some wide used algorithms for adversarial training.
 For example, one of the most classical algorithms is the projected gradient descents (PGD).
@@ -91,23 +97,24 @@ Furthermore, some structure applies adversarial training, such as GAN.
 This method try to construct attack samples using iteration towards the direction that relates to the gradient of loss function w.r.t. the input, 
 which is usually the normalized value of $\nabla_{\mathbf{x}}(L(f_\theta(\mathrm{x}+\delta), y))$. People tend to use $l_0, l_2$ and $l_{\infty}$. Addtionally, the magnitude of iteration step is defined by a hyperparameter $\alpha$ , while the number of step for each generation of attack sample is defined by another hyperparameter $k$ .
 
-For a PGD process with specific number of iteration $k$, we can call it $k$-PGD.
+For a PGD process with specific number of iteration $k$, we can call it PGD-$k$.
 
 The pesuado code of this algorithm is shown below:
 
 \begin{breakablealgorithm}
 \caption{PGD training}
 \begin{algorithmic}[1] %每行显示行号
-  \Require training set $\mathcal{D}$, learning rate $\tau$, training epochs $N$, hyperparameters $\alpha, \epsilon$, model $f_\theta$ and loss function $L$
+  \Require training set $\mathcal{D}$, learning rate $\tau$, training epochs $N$, hyperparameters $\alpha, \epsilon, k$, model $f_\theta$ and loss function $L$
   \State Initialize model parameters $\theta$
 
   \For {$n=1$ to $N$}
     \State {divide $\mathcal{D}$ into list of mini-batches $\mathcal{C}=\{(\mathrm{X}, \mathbf{y})\}$}
-    \For {$(\mathrm{X}, \mathbf{y})\in \mathcal{C}}$ 
+    \For {$(\mathrm{X}, \mathbf{y})\in \mathcal{C}$} 
       \State {$\delta\leftarrow$ zero matrix with shape of $X$}
       \For {$t\leftarrow 1$ to $k$}
+        \State {execute backpropagation}
         \State $g_a\leftarrow \nabla_{\mathrm{X}+\delta}(L(f_{\theta}(\mathrm{X}+\delta), y))$
-        \State $\delta\leftarrow \mathrm{clamp}(\delta + \alpha g_a, -\epsilon, \epsilon)$
+        \State $\delta\leftarrow \mathrm{clamp}(\delta + \frac{\alpha}{\left\lVert g_a \right\rVert}g_a, -\epsilon, \epsilon)$
       \EndFor
       \State $g_\theta\leftarrow \nabla_{\theta}(L(f_{\theta}(\mathrm{X}+\delta), y))$
       \State $\theta \leftarrow \theta - \tau g_\theta$
@@ -120,6 +127,107 @@ Overall, the times of forward propagation and backpropagation of this algorithm 
 
 \subsection{You can Only Propagate Once (YOPO)}
 
-To increase the efficience of adversarial training, 
+This training methods aims to enhance the efficiency of traning by reducing the frequency of entire backpropagation. According to the pontryagin maximum principle (PMP), this algorithm assumes that the model mainly use the first layer to handle the attack. Thus, the process of gradient calculation can reuse the gradients excepts the first layer.
 
+Training on one mini-batch is an $m\times n$ loop, where $m, n$ are both hyperparameters. In the outer loop, program will execute the entire backpropagation once and get the gradients of the layers excepts the first, then execute the inner loop to calculate the gradient of the first layer and iterate the attack sample. A YOPO process with specific $m, n$ is noted by YOPO-$m$-$n$ .
+
+The pesuado code of this algorirthm is shown below:
+
+\begin{breakablealgorithm}
+\caption{YOPO training}
+\begin{algorithmic}[1]
+  \Require training set $\mathcal{D}$, learning rate $\tau$, training epochs $N$, hyperparameters $\alpha, \epsilon, m, n$, model $f_\theta$ and loss function $L$ 
+  \State divide the model paramters $\theta$ into first layer $\theta_0$ and the other layers $\theta'$
+  \For {$i\leftarrow 1$ to $N$}
+    \State {divide $\mathcal{D}$ into list of mini-batches $\mathcal{C}=\{(\mathrm{X}, \mathbf{y})\}$}
+    \For {$(\mathrm{X}, \mathbf{y})\in \mathcal{C}$}
+      \State $\delta_{0, n}\leftarrow \text{zero matrix with shape of } \mathrm{X}$
+      \State $g_\theta\leftarrow \text{zero matrix with shape of } \mathrm{\theta}$
+      \For {$j=1$ to $m$}
+        \State execute entire backpropagation
+        \State $\delta_{j,0}\leftarrow \delta_{j-1,n}$
+        \State {$p\leftarrow \nabla_{f_{\theta_0}(\mathrm{X}+\delta_{j,0})}\left(
+          L(f_\theta(\mathrm{X}+\delta_{j,0}), \mathbf{y})
+        \right)$}
+        \For {$k=1$ to $n$}
+          \State $g_a\leftarrow
+            p\cdot \nabla_{\mathrm{X}+\delta}(f_{\theta_0}(\mathrm{X}+\delta_{j,k-1}))$
+          \State $\delta_{j,k}\leftarrow \mathrm{clamp}\left(\delta_{j,k-1}+\frac{\alpha\cdot g_a}{\left\lVert g_a \right\rVert}, -\epsilon, \epsilon\right)$
+        \EndFor
+        \State $g_\theta\leftarrow g_\theta + \nabla_{\theta}(L(f_{\theta}(\mathrm{X}+\delta_{j,n}), \mathbf{y}))$
+        \Comment this gradient can be calculated in backpropagation
+      \EndFor
+      \State $\theta\leftarrow \theta-\tau\cdot g_\theta$
+    \EndFor
+  \EndFor
+\end{algorithmic}
+\end{breakablealgorithm}
+For one mini-batch, entire backpropagation is executed only for $\Theta(m)$ times, however, the number of iterations of attack sample is $\Theta(mn)$ . Additionally, according to the paper by Zhang D, el tal. \cite{zhang2019propagateonceacceleratingadversarial} . When $m\times n$ is slightly larger than $k$ , then YOPO-$m$-$n$ can achieve similar performance with PGD-$k$ .
+
+However, there are analysis \cite{zhu2020freelbenhancedadversarialtraining} which claims that the PMP-based assumption does not hold on ReLU-based models.
+
+\subsection{Free Large Batch Adversarial Attack (FreeLB)}
+
+Different from that PGD iterates the attack sample for $k$ times and only apply it to update the model with the final sample, FreeLB use average to use all the samples in iteration process.
+
+This algorithm can be treated as a case of YOPO when we set $n=1$ , but it can work on ReLU-bases models.
+
+Here is a comparison with PGD: The process of PGD is to find a attack sample by multiple maximization of the loss function, then minimize the loss once by gradient descent. FreeLB, however, minimizes the loss after each miximization operation. This modify can increase the robustness and increase the performance of training.
+
+The pesuado code of this algorirthm is shown below:
+
+\begin{breakablealgorithm}
+\caption{FreeLB training}
+\begin{algorithmic}[1]
+  \Require traning set $\mathcal{D}$, learning rate $\tau$, traning epochs $N$, hyperparameters $\alpha, \epsilon, k$, model $f_\theta$ and loss function $L$ .
+  \For {$i\leftarrow 1$ to $N$}
+    \State {divide $\mathcal{D}$ into list of mini-batches $\mathcal{C}=\{(\mathrm{X}, \mathbf{y})\}$}
+    \For {$(\mathrm{X}, \mathbf{y})\in \mathcal{C}$}
+      \State $\delta_0\leftarrow \textbf{random}\text{ matrix with shape of } \mathrm{X}$
+      \State $g_\theta\leftarrow \text{zero matrix with shape of } \theta$
+      \For {$i\leftarrow 1$ to $k$}
+        \State {execute backpropagation}
+        \State $g_\theta\leftarrow g_\theta + \frac{1}{k}\nabla_{\theta}(L(f_\theta(\mathrm{X}+\delta_{i-1}), \mathbf{y}))$
+        \State $g_a\leftarrow \nabla_{\mathrm{X}+\delta}(L(f_\theta(\mathrm{X}+\delta_{i-1}), \mathbf{y}))$
+        \State $\delta_i\leftarrow \mathrm{clamp}\left(\delta_{i-1}+\frac{\alpha}{\left\lVert g_a \right\rVert}g_a, -\epsilon, \epsilon\right)$
+      \EndFor
+      \State {$\theta\leftarrow\theta-\tau g_\theta$}
+    \EndFor
+  \EndFor
+\end{algorithmic}
+\end{breakablealgorithm}
+
+\subsection{SMoothness-inducing Adversarial Regularization (SMART)}
+
+This algorithm does not aim to achieve the target shown above (\cref{formula:adversarial_target}) , but treats the preturbation as regularization item. It attempts to guide the model to output the same prediction for adjacent samples. 
+
+The target formula is shown below :
+
+\begin{equation}
+  \theta^*=\arg\min_\theta\{\mathcal{L}(\theta)+\lambda \mathcal{R}(\theta)\}
+  \tag{2:4:1}
+  \label{formula:adversarial_target2}
+\end{equation}
+where $\mathcal{L}(\theta)$ is the sum of loss of the original dataset, $\lambda$ is the hyperparameter that $\lambda>0$ and $\mathcal{R}(\theta)$ is the smoothness-inducing adversarial regularizer.
+
+$$
+\begin{aligned}
+  &\mathcal{L}(\theta)=\frac{1}{n}\sum_{(\mathbf{x}, \mathbf{y})\in\mathcal{D}} L(f_\theta(\mathbf{x}), \mathbf{y}) \\
+  &\mathcal{R}(\theta)=\frac{1}{n}\sum_{(\mathbf{x}, \mathbf{y})\in\mathcal{D}} \max_{\left\Vert \tilde{\mathbf{x}}-\mathbf{x}\right\Vert\leq \epsilon}\left\{l\left(f_\theta(\tilde{\mathbf{x}}), f_\theta(\mathbf{x})\right)\right\}
+\end{aligned}
+$$
+
+and $l(a, b)$ is the symmetric KL divergence :
+
+$$
+l(a, b)=\mathrm{KL}(a, b) + \mathrm{KL}(b, a)
+$$
+
+To solve \cref{formula:adversarial_target2} , Bregman proximal point optimization is applied, 
+
+{\small
+\bibliographystyle{ieeenat_fullname}
+\bibliography{references}
+}
 \end{document}
+

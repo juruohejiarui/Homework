@@ -35,6 +35,9 @@ DSAA2011/Lab04/output.csv
 *.out
 *.synctex.gz
 *.aux
+*.bbl
+*.blg
+*.brf
 
 .vscode/c_cpp_properties.json
 a.log
