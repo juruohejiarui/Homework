@@ -14,15 +14,19 @@ DefenderRadius = 15
 
 PlayerMass = 30
 BallMass = 10
-DefenderMass = 25
+DefenderMass = 30
 
 BorderWidth = 25
 
 GateRadius = 70
+Winner = 0
 
-BallInitPos = np.array([screenWidth / 2, screenHeight * 2 / 3])
+ScorePlayer, ScoreDefender = 0, 0
+
+BallInitPos = np.array([screenWidth / 2, screenHeight / 2])
 PlayerInitPos = np.array([screenWidth / 2, screenHeight * 3 / 4])
 GatePos = np.array([screenWidth / 2, 10])
+OwnGatePos = np.array([screenWidth / 2, screenHeight - 10])
 
 DefenderPosY = GateRadius + 10 + DefenderRadius
 
@@ -31,16 +35,11 @@ mass = [PlayerMass, BallMass, DefenderMass]
 
 def calcPlayerPos(curPlayerPos : np.ndarray, nxtPlayerPos : np.ndarray) :
 	dis : np.ndarray = np.sqrt(((nxtPlayerPos - curPlayerPos) ** 2).sum()) + 1
-	vel = (nxtPlayerPos - curPlayerPos) * min(max(0.1, math.log(dis.item()) / 5), 0.5)
+	vel = (nxtPlayerPos - curPlayerPos) * min(max(0.1, math.log(dis.item()) / 5), 0.4)
 	return (curPlayerPos + vel)
 
 def calcPlayerVelocity(curPlayerPos : np.ndarray, nxtPlayerPos : np.ndarray, deltaTime : float) -> np.ndarray :
 	return (nxtPlayerPos - curPlayerPos) / deltaTime
-
-def checkInDefendRange(curBallPos : np.ndarray) -> bool :
-	if curBallPos[1] < screenHeight / 2 : 
-		return True
-	return False
 
 def calcDefenderTarget(curBallPos : np.ndarray) -> np.ndarray :
 	vec = curBallPos - GatePos
@@ -49,13 +48,31 @@ def calcDefenderTarget(curBallPos : np.ndarray) -> np.ndarray :
 def calcDefenderPos(curDefenderPos : np.ndarray, nxtDefenderPos : np.ndarray) :
 	dis : np.ndarray = np.sqrt(((nxtDefenderPos - curDefenderPos) ** 2).sum()) + 1
 	return (curDefenderPos + (nxtDefenderPos - curDefenderPos) * min(max(0.1, math.log(dis.item()) / 10), 0.2))
-	
 
-def calcCofPlayer(velocity : np.ndarray) -> np.ndarray :
+def calcDefenderNxtPos(curDefenderPos : np.ndarray, curBallPos : np.ndarray, curBallVel : np.ndarray, deltaTime) -> np.ndarray :
+	ballPos = curBallPos + curBallVel * deltaTime / 2
+	if np.linalg.norm(ballPos - curDefenderPos) < 60 and np.linalg.norm(ballPos - GatePos) < GateRadius + DefenderRadius + 160 :
+		dis = np.linalg.norm(ballPos - OwnGatePos)
+		if np.linalg.norm(curBallVel) < 30:
+			trg = curDefenderPos + (ballPos - curDefenderPos)
+		else :
+			trg = OwnGatePos + (ballPos - OwnGatePos) * (dis + DefenderRadius + BallRadius / 2) / dis
+		trg = curDefenderPos + (trg - curDefenderPos) * (0.4 + np.linalg.norm(trg - curDefenderPos) / 60 * 0.2)
+	else :
+		vec = ballPos - GatePos
+		trg = vec * (GateRadius + DefenderRadius + 20) / np.linalg.norm(vec) + GatePos
+		trg = calcDefenderPos(curDefenderPos, trg)
+	return trg
+
+def calcCofPlayer(velocity : np.ndarray) -> float :
 	return max(np.linalg.norm(velocity) / 50, 10) / 20 + 0.1
 
-def checkInGate(pos : np.ndarray) -> bool :
+def checkInGate(pos : np.ndarray) -> np.bool_ :
 	vec = pos - GatePos
+	return np.linalg.norm(vec) < GateRadius
+
+def checkInOwnGate(pos : np.ndarray) -> np.bool_ :
+	vec = pos - OwnGatePos
 	return np.linalg.norm(vec) < GateRadius
 
 def drawbackground(screen) :
@@ -110,7 +127,6 @@ def drawdefender(screen, position) :
 def calcCollision(pos : list[np.ndarray], velocity : list[np.ndarray], mass : list[float], radius : list[float], C : list[float], deltaTime) -> tuple[list[np.ndarray], list[np.ndarray]] :
 	newPos : list[np.ndarray] = []
 	newVelocity : list[np.ndarray] = []
-	# print(pos, velocity)
 	for i in range(len(pos)) :
 		# if (np.linalg.norm(vel) > 200) : vel *= 200 / np.linalg.norm(vel)
 		newPos.append(pos[i] + velocity[i] * deltaTime)
@@ -124,8 +140,8 @@ def calcCollision(pos : list[np.ndarray], velocity : list[np.ndarray], mass : li
 				deltaPos = newPos[i] - newPos[j]
 				deltaVel = newVelocity[i] - newVelocity[j]
 
-				newPos[i] += deltaPos * (radius[i] + radius[j] - dis + 2) / (2 * dis + 1e-5)
-				newPos[j] -= deltaPos * (radius[i] + radius[j] - dis + 2) / (2 * dis + 1e-5)
+				newPos[i] += deltaPos * (radius[i] + radius[j] - dis + 2) * mass[i] / ((mass[i] + mass[j]) * dis + 1e-5)
+				newPos[j] -= deltaPos * (radius[i] + radius[j] - dis + 2) * mass[j] / ((mass[i] + mass[j]) * dis + 1e-5)
 
 				t = newVelocity[i] * mass[i] + newVelocity[j] * mass[j]
 				# for velocity
@@ -133,7 +149,7 @@ def calcCollision(pos : list[np.ndarray], velocity : list[np.ndarray], mass : li
 				newVelocity[j] = (deltaVel * mass[i] * min(C[j], C[i]) + t) / (mass[i] + mass[j])
  
 	for i in range(len(newVelocity)) : 
-		newVelocity[i] = np.abs(newVelocity[i]) ** 0.999 * np.sign(newVelocity[i])
+		newVelocity[i] = newVelocity[i] * (1 - 0.5 * deltaTime)
 	
 
 	return newPos, newVelocity
@@ -146,13 +162,14 @@ def calcCollisionWithWall(posLst : list[np.ndarray], velocity : list[np.ndarray]
 	for i in range(len(posLst)) :
 		if newPos[i][0] < radius[i] + BorderWidth or newPos[i][0] > screenWidth - radius[i] - BorderWidth :
 			newVelocity[i] = np.array([C[i] * -newVelocity[i][0], newVelocity[i][1]])
-			newPos[i] = (max(radius[i] + BorderWidth, min(newPos[i][0], screenWidth - radius[i] - BorderWidth)), newPos[i][1])
+			newPos[i] = np.array([max(radius[i] + BorderWidth, min(newPos[i][0], screenWidth - radius[i] - BorderWidth)), newPos[i][1]])
 		if newPos[i][1] < radius[i] + BorderWidth or newPos[i][1] > screenHeight - radius[i] - BorderWidth :
 			newVelocity[i] = np.array([newVelocity[i][0], C[i] * -newVelocity[i][1]])
-			newPos[i] = (newPos[i][0], max(radius[i] + BorderWidth, min(newPos[i][1], screenHeight - radius[i] - BorderWidth)))
+			newPos[i] = np.array([newPos[i][0], max(radius[i] + BorderWidth, min(newPos[i][1], screenHeight - radius[i] - BorderWidth))])
 	return newPos, newVelocity
 
 def main() :
+	global ScorePlayer, ScoreDefender
 	pyg.init()
 	screen = pyg.display.set_mode((screenWidth, screenHeight))
 	
@@ -160,96 +177,102 @@ def main() :
 
 	curTime = time.monotonic()
 
-	inDefendRangeStartTime = 0
-	inDefendRangeLstState = False
 
 	font = pyg.font.Font("./CascadiaCodeNF.ttf", 20)
 
 	while not done :
 		if needReflesh :
 			curPlayerPos, targetPlayerPos = PlayerInitPos.copy(), PlayerInitPos.copy()
-			curDefenderPos = np.array([screenWidth / 2, ])
+			curDefenderPos = np.array([screenWidth / 2, screenHeight / 3])
 			curBallPos, curBallVel = BallInitPos.copy(), np.zeros(2)
 			startTime = time.monotonic()
 			gameEnd = False
 			needReflesh = False
 
+		deltaTime = time.monotonic() - curTime
+		curTime = time.monotonic()
 		if not gameEnd :
 			head = [detect_face.detect()]
 			if head[0] :
 				targetPlayerPos = np.array(
-					[(-head[0][0] + 0.5) * screenWidth * 2 + screenWidth / 2, 
-					head[0][1] * screenHeight + screenHeight / 4])
+					[(-head[0][0] + 0.5) * screenWidth * 4 + screenWidth / 2, 
+					(head[0][1] - 0.5) * screenHeight * 2 + screenHeight * 2 / 3])
 				targetPlayerPos[0] = max(PlayerRadius, min(targetPlayerPos[0], screenWidth - PlayerRadius))
 				targetPlayerPos[1] = max(PlayerRadius, min(targetPlayerPos[1], screenHeight - PlayerRadius))
 			
-			deltaTime = time.monotonic() - curTime
-			curTime = time.monotonic()
+			
 			newPlayerPos = calcPlayerPos(curPlayerPos, targetPlayerPos)
-			newDefenderPos = calcDefenderPos(curDefenderPos, calcDefenderTarget(curBallPos))
+			newDefenderPos = calcDefenderNxtPos(curDefenderPos, curBallPos, curBallVel, deltaTime)
 			playerVel = calcPlayerVelocity(curPlayerPos, newPlayerPos, deltaTime)
 			defenderVel = calcPlayerVelocity(curDefenderPos, newDefenderPos, deltaTime)
 
 			curPos, curVel = calcCollision([curPlayerPos, curBallPos, curDefenderPos], 
 								  	[playerVel, curBallVel, defenderVel],
 									mass, radius, 
-									[calcCofPlayer(playerVel), 1, 1], 
+									[calcCofPlayer(playerVel), 0.9, 1], 
 									deltaTime)
 			curPlayerPos, curDefenderPos = newPlayerPos, newDefenderPos
 			curPos, curVel = calcCollisionWithWall([curPos[1]], [curVel[1]], [1], [BallRadius], deltaTime)
 			curBallPos = curPos[0]
 			curBallVel = curVel[0]
+		else :
+			# only use collision
+			curPos, curVel = calcCollision([curPlayerPos, curBallPos, curDefenderPos],
+								  	[playerVel, curBallVel, defenderVel],
+									mass, radius, 
+									[calcCofPlayer(playerVel), 0.9, 1], 
+									deltaTime)
+			curPos, curVel = calcCollisionWithWall(curPos, curVel, [calcCofPlayer(playerVel), 1, 1], radius, deltaTime)
+			curPlayerPos, curBallPos, curDefenderPos = curPos[0], curPos[1], curPos[2]
+			playerVel, curBallVel, defenderVel = curVel[0], curVel[1], curVel[2]
 
-			inDefendRangeNewState = checkInDefendRange(curBallPos)
-			if inDefendRangeNewState :
-				if not inDefendRangeLstState :
-					inDefendRangeStartTime = time.monotonic()
+		# calculate speed using 
+		# show the Player on the screen
+		drawbackground(screen)
+		# gate
+		# pyg.draw.rect(screen, (0, 255, 0), (40, 0, screenWidth - 40 * 2, GateHeight))
+		# player
+		drawplayer(screen, curPlayerPos)
 
-			inDefendRangeLstState = inDefendRangeNewState
+		#pyg.draw.circle(screen, (255, 0, 0), (int(curPlayerPos[0]), int(curPlayerPos[1])), PlayerRadius)
+		# ball
+		drawball(screen, curBallPos)
+		# defender
+		drawdefender(screen, curDefenderPos)
 
-			# calculate speed using 
-			# show the Player on the screen
-			drawbackground(screen)
-			# gate
-			# pyg.draw.rect(screen, (0, 255, 0), (40, 0, screenWidth - 40 * 2, GateHeight))
-			# player
-			drawplayer(screen, curPlayerPos)
-   
-			#pyg.draw.circle(screen, (255, 0, 0), (int(curPlayerPos[0]), int(curPlayerPos[1])), PlayerRadius)
-			# ball
-			drawball(screen, curBallPos)
-			# defender
-			drawdefender(screen, curDefenderPos)
+		# draw score 
+		# draw defender score
+		text = font.render(str(ScoreDefender), True, (0, 0, 0), (255, 255, 255))
+		pyg.draw.circle(screen, (255, 255, 255), (0, 0), 30 * math.sqrt(2))
+		screen.blit(text, (5, 0))
 
-			
-			# show remaining time
-			remainTime = 30 - (time.monotonic() - startTime)
-			if remainTime < 0 :
-				remainTime = 0
-			text = font.render("Time: " + str(int(remainTime)), True, (0, 0, 0))
-			# pyg.draw.rect(screen, (255, 255, 255, 1), (screenWidth - text.get_width(), screenHeight - text.get_height() - 10, 100, text.get_height() + 10), 0)
-			screen.blit(text, (screenWidth - text.get_width() - 25 - 10, screenHeight - text.get_height() - 10 - 25))
+		# draw player score
+		text = font.render(str(ScorePlayer), True, (0, 0, 0), (255, 255, 255))
+		pyg.draw.circle(screen, (255, 255, 255), (screenWidth, screenHeight), 30 * math.sqrt(2))
+		screen.blit(text, (screenWidth - text.get_width() - 5, screenHeight - text.get_height() - 5))
 
-			
-
-			if inDefendRangeLstState :
-				remainTime = 10 - (time.monotonic() - inDefendRangeStartTime)
-				if remainTime < 0 :
-					remainTime = 0
-				# text = font.render(str(int(remainTime)), True, (0, 0, 0))
-				# screen.blit(text, (screenWidth / 2 - text.get_width() / 2, screenHeight - text.get_height() * 2 - 10))
-
-
-		if checkInGate(curBallPos) :
-			text = font.render("Goal!", True, (0, 0, 0))
+		if gameEnd :
+			if Winner == 1 :
+				text = font.render("You Win!", True, (0, 0, 0), (255, 255, 255))
+			elif Winner == 2 :
+				text = font.render("You Lose!", True, (0, 0, 0), (255, 255, 255))
 			screen.blit(text, (screenWidth / 2 - text.get_width() / 2, screenHeight / 2 - text.get_height() / 2))
-			gameEnd = True
-			pyg.display.update()
-		if time.monotonic() - startTime > 30 or (inDefendRangeLstState and time.monotonic() - inDefendRangeStartTime > 10) :
-			text = font.render("Time Out!", True, (255, 0, 0))
-			screen.blit(text, (screenWidth / 2 - text.get_width() / 2, screenHeight / 2 - text.get_height() / 2))
-			gameEnd = True
-			pyg.display.update()
+
+		if not gameEnd :
+			# check if the ball is in the gate
+			if checkInGate(curBallPos) :
+				Winner = 1
+				if not gameEnd :
+					ScorePlayer += 1
+					gameEnd = True
+			elif checkInOwnGate(curBallPos) :
+				Winner = 2
+				if not gameEnd :
+					ScoreDefender += 1
+					gameEnd = True
+			else : Winner = 0
+				
+		pyg.display.update()
 		
 
 		# receive key, if press 'r', restart the game

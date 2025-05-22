@@ -16,9 +16,9 @@ def detect() -> tuple[int, int] | None :
 
     # 检测正脸
     # faces = []
-    faces = frontal_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=8, minSize=(30,30))
+    faces = frontal_cascade.detectMultiScale(gray, scaleFactor=1.2, minNeighbors=8, minSize=(30,30))
     # 检测侧脸（左右侧皆可）
-    profiles = profile_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30,30))
+    profiles = profile_cascade.detectMultiScale(gray, scaleFactor=1.2, minNeighbors=5, minSize=(30,30))
 
     # 合并结果（示例：直接拼接，生产可加去重）
     lrgSz = 0
