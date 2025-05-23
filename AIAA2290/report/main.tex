@@ -199,7 +199,7 @@ The pesuado code of this algorirthm is shown below:
 
 \subsection{SMoothness-inducing Adversarial Regularization (SMART)}
 
-This algorithm does not aim to achieve the target shown above (\cref{formula:adversarial_target}) , but treats the preturbation as regularization item. It attempts to guide the model to output the same prediction for adjacent samples. 
+This algorithm does not aim to achieve the target shown above (\cref{formula:adversarial_target}) , but treats the preturbation as regularization item. It attempts to guide the model to output the same prediction for adjacent samples. And this algorithm is shown to be effective for fine-tuning of pre-trained natural language processing model.
 
 The target formula is shown below :
 
@@ -220,10 +220,58 @@ $$
 and $l(a, b)$ is the symmetric KL divergence :
 
 $$
-l(a, b)=\mathrm{KL}(a, b) + \mathrm{KL}(b, a)
+\begin{aligned}
+l(f, g)&=\mathrm{KL}(f, g) + \mathrm{KL}(f, g) \\
+&=\sum_{x\in \mathcal{X}} f(x)\log\frac{f(x)}{g(x)} + g(x)\log\frac{g(x)}{f(x)} \\
+&=\sum_{x\in \mathcal{X}} (f(x) - g(x))\log\frac{f(x)}{g(x)}
+\end{aligned}
 $$
 
-To solve \cref{formula:adversarial_target2} , Bregman proximal point optimization is applied, 
+To solve \cref{formula:adversarial_target2} , Bregman proximal point optimization is applied, the key function of this algorithm is called Bregman divergence: 
+
+$$
+\mathrm{Breg}_\mathcal{D}(\theta_1, \theta_2)=\frac{1}{\left\vert\mathcal{D}\right\vert}
+  \sum_{(\mathbf{x}, \mathbf{y})\in\mathcal{D}}l\left(f_{\theta_1}(\mathbf{x}), f_{\theta_2}(\mathbf{x})\right)
+$$
+
+Then for each mini-batch, algorithm applied this function as the loss function to iterate the attack sample. For more precisely, the formula of gradient of attack sample perturbation $\delta$ on dataset $\mathcal{D}$ is defined as :
+
+$$
+g_\theta(\mathcal{D}, \delta)=
+\begin{bmatrix}
+  \nabla_{\delta_1}l(f_\theta(\mathbf{x}_1), f_\theta(\mathbf{x}_1+\delta_1)) \\
+  \nabla_{\delta_2}l(f_\theta(\mathbf{x}_2), f_\theta(\mathbf{x}_2+\delta_2)) \\
+  \vdots \\
+  \nabla_{\delta_{|\mathcal{D}|}}l(f_\theta(\mathbf{x}_{|\mathcal{D}|}), f_\theta(\mathbf{x}_{|\mathcal{D}|}+\delta_{|\mathcal{D}|}))
+\end{bmatrix}
+$$
+
+Furthermore, this algorihtm applies momentum and Adam update rule for optimizing. Here is the pesuado code:
+
+\begin{breakablealgorithm}
+\caption{SMART algorirthm}
+\begin{algorithmic}[1]
+  \Require number of iteration of attack sample $k$, dataset $\mathcal{D}$, parameters of pre-trained model $\theta_0$ , number of epochs $N$, learning rate $\tau$, hyperparameters for iteration of attack sample $\alpha, \epsilon$, momentum parameter $\beta$
+
+  \State $\tilde{\theta_1}\leftarrow\theta_0$ 
+  \For {$t\leftarrow 1$ to $N$}
+    \State $\overline{\theta}\leftarrow \theta_{t-1}$
+    \State {divide $\mathcal{D}$ into mini-batches $\mathcal{C}$}
+    \For {$(\mathrm{X}, \mathbf{y})\in \mathcal{C}$}
+      \State initialize $\delta$ with guassian distribution
+      \State $\forall \delta _i\sim N(0,\sigma^2I)$
+      \For {$i=1$ to $k$}
+        \State $g_i\leftarrow \frac{g_{\overline{\theta}}\left((\mathrm{X},\mathbf{y}), \delta\right)}{\left\Vert g_{\overline{\theta}}((\mathrm{X},\mathbf{y}), \delta) \right\Vert}$
+        \State $\delta\leftarrow \mathrm{clamp}(\delta + \alpha g_i, -\epsilon, \epsilon)$
+      \EndFor
+      \State $\overline{\theta}\leftarrow \mathrm{Adam}\left(\overline{\theta}, (\mathrm{X}+\delta, \mathbf{y})\right)$
+    \EndFor
+    \State $\theta_t\leftarrow \overline{\theta}$
+    \State $\tilde{\theta}_{t+1}\leftarrow (1-\beta)\overline{\theta}+\beta\tilde{\theta}_t$
+  \EndFor
+  \State the output is $\theta_N$
+\end{algorithmic}
+\end{breakablealgorithm}
 
 {\small
 \bibliographystyle{ieeenat_fullname}
