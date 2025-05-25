@@ -61,15 +61,14 @@ $$
 
 $$
 \begin{aligned}
-G_k&=\sum_{s=0}^k \left\lVert\nabla_\mathbf{w}C(\mathbf{w}_s)\right\rVert^2_2 \\
-\mathbf{w}_{k+1}&\leftarrow \mathbf{w}_k-\frac{\eta}{\sqrt{G_k+\varepsilon}}\nabla_\mathbf{w}C(\mathbf{w}_k) \\
+& \mathbf{w}_{k+1}\leftarrow \mathbf{w}_k-\eta\cdot (\mathrm{M}_k+\epsilon \mathrm{I})^{-1}\nabla_{\mathbf{w}}(\mathbf{w}_k) \\
+\text{where } &\mathrm{M}_k=\mathrm{diag}\left(\sum_{i=1}^k \nabla_\mathbf{w}(\mathbf{w}_i)\odot \nabla_\mathbf{w}(\mathbf{w}_i)\right)
 \end{aligned}
 $$
 
-where $\varepsilon$ is a small constant to prevent division by zero.
+- $\mathrm{diag}(\mathbf{v}) \in \mathbb{R}^{n\times n} \text{ where } \mathbf{v}\in\mathbb{R}^n$ : 对角线元素 $\mathrm{diag}(\mathbf{v})_{i,i}$ 是 $v_i$ 
+- $\mathbf{a} \odot \mathbf{b} \in \mathbb{R}^n \text{ where } \mathbf{a}, \mathbf{b}\in \mathbb{R}^n$ : 对位乘起来。
 
-- Pros: adjust the learning rate for bases on the historical gradient information can gives larger update to $\mathbf{w}_k$ with smaller gradient and smaller update to $\mathbf{w}_k$ with larger gradient. 使用历史的梯度参数可以使 $\mathbf{w}_k$ 更新步幅更加均衡。
-- Cons: learning rate tends to shrink to quickly, leading to slow convergence or getting stuck at suboptimal points (vanishing learning rate) 可能会导致学习率减小过快，局限于某个次优值。
 
 ### Different Gradient
 

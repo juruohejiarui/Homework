@@ -94,6 +94,12 @@ $$
 \lim_{n\rightarrow \infty} \mathrm{Pr}(\sqrt{n}(\overline{X}_n-\mu)\leq z)=\lim_{n\rightarrow \infty} \mathrm{Pr}\left(\frac{\sqrt{n}(\overline{X}_n-\mu)}{\sigma}\leq \frac{z}{\sigma}\right)=\Phi\left(\frac{z}{\sigma}\right)
 $$
 
+## Information Theory
+
+- **Entropy** 熵: $H(X)=-\sum_{x\in \mathcal{X}} p_X(x)\log p_X(x)$
+- **Conditional Entropy** 条件熵: $H(Y|X)=-\sum_{x\in \mathcal{X}} p_X(x)\sum_{y\in \mathcal{Y}} p_{Y|X}(y|x)\log p_{Y|X}(y|x)$
+- **Mutual Information** 互信息: $I(X;Y)=H(X)-H(X|Y)=H(Y)-H(Y|X)=\sum_{x\in \mathcal{X}}\sum_{y\in \mathcal{Y}} p_{XY}(x,y)\log\frac{p_{XY}(x,y)}{p_X(x)p_Y(y)}$
+
 ## Linear Algebra
 
 ### Symbols
