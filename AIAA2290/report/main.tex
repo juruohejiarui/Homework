@@ -55,7 +55,8 @@
 
 %%%%%%%%% AUTHORS - PLEASE UPDATE
 \author{Jiarui HE\\
-50013538 \\
+College of Education Sciences \\
+The Hong Kong University of Science and Technology (Guangzhou) \\
 {\tt\small jhe218@connect.hkust-gz.edu.cn}
 }
 
@@ -63,7 +64,7 @@
 \maketitle
 
 \begin{abstract}
-This report examines the inherent challenges and limitations of adversarial training for neural networks. We highlight issues related to generalization, computational complexity, and performance trade-offs, and discuss potential directions for future research.
+Adversarial examples—small, intentionally crafted perturbations to input data—pose a critical threat to the reliability of modern machine learning models. In this report, we first review the theoretical foundations of adversarial robustness, formalizing the min-max optimization objective that underlies adversarial training. We then survey prominent attack and defense algorithms, including Projected Gradient Descent (PGD), and the FreeLB framework. To assess practical performance, we conduct an empirical study on a lightweight seven-layer convolutional network, comparing standard training against PGD- and FreeLB-based adversarial training under varying perturbation intensities. Our results show that multi-step adversarial training increases robust accuracy from roughly 56\% to over 95\% under strong PGD attacks, while incurring a modest decrease in clean-data accuracy and a significant rise in training time. Then, we discuss the principal challenges—namely, the robustness-accuracy trade-off, high computational cost. Finally, we discuess the further application of adversarial training and related concepts, including GANs and Adversarial Explainability.
 \end{abstract}
 
 \section{Introduction}
@@ -104,7 +105,7 @@ Let $\theta$ denote the model parameters, $f_{\theta}(\cdot)$ the model mapping,
 Here, the inner maximization identifies the most adversarial perturbation $\mathbf{\delta}$ within the $\epsilon$-ball around the input $\mathbf{x}$, while the outer minimization optimizes the model parameters to minimize the expected worst-case loss over the data distribution $\mathcal{D}$.
 
 \section{Adversarial Training Algorithms}
-Several algorithms have been proposed to approximate the inner maximization in Equation~\eqref{eq:adv_training_objective}. Among these, the projected gradient descent (PGD) method is one of the most classical and widely used approaches. Subsequent techniques often build upon PGD, introducing modifications to improve efficiency, convergence, or transferability. Additionally, adversarial training has been integrated into generative frameworks such as Generative Adversarial Networks (GANs) to further enhance model robustness.
+Several algorithms have been proposed to approximate the inner maximization in Equation~\eqref{eq:adv_training_objective}. Among these, the projected gradient descent (PGD) method is one of the most classical and widely used approaches. Subsequent techniques often build upon PGD, introducing modifications to improve efficiency, convergence, or transferability.
 
 \subsection{Projected Gradient Descent (PGD)}
 The PGD attack iteratively constructs adversarial examples by ascending the gradient of the loss with respect to the input. At each step, the perturbation is updated and then projected back onto the allowable perturbation set:
@@ -136,10 +137,10 @@ After $k$ iterations, the adversarial example is given by $\mathbf{x}^{\mathrm{a
       \State {$\delta\leftarrow$ zero matrix with shape of $X$}
       \For {$t\leftarrow 1$ to $k$}
         \State {execute backpropagation}
-        \State $g_a\leftarrow \nabla_{\mathrm{X}+\delta}(L(f_{\theta}(\mathrm{X}+\delta), y))$
+        \State $g_a\leftarrow \nabla_{\mathrm{X}+\delta}(L(f_{\theta}(\mathrm{X}+\delta), \mathbf{y}))$
         \State $\delta\leftarrow \mathrm{clamp}(\delta + \frac{\alpha}{\left\lVert g_a \right\rVert}g_a, -\epsilon, \epsilon)$
       \EndFor
-      \State $g_\theta\leftarrow \nabla_{\theta}(L(f_{\theta}(\mathrm{X}+\delta), y))$
+      \State $g_\theta\leftarrow \nabla_{\theta}(L(f_{\theta}(\mathrm{X}+\delta), \mathbf{y}))$
       \State $\theta \leftarrow \theta - \tau g_\theta$
     \EndFor
   \EndFor
@@ -150,11 +151,11 @@ Overall, the times of forward propagation and backpropagation of this algorithm 
 
 \subsection{You can Only Propagate Once (YOPO)}
 
-This training methods aims to enhance the efficiency of training by reducing the frequency of entire backpropagation. According to the pontryagin maximum principle (PMP), this algorithm assumes that the model mainly use the first layer to handle the attack. Thus, the process of gradient calculation can reuse the gradients excepts the first layer.
+The YOPO algorithm aims to improve computational efficiency during adversarial training by reducing the number of full backpropagation operations. Leveraging insights from the Pontryagin Maximum Principle (PMP), YOPO posits that the model's first layer is primarily responsible for responding to adversarial perturbations. Based on this assumption, the algorithm reuses gradients for all layers except the first across multiple inner-loop iterations.
 
-Training on one mini-batch is an $m\times n$ loop, where $m, n$ are both hyperparameters. In the outer loop, program will execute the entire backpropagation once and get the gradients of the layers excepts the first, then execute the inner loop to calculate the gradient of the first layer and iterate the attack sample. A YOPO process with specific $m, n$ is noted by YOPO-$m$-$n$ .
+In this framework, each mini-batch is processed through a two-level loop structure defined by hyperparameters $m$ and $n$. The outer loop executes full backpropagation once to compute gradients for all layers except the first. Within the inner loop, adversarial perturbations are iteratively updated using gradients computed only for the first layer. The configuration is denoted as YOPO-$m$-$n$.
 
-The pesuado code of this algorirthm is shown below:
+The pseudocode for this method is presented below:
 
 \begin{breakablealgorithm}
 \caption{YOPO training}
@@ -185,19 +186,20 @@ The pesuado code of this algorirthm is shown below:
   \EndFor
 \end{algorithmic}
 \end{breakablealgorithm}
-For one mini-batch, entire backpropagation is executed only for $\Theta(m)$ times, however, the number of iterations of attack sample is $\Theta(mn)$ . Additionally, according to the paper by Zhang D, et. al. \cite{zhang2019propagateonceacceleratingadversarial} . When $m\times n$ is slightly larger than $k$ , then YOPO-$m$-$n$ can achieve similar performance with PGD-$k$ .
 
-However, there are analysis \cite{zhu2020freelbenhancedadversarialtraining} which claims that the PMP-based assumption does not hold on ReLU-based models.
+In this scheme, full backpropagation is performed only $\mathcal{O}(m)$ times per mini-batch, whereas adversarial example updates occur $\mathcal{O}(mn)$ times. According to Zhang et al.~\cite{zhang2019propagateonceacceleratingadversarial}, if $m \times n$ slightly exceeds $k$, YOPO-$m$-$n$ can achieve comparable performance to PGD-$k$ with significantly reduced computational cost.
+
+Nonetheless, other analyses~\cite{zhu2020freelbenhancedadversarialtraining} suggest that the PMP-based assumptions underlying YOPO may not hold in models utilizing ReLU activation functions.
 
 \subsection{Free Large Batch Adversarial Attack (FreeLB)}
 
-Different from that PGD iterates the attack sample for $k$ times and only apply it to update the model with the final sample, FreeLB use average to use all the samples in iteration process.
+ifferent from PGD, which performs $k$ iterations to generate an adversarial example and uses only the final perturbed sample to update the model, FreeLB aggregates the gradient contributions from all intermediate perturbations by averaging them. This strategy leverages the full spectrum of adversarial information encountered during the iterative process.
 
-This algorithm can be treated as a case of YOPO when we set $n=1$ , but it can work on ReLU-bases models.
+FreeLB can be viewed as a special case of YOPO when the number of inner iterations $m$ is set to 1. Unlike YOPO, however, FreeLB is also applicable to models employing ReLU activations, which are common in modern architectures.
 
-Here is a comparison with PGD: The process of PGD is to find a attack sample by multiple maximization of the loss function, then minimize the loss once by gradient descent. FreeLB, however, minimizes the loss after each miximization operation. This modify can increase the robustness and increase the performance of training \cite{zhu2020freelbenhancedadversarialtraining} .
+In contrast to PGD, which first performs multiple inner maximizations to generate a strong adversarial example and then applies a single gradient descent update on the model parameters, FreeLB interleaves the two processes. Specifically, it performs model updates after each inner-loop maximization step. This interleaved optimization approach has been shown to improve both model robustness and training efficiency~\cite{zhu2020freelbenhancedadversarialtraining}.
 
-The pesuado code of this algorirthm is shown below:
+The pseudocode for the FreeLB training procedure is as follows:
 
 \begin{breakablealgorithm}
 \caption{FreeLB training}
@@ -220,20 +222,21 @@ The pesuado code of this algorirthm is shown below:
 \end{algorithmic}
 \end{breakablealgorithm}
 
-However, conducting of entire backpropagation and gradient accumulation for each iteration may cause high time consumption. And this will be shown on \cref{table:instance_training-result}
+However, it is important to note that performing full backpropagation and accumulating gradients at each inner-loop iteration incurs higher computational cost. This computational overhead is empirically demonstrated in Table~\ref{table:instance_training-result}.
 
 \subsection{SMoothness-inducing Adversarial Regularization (SMART)}
 
-This algorithm does not aim to achieve the target shown above (\cref{eq:adv_training_objective}) , but treats the preturbation as regularization item. It attempts to guide the model to output the same prediction for adjacent samples. And this algorithm is shown to be effective for fine-tuning of pre-trained natural language processing model \cite{Jiang_2020} .
+Unlike traditional adversarial training approaches that directly aim to optimize the objective defined in Equation~\ref{eq:adv_training_objective}, this algorithm treats adversarial perturbations as a form of regularization. Specifically, it encourages the model to produce consistent predictions for inputs within a small neighborhood in the input space. This regularization-based adversarial training paradigm has been shown to be particularly effective for fine-tuning pre-trained language models in natural language processing tasks~\cite{Jiang_2020}.
 
-The target formula is shown below :
+The corresponding optimization objective is defined as follows:
 
 \begin{equation}
-  \theta^*=\arg\min_\theta\{\mathcal{L}(\theta)+\lambda \mathcal{R}(\theta)\}
-  \tag{2:4:1}
-  \label{formula:adversarial_target2}
+\theta^* = \arg\min_\theta\left\{\mathcal{L}(\theta) + \lambda \mathcal{R}(\theta)\right\}
+\tag{2:4:1}
+\label{formula:adversarial_target2}
 \end{equation}
-where $\mathcal{L}(\theta)$ is the sum of loss of the original dataset, $\lambda$ is the hyperparameter that $\lambda>0$ and $\mathcal{R}(\theta)$ is the smoothness-inducing adversarial regularizer.
+
+Here, $\mathcal{L}(\theta)$ denotes the empirical risk over the training dataset, $\lambda > 0$ is a hyperparameter balancing the two terms, and $\mathcal{R}(\theta)$ is a smoothness-inducing adversarial regularization term. The detailed formulations are given by:
 
 $$
 \begin{aligned}
@@ -242,7 +245,7 @@ $$
 \end{aligned}
 $$
 
-and $l(a, b)$ is the symmetric KL divergence :
+The divergence measure $l(a, b)$ used in $\mathcal{R}(\theta)$ is the symmetric Kullback-Leibler (KL) divergence defined as:
 
 $$
 \begin{aligned}
@@ -252,14 +255,14 @@ l(f, g)&=\mathrm{KL}(f\Vert g) + \mathrm{KL}(f\Vert g) \\
 \end{aligned}
 $$
 
-To solve \cref{formula:adversarial_target2} , Bregman proximal point optimization is applied, the key function of this algorithm is called Bregman divergence: 
+To optimize the objective in Equation~\ref{formula:adversarial_target2}, the algorithm adopts a Bregman proximal point optimization framework. The core component of this framework is the Bregman divergence, defined over dataset $\mathcal{D}$ as:
 
 $$
 \mathrm{Breg}_\mathcal{D}(\theta_1, \theta_2)=\frac{1}{\left\vert\mathcal{D}\right\vert}
   \sum_{(\mathbf{x}, \mathbf{y})\in\mathcal{D}}l\left(f_{\theta_1}(\mathbf{x}), f_{\theta_2}(\mathbf{x})\right)
 $$
 
-Then for each mini-batch, algorithm applied this function as the loss function to iterate the attack sample. For more precisely, the formula of gradient of attack sample perturbation $\delta$ on dataset $\mathcal{D}$ is defined as :
+For each mini-batch, this divergence serves as a surrogate loss to guide the generation of adversarial perturbations. More specifically, the gradient of the perturbation $\delta$ for a mini-batch $\mathcal{D}$ is computed as follows:
 
 $$
 g_\theta(\mathcal{D}, \delta)=
@@ -271,7 +274,7 @@ g_\theta(\mathcal{D}, \delta)=
 \end{bmatrix}
 $$
 
-Furthermore, this algorihtm applies momentum and Adam update rule for optimizing. Here is the pesuado code:
+To further enhance optimization stability and convergence, momentum and the Adam update rule are applied throughout the training process. The pseudocode outlining this algorithm will be presented below.
 
 \begin{breakablealgorithm}
 \caption{SMART training}
@@ -300,13 +303,13 @@ Furthermore, this algorihtm applies momentum and Adam update rule for optimizing
 
 \section{An Instance of Adversarial Training}
 
-An instance of adversarial training is provided for better understanding of its features and evaluation, which includes the implementation of PGD and FreeLB.
+To provide a concrete illustration of adversarial training and facilitate analysis of its characteristics and effectiveness, we conducted empirical experiments using both PGD and FreeLB algorithms.
 
-We applied \texttt{torch} library for training and testing, while dataset is MNIST, which is a typical dataset for image recognition. And the GPU and CPU are RTX2080Ti-22G and Intel-13900K respectively.
+The experiments were implemented using the \texttt{torch} library. The dataset utilized was MNIST, a widely adopted benchmark for image classification tasks. The computational environment comprised an NVIDIA RTX 2080Ti GPU (22GB VRAM) and an Intel Core i9-13900K CPU.
 
-For hyperparameter setting, the learing rate are all $1\times 10^{-4}$ and the training epochs are all $50$. Rule of gradient updating is Adam.
+For all experiments, the learning rate was set to $1 \times 10^{-4}$, and the number of training epochs was fixed at 50. The Adam optimizer was employed for parameter updates.
 
-The model is a simple convolution nerual network, whose architecture is shown below:
+The model used was a lightweight convolutional neural network, whose architecture is summarized in Table~\ref{table:instance_model-arch}:
 
 \begin{table}[H]
   \centering
@@ -356,11 +359,11 @@ And here is the training result, where std represents the instance of training o
   \end{tabular}
 \end{table}
 
-The result shows some features and drawbacks of adversarial training. 
+The results reveal several key insights into adversarial training:
 
-For one thing, the accuracy of recognition by models after adversarial training on original sample is lower than that trained with original dataset. Furthermore, the increase of number of iteration for generation of training attack sample, which corresponds to the increase of perturbation intensity, leads to the worse performance on original dataset.
+First, models trained with adversarial examples tend to exhibit slightly reduced performance on clean (unperturbed) test data compared to those trained under standard conditions. This performance drop becomes more pronounced as the number of inner-loop adversarial iterations increases, which correlates with the intensity of the applied perturbations.
 
-For another thing, the increase time consumption for adversarial training is also be considered in practical application.
+Second, adversarial training introduces significant computational overhead. As shown in Table~\ref{table:instance_training-result}, the training time increases considerably with the number of adversarial steps. This trade-off between robustness and training efficiency is an important consideration in practical deployment scenarios.
 
 \section{Issues of Adversarial Training}
 Although Adversarial Training (AT) is widely regarded as an effective approach to enhancing the robustness of neural networks, numerous studies have highlighted its significant limitations across various aspects.
@@ -369,15 +372,56 @@ Although Adversarial Training (AT) is widely regarded as an effective approach t
 Zhang et al.~\cite{zhang2019limitationsadversarialtrainingblindspot} pointed out that AT shows considerably weaker robustness against samples located in low-density regions of the training data distribution. These so-called "blind-spot samples" lie far from the main data manifold and are often underrepresented during training, making them vulnerable to blind-spot attacks. This problem is particularly pronounced in high-dimensional datasets such as CIFAR-10 and ImageNet.
 
 \subsection{Reliability Issues in Robot Learning}
-Lechner et al.~\cite{lechner2021adversarialtrainingreadyrobot} demonstrated that AT can introduce new risks in robotic learning systems, including transient errors, systemic biases, and conditional failures. These issues suggest that in dynamic and complex environments, AT may compromise the model’s stability and interpretability.
+Lechner et al.~\cite{lechner2021adversarialtrainingreadyrobot} demonstrated that AT can introduce new risks in robotic learning systems, including transient errors, systemic biases, and conditional failures. These issues suggest that in dynamic and complex environments, AT may compromise the model's stability and interpretability.
 
 \subsection{High Computational Cost}
 AT typically involves generating adversarial perturbations for each training example, such as using Projected Gradient Descent (PGD), which significantly increases training time and resource consumption. Zhao et al.~\cite{zhao2022review} noted that such overhead may become a bottleneck in real-world industrial deployments, especially in resource-constrained or latency-critical systems.
 
 \subsection{Accuracy Degradation on Clean Samples}
-Adversarial training often comes at the cost of reduced accuracy on clean (non-adversarial) inputs. Zhao et al.~\cite{a15080283} observed in their systematic review that this "robustness–accuracy trade-off" is a central challenge in current AT methods, and can be particularly problematic in domains where high accuracy is essential, such as medical diagnosis.
+Adversarial training often comes at the cost of reduced accuracy on clean (non-adversarial) inputs. Zhao et al.~\cite{a15080283} observed in their systematic review that this "robustness-accuracy trade-off" is a central challenge in current AT methods, and can be particularly problematic in domains where high accuracy is essential, such as medical diagnosis. The result of training instance on \cref{table:instance_training-result} indicates this issues by that the accuracy of comparison of standard training and PGD-40 training. 
 
 In summary, although adversarial training has made significant progress in improving adversarial robustness, its limitations—such as weak generalization, high training overhead, and performance degradation on clean data—necessitate further research and refinement.
+
+\section{Further Applications}
+
+Adversarial training has proven to be a versatile framework beyond its original role in enhancing model robustness against malicious perturbations. In particular, it underpins two prominent domains: generative modeling—most notably Generative Adversarial Networks (GANs)—and adversarial explainability, which leverages adversarial perturbations to illuminate the decision-making processes of complex models.
+
+\subsection{Generative Modeling via Adversarial Games}
+
+In the context of generative modeling, adversarial training formulates a two-player minimax optimization between a \emph{generator} $G$ and a \emph{discriminator} $D$. Given a noise prior $z\sim p_z(z)$ and real data distribution $x\sim p_{\mathrm{data}}(x)$, the objective is
+
+$$
+\begin{aligned}
+\min_{G} &\max_{D} V(D,G)= \\
+& \mathbb{E}_{x\sim p_{\mathrm{data}}}\bigl[\log D(x)\bigr]
+\;+\;\mathbb{E}_{z\sim p_z}\bigl[\log\bigl(1 - D(G(z))\bigr)\bigr]
+\end{aligned}
+$$
+
+Here, $D$ aims to accurately distinguish genuine samples from synthetic ones $G(z)$, while $G$ seeks to generate data that aligns with the empirical distribution. At equilibrium, $G$ reproduces the data distribution and $D$ attains maximal entropy ($D(\cdot)=0.5$) \cite{goodfellow2014generativeadversarialnetworks}. Variants such as Wasserstein GANs (WGAN) and Deep Convolutional GANs (DCGAN) have been developed to improve optimization stability and sample fidelity.
+
+\subsection{Adversarial Explainability}
+
+Adversarial explainability uses perturbation analysis to explore model interpretability. For a classifier $f: \mathbb{R}^n\to{1,\dots,K}$ and input $x$, one determines the minimal perturbation $\delta$ that alters the predicted label:
+
+$$
+\begin{aligned}
+\delta^* &= \arg\min_{\|\delta\|\le\epsilon} \|\delta\| \\
+\text{s.t.}&\quad
+\arg\max_x f(x+\delta) \neq \arg\max_x f(x)
+\end{aligned}
+$$
+
+The vector $\delta^*$ highlights input dimensions critical to the decision boundary: components with larger magnitude indicate features to which $f$ is most responsive. Such perturbations can be visualized as sensitivity maps or quantified as feature importance scores, thereby elucidating the model's reliance on specific input characteristics \cite{NEURIPS2019_e2c420d9, tsipras2019robustnessoddsaccuracy}.
+
+\medskip
+In summary, adversarial training serves a dual purpose: as a generative mechanism producing high-quality synthetic samples, and as a diagnostic tool revealing the sensitivities of neural models. Its formulation as minimax optimization provides a unified theoretical foundation for both applications.
+
+\section{Conclusion}
+
+In this report, we have presented a comprehensive exploration of adversarial training, beginning from its theoretical underpinnings to practical algorithmic implementations. We formally defined the robust optimization objective and surveyed state-of-the-art methods including PGD-based training and FreeLB. Through a controlled empirical study on a lightweight convolutional neural network, we demonstrated that adversarial training markedly enhances model robustness—elevating accuracy under strong perturbations from approximately 56\% to over 95\%—while incurring only a modest reduction in clean-data performance. We also highlighted the substantial computational overhead introduced by multi-step adversarial methods, which poses a significant barrier to large-scale deployment.
+
+Despite these challenges, adversarial training remains the most effective defense strategy against worst-case perturbations. Addressing its limitations requires future work in several directions: developing more efficient optimization schemes to reduce training time, designing adaptive perturbation strategies that balance robustness and accuracy, and extending adversarial frameworks to diverse modalities such as text and graph-structured data. Furthermore, deeper theoretical analyses are needed to understand the fundamental trade-offs between robustness, generalization, and computational complexity. By advancing both the practical and theoretical aspects of adversarial training, we can move closer to deploying machine learning models that are both high-performing and resilient in real-world, adversarial environments.
 
 {\small
 \bibliographystyle{ieeenat_fullname}

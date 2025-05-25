@@ -27,6 +27,7 @@
             "tools": [
                 "pdflatex",
                 "bibtex",
+                "pdflatex",
                 "pdflatex"
             ]
         },
