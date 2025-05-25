@@ -121,6 +121,47 @@ $$
 
 A data point belongs to only one cluster. 每个数据点只能属于一个类。
 
+#### K-Means
+
+cost (quadratic distortion):
+
+$$
+\mathcal{L}(\Delta)=\sum_{i=1}^K \sum_{\mathbf{x}\in C_i}\left\Vert\mathbf{x}-\mathbf{c}_i\right\Vert^2
+$$
+
+Proposition: decreases at every step.
+
+Algorithm:
+
+$$
+\begin{aligned}
+&\textbf{Input: } \mathcal{D}=\{\mathbf{x}_1,\mathbf{x}_2,\dots,\mathbf{x}_n\}, K \\
+&1. \text{Initialize } K \text{centers } \mathbf{c}_1, \mathbf{c}_2, \dots, \mathbf{c}_K \text{ randomly} \\
+&2. \textbf{Repeat} \\
+&3. \text{~~} \textbf{for } i=1 \text{ to } n \textbf{ do} \\
+&4. \text{~~~~} k(i)\leftarrow\arg\min_{k=1}^K \left\Vert\mathbf{x}_i-\mathbf{c}_k\right\Vert^2 \\
+&5. \text{~~} \textbf{end for} \\
+&6. \text{~~} \textbf{for } k=1 \text{ to } K \textbf{ do} \\
+&7. \text{~~~~} \mathbf{c}_k\leftarrow\frac{1}{|C_k|}\sum_{\mathbf{x}\in C_k}\mathbf{x} \text{ update the center of cluster } C_k \\
+&8. \text{~~} \textbf{end for} \\
+&9. \textbf{Until} \text{ meet stop condition} 
+\end{aligned}
+$$
+
+PS: $\mathbf{c}_k$ in this algorithm is different from the centroid $\mathbf{c}_i$ in the metric section. The former is a center point of a cluster, while the latter is the average of all points in a cluster. 该算法中的中心点可能不是数据点。
+
+人话来说就是首先随机生成 $K$ 个中心点，然后进行循环直到触发结束条件。每次循环将一个点归类到最近的中心点，然后更新中心点为该类所有点的平均值。
+
+Stop conditions:
+
+1. Meet maximum iterations 达到最大迭代次数
+2. Assignments no longer change $k(i)$ 不再变化
+3. convergence to loca loptimum of cost function $\mathcal{L}(\Delta)$ 成本函数不再变化
+
+PS: 初始化的时候不能随机选取 $K$ 个“数据点” The probability of hitting all $K$ clusters with $K$ samples approaches $0$ as $n$ increases. 选择 $K$ 个数据点的概率随着 $n$ 的增加而趋近于 $0$。
+
+
+
 ### Soft Partitioning Clustering
 
 A data point can belong to multiple clusters with different degrees of membership. 每个数据点可以属于多个类，且每个类的隶属度不同。
