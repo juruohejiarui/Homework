@@ -208,6 +208,34 @@ $$
 
 Optimizing the cost function is NP-hard. 优化成本函数是 NP-hard 问题。
 
+鲁棒性更强，更灵活
+
+
+#### Limitation of K-Means and K-Medoids
+
+- Need to specify the number of clusters $K$ beforehand. 需要提前指定类的数量 $K$。
+- Assume spherical, evenly sized clusters. 假设类是球形的，大小相等。
+- Sensitive to outliers and noise. 对离群点和噪声敏感。
+
+### Density-Bases Clustering
+
+Handle arbitrary cluster shapes. Clusters are regions of high density separated by low-density areas. No need to assume cluster shape or specify $K$ in advance. 类根据密度，被低密度点划分，不需要假设形状和 $K$ 
+
+Identify noise/outliers naturally as low-density points 将噪声和离群点看成低密度点 
+
+#### Density-Based Spatial Cllustering of Applications iwth Noise (DBSCAN)
+
+不知道是啥
+
+**Key concepts** :
+
+- $\epsilon$-neighbors $\epsilon$-邻域: $N_\epsilon(\mathbf{x}_i)=\{\mathbf{x}_j~|~\mathrm{dist}(\mathbf{x}_i,\mathbf{x}_j)\leq \epsilon, \mathbf{x}_j \in \mathcal{D}\}$
+- **Corepoints** 核点: Points $\mathbf{x}$ with $|N_\epsilon(\mathbf{x})|\ge \mathrm{minPts}$ ($\mathrm{minPts}$ is a hyperparamter) 自身邻域大小大于 $\mathrm{minPts}$ .
+- **Boarder points** 边界点: Points $\mathbf{x}$ with $\mathbf{x}\in N_\epsilon(\mathbf{y}) \And \mathbf{x}\ne \mathbf{y}$ 是某个核点的$\epsilon$-邻域中的点
+- **Noise points** 噪声点: Points that are neither core nor border points, i.e., not reachable from any other points 既不是核点也不是边界点，不能由别的点到达的点。
+
+
+
 ### Soft Partitioning Clustering
 
 A data point can belong to multiple clusters with different degrees of membership. 每个数据点可以属于多个类，且每个类的隶属度不同。
