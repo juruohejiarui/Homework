@@ -81,10 +81,10 @@ Then the target of adversarial training can be
 
 \begin{equation}
 \theta^*=\arg\min_\theta\left\{
-  \mathbb{E}_{(\bf{x}, \bf{y})\in \mathcal{D}}
+  \mathbb{E}_{(\mathbf{x}, \mathbf{y})\in \mathcal{D}}
   \left[
-      \max_{\lVert\bf{\delta}\rVert\leq \epsilon}
-          \left\{L(f_\theta(\bf{x}+\delta), y)\right\}
+      \max_{\lVert\mathbf{\delta}\rVert\leq \epsilon}
+          \left\{L(f_\theta(\mathbf{x}+\delta), y)\right\}
   \right]
 \right\}
 \tag{2:1}
@@ -99,11 +99,11 @@ Section 2 and Section 3 reviews several widely adopted adversarial training algo
 Let $\theta$ denote the model parameters, $f_{\theta}(\cdot)$ the model mapping, $\epsilon$ the maximum allowable perturbation magnitude, and $L(\cdot,\cdot)$ the loss function. The objective of adversarial training can then be formulated as:
 
 \begin{equation}
-\theta^{*} = \arg\min_{\theta} ; \mathbb{E}{(\bf{x},\bf{y}) \sim \mathcal{D}} \Biggl[\underbrace{\max_{{\lVert \bf{\delta} \rVert \le \epsilon}} L\bigl(f_{\theta}(\bf{x} + \bf{\delta}), \bf{y}\bigr)}_{\text{worst-case loss}}\Biggr]
+\theta^{*} = \arg\min_{\theta} ; \mathbb{E}{(\mathbf{x},\mathbf{y}) \sim \mathcal{D}} \Biggl[\underbrace{\max_{{\lVert \mathbf{\delta} \rVert \le \epsilon}} L\bigl(f_{\theta}(\mathbf{x} + \mathbf{\delta}), \mathbf{y}\bigr)}_{\text{worst-case loss}}\Biggr]
 \label{eq:adv_training_objective}
 \end{equation}
 
-Here, the inner maximization identifies the most adversarial perturbation $\bf{\delta}$ within the $\epsilon$-ball around the input $\bf{x}$, while the outer minimization optimizes the model parameters to minimize the expected worst-case loss over the data distribution $\mathcal{D}$.
+Here, the inner maximization identifies the most adversarial perturbation $\mathbf{\delta}$ within the $\epsilon$-ball around the input $\mathbf{x}$, while the outer minimization optimizes the model parameters to minimize the expected worst-case loss over the data distribution $\mathcal{D}$.
 
 \section{Adversarial Training Algorithms}
 Several algorithms have been proposed to approximate the inner maximization in Equation~\eqref{eq:adv_training_objective}. Among these, the projected gradient descent (PGD) method is one of the most classical and widely used approaches. Subsequent techniques often build upon PGD, introducing modifications to improve efficiency, convergence, or transferability.
@@ -113,8 +113,8 @@ The PGD attack iteratively constructs adversarial examples by ascending the grad
 
 $$
 \begin{aligned}
-\bf{\delta}_{0} &= \bf{0}, \\
-\bf{\delta}_{t+1} &= \Pi_{{\lVert \bf{\delta_t} \rVert \le \epsilon}} \Bigl(\bf{\delta}_{t} + \alpha \cdot \mathrm{sign}\bigl(\nabla_{\bf{x}} L(f_{\theta}(\bf{x} + \bf{\delta}_{t}), \bf{y})\bigr)\Bigr),
+\mathbf{\delta}_{0} &= \mathbf{0}, \\
+\mathbf{\delta}_{t+1} &= \Pi_{{\lVert \mathbf{\delta_t} \rVert \le \epsilon}} \Bigl(\mathbf{\delta}_{t} + \alpha \cdot \mathrm{sign}\bigl(\nabla_{\mathbf{x}} L(f_{\theta}(\mathbf{x} + \mathbf{\delta}_{t}), \mathbf{y})\bigr)\Bigr),
 \end{aligned}
 $$
 
@@ -124,7 +124,7 @@ $\alpha$ is the step size hyperparameter, and $k$ denotes the total number of it
 
 $\Pi$ represents the projection operator onto the $\ell_{p}$-ball of radius $\epsilon$, commonly using $p=2$ or $p=\infty$.
 
-After $k$ iterations, the adversarial example is given by $\bf{x}^{\mathrm{adv}} = \bf{x} + \bf{\delta}_{k}$. Incorporating these examples into the training process yields the PGD adversarial training algorithm
+After $k$ iterations, the adversarial example is given by $\mathbf{x}^{\mathrm{adv}} = \mathbf{x} + \mathbf{\delta}_{k}$. Incorporating these examples into the training process yields the PGD adversarial training algorithm
 
 \begin{breakablealgorithm}
 \caption{PGD training}
@@ -133,15 +133,15 @@ After $k$ iterations, the adversarial example is given by $\bf{x}^{\mathrm{adv}}
   \State Initialize model parameters $\theta$
 
   \For {$n=1$ to $N$}
-    \State {divide $\mathcal{D}$ into list of mini-batches $\mathcal{C}=\{(\mathrm{X}, \bf{y})\}$}
-    \For {$(\mathrm{X}, \bf{y})\in \mathcal{C}$} 
+    \State {divide $\mathcal{D}$ into list of mini-batches $\mathcal{C}=\{(\mathrm{X}, \mathbf{y})\}$}
+    \For {$(\mathrm{X}, \mathbf{y})\in \mathcal{C}$} 
       \State {$\delta\leftarrow$ zero matrix with shape of $X$}
       \For {$t\leftarrow 1$ to $k$}
         \State {execute backpropagation}
-        \State $g_a\leftarrow \nabla_{\mathrm{X}+\delta}(L(f_{\theta}(\mathrm{X}+\delta), \bf{y}))$
+        \State $g_a\leftarrow \nabla_{\mathrm{X}+\delta}(L(f_{\theta}(\mathrm{X}+\delta), \mathbf{y}))$
         \State $\delta\leftarrow \mathrm{clamp}(\delta + \frac{\alpha}{\left\lVert g_a \right\rVert}g_a, -\epsilon, \epsilon)$
       \EndFor
-      \State $g_\theta\leftarrow \nabla_{\theta}(L(f_{\theta}(\mathrm{X}+\delta), \bf{y}))$
+      \State $g_\theta\leftarrow \nabla_{\theta}(L(f_{\theta}(\mathrm{X}+\delta), \mathbf{y}))$
       \State $\theta \leftarrow \theta - \tau g_\theta$
     \EndFor
   \EndFor
@@ -164,22 +164,22 @@ The pseudocode for this method is presented below:
   \Require training set $\mathcal{D}$, learning rate $\tau$, training epochs $N$, hyperparameters $\alpha, \epsilon, m, n$, model $f_\theta$ and loss function $L$ 
   \State divide the model parameters $\theta$ into first layer $\theta_0$ and the other layers $\theta'$
   \For {$i\leftarrow 1$ to $N$}
-    \State {divide $\mathcal{D}$ into list of mini-batches $\mathcal{C}=\{(\mathrm{X}, \bf{y})\}$}
-    \For {$(\mathrm{X}, \bf{y})\in \mathcal{C}$}
+    \State {divide $\mathcal{D}$ into list of mini-batches $\mathcal{C}=\{(\mathrm{X}, \mathbf{y})\}$}
+    \For {$(\mathrm{X}, \mathbf{y})\in \mathcal{C}$}
       \State $\delta_{0, n}\leftarrow \text{zero matrix with shape of } \mathrm{X}$
       \State $g_\theta\leftarrow \text{zero matrix with shape of } \mathrm{\theta}$
       \For {$j=1$ to $m$}
         \State execute entire backpropagation
         \State $\delta_{j,0}\leftarrow \delta_{j-1,n}$
         \State {$p\leftarrow \nabla_{f_{\theta_0}(\mathrm{X}+\delta_{j,0})}\left(
-          L(f_\theta(\mathrm{X}+\delta_{j,0}), \bf{y})
+          L(f_\theta(\mathrm{X}+\delta_{j,0}), \mathbf{y})
         \right)$}
         \For {$k=1$ to $n$}
           \State $g_a\leftarrow
             p\cdot \nabla_{\mathrm{X}+\delta}(f_{\theta_0}(\mathrm{X}+\delta_{j,k-1}))$
           \State $\delta_{j,k}\leftarrow \mathrm{clamp}\left(\delta_{j,k-1}+\frac{\alpha\cdot g_a}{\left\lVert g_a \right\rVert}, -\epsilon, \epsilon\right)$
         \EndFor
-        \State $g_\theta\leftarrow g_\theta + \nabla_{\theta}(L(f_{\theta}(\mathrm{X}+\delta_{j,n}), \bf{y}))$
+        \State $g_\theta\leftarrow g_\theta + \nabla_{\theta}(L(f_{\theta}(\mathrm{X}+\delta_{j,n}), \mathbf{y}))$
         \Comment this gradient can be calculated in backpropagation
       \EndFor
       \State $\theta\leftarrow \theta-\tau\cdot g_\theta$
@@ -207,14 +207,14 @@ The pseudocode for the FreeLB training procedure is as follows:
 \begin{algorithmic}[1]
   \Require training set $\mathcal{D}$, learning rate $\tau$, training epochs $N$, hyperparameters $\alpha, \epsilon, k$, model $f_\theta$ and loss function $L$ .
   \For {$i\leftarrow 1$ to $N$}
-    \State {divide $\mathcal{D}$ into list of mini-batches $\mathcal{C}=\{(\mathrm{X}, \bf{y})\}$}
-    \For {$(\mathrm{X}, \bf{y})\in \mathcal{C}$}
+    \State {divide $\mathcal{D}$ into list of mini-batches $\mathcal{C}=\{(\mathrm{X}, \mathbf{y})\}$}
+    \For {$(\mathrm{X}, \mathbf{y})\in \mathcal{C}$}
       \State $\delta_0\leftarrow \textbf{random}\text{ matrix with shape of } \mathrm{X}$
       \State $g_\theta\leftarrow \text{zero matrix with shape of } \theta$
       \For {$i\leftarrow 1$ to $k$}
         \State {execute backpropagation}
-        \State $g_\theta\leftarrow g_\theta + \frac{1}{k}\nabla_{\theta}(L(f_\theta(\mathrm{X}+\delta_{i-1}), \bf{y}))$
-        \State $g_a\leftarrow \nabla_{\mathrm{X}+\delta}(L(f_\theta(\mathrm{X}+\delta_{i-1}), \bf{y}))$
+        \State $g_\theta\leftarrow g_\theta + \frac{1}{k}\nabla_{\theta}(L(f_\theta(\mathrm{X}+\delta_{i-1}), \mathbf{y}))$
+        \State $g_a\leftarrow \nabla_{\mathrm{X}+\delta}(L(f_\theta(\mathrm{X}+\delta_{i-1}), \mathbf{y}))$
         \State $\delta_i\leftarrow \mathrm{clamp}\left(\delta_{i-1}+\frac{\alpha}{\left\lVert g_a \right\rVert}g_a, -\epsilon, \epsilon\right)$
       \EndFor
       \State {$\theta\leftarrow\theta-\tau g_\theta$}
@@ -241,8 +241,8 @@ Here, $\mathcal{L}(\theta)$ denotes the empirical risk over the training dataset
 
 $$
 \begin{aligned}
-  &\mathcal{L}(\theta)=\frac{1}{n}\sum_{(\bf{x}, \bf{y})\in\mathcal{D}} L(f_\theta(\bf{x}), \bf{y}) \\
-  &\mathcal{R}(\theta)=\frac{1}{n}\sum_{(\bf{x}, \bf{y})\in\mathcal{D}} \max_{\left\Vert \tilde{\bf{x}}-\bf{x}\right\Vert\leq \epsilon}\left\{l\left(f_\theta(\tilde{\bf{x}}), f_\theta(\bf{x})\right)\right\}
+  &\mathcal{L}(\theta)=\frac{1}{n}\sum_{(\mathbf{x}, \mathbf{y})\in\mathcal{D}} L(f_\theta(\mathbf{x}), \mathbf{y}) \\
+  &\mathcal{R}(\theta)=\frac{1}{n}\sum_{(\mathbf{x}, \mathbf{y})\in\mathcal{D}} \max_{\left\Vert \tilde{\mathbf{x}}-\mathbf{x}\right\Vert\leq \epsilon}\left\{l\left(f_\theta(\tilde{\mathbf{x}}), f_\theta(\mathbf{x})\right)\right\}
 \end{aligned}
 $$
 
@@ -260,7 +260,7 @@ To optimize the objective in Equation~\ref{formula:adversarial_target2}, the alg
 
 $$
 \mathrm{Breg}_\mathcal{D}(\theta_1, \theta_2)=\frac{1}{\left\vert\mathcal{D}\right\vert}
-  \sum_{(\bf{x}, \bf{y})\in\mathcal{D}}l\left(f_{\theta_1}(\bf{x}), f_{\theta_2}(\bf{x})\right)
+  \sum_{(\mathbf{x}, \mathbf{y})\in\mathcal{D}}l\left(f_{\theta_1}(\mathbf{x}), f_{\theta_2}(\mathbf{x})\right)
 $$
 
 For each mini-batch, this divergence serves as a surrogate loss to guide the generation of adversarial perturbations. More specifically, the gradient of the perturbation $\delta$ for a mini-batch $\mathcal{D}$ is computed as follows:
@@ -268,10 +268,10 @@ For each mini-batch, this divergence serves as a surrogate loss to guide the gen
 $$
 g_\theta(\mathcal{D}, \delta)=
 \begin{bmatrix}
-  \nabla_{\delta_1}l(f_\theta(\bf{x}_1), f_\theta(\bf{x}_1+\delta_1)) \\
-  \nabla_{\delta_2}l(f_\theta(\bf{x}_2), f_\theta(\bf{x}_2+\delta_2)) \\
+  \nabla_{\delta_1}l(f_\theta(\mathbf{x}_1), f_\theta(\mathbf{x}_1+\delta_1)) \\
+  \nabla_{\delta_2}l(f_\theta(\mathbf{x}_2), f_\theta(\mathbf{x}_2+\delta_2)) \\
   \vdots \\
-  \nabla_{\delta_{|\mathcal{D}|}}l\left(f_\theta\left(\bf{x}_{|\mathcal{D}|}\right), f_\theta\left(\bf{x}_{|\mathcal{D}|}+\delta_{|\mathcal{D}|}\right)\right)
+  \nabla_{\delta_{|\mathcal{D}|}}l\left(f_\theta\left(\mathbf{x}_{|\mathcal{D}|}\right), f_\theta\left(\mathbf{x}_{|\mathcal{D}|}+\delta_{|\mathcal{D}|}\right)\right)
 \end{bmatrix}
 $$
 
@@ -286,14 +286,14 @@ To further enhance optimization stability and convergence, momentum and the Adam
   \For {$t\leftarrow 1$ to $N$}
     \State $\overline{\theta}\leftarrow \theta_{t-1}$
     \State {divide $\mathcal{D}$ into mini-batches $\mathcal{C}$}
-    \For {$(\mathrm{X}, \bf{y})\in \mathcal{C}$}
+    \For {$(\mathrm{X}, \mathbf{y})\in \mathcal{C}$}
       \State initialize $\delta$ with guassian distribution
       \State $\forall \delta _i\sim N(0,\sigma^2I)$
       \For {$i=1$ to $k$}
-        \State $g_i\leftarrow \frac{g_{\overline{\theta}}\left((\mathrm{X},\bf{y}), \delta\right)}{\left\Vert g_{\overline{\theta}}((\mathrm{X},\bf{y}), \delta) \right\Vert}$
+        \State $g_i\leftarrow \frac{g_{\overline{\theta}}\left((\mathrm{X},\mathbf{y}), \delta\right)}{\left\Vert g_{\overline{\theta}}((\mathrm{X},\mathbf{y}), \delta) \right\Vert}$
         \State $\delta\leftarrow \mathrm{clamp}(\delta + \alpha g_i, -\epsilon, \epsilon)$
       \EndFor
-      \State $\overline{\theta}\leftarrow \mathrm{Adam}\left(\overline{\theta}, (\mathrm{X}+\delta, \bf{y})\right)$
+      \State $\overline{\theta}\leftarrow \mathrm{Adam}\left(\overline{\theta}, (\mathrm{X}+\delta, \mathbf{y})\right)$
     \EndFor
     \State $\theta_t\leftarrow \overline{\theta}$
     \State $\tilde{\theta}_{t+1}\leftarrow (1-\beta)\overline{\theta}+\beta\tilde{\theta}_t$

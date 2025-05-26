@@ -101,9 +101,9 @@ Multivariate :
 
 $$
 \begin{aligned}
-&f(\bf{x}|\boldsymbol{\mu}, \Sigma)=\frac{1}{\sqrt{(2\pi)^D|\Sigma|}}\exp\left(-\frac{1}{2}(\bf{x}-\boldsymbol{\mu})^\top \Sigma^{-1} (\bf{x}-\boldsymbol{\mu})\right) \\
-\text{Likelihood }&p(\mathcal{D}|\boldsymbol{\mu}, \Sigma)=\prod_{i=1}^n \frac{1}{\sqrt{(2\pi)^D|\Sigma|}}\exp\left(-\frac{1}{2}(\bf{x}_i-\boldsymbol{\mu})^\top \Sigma^{-1} (\bf{x}_i-\boldsymbol{\mu})\right) \\
-\Rightarrow &\boldsymbol{\mu}_{\mathrm{ML}}=\frac{1}{n}\sum_{i=1}^n \bf{x}_i, \Sigma_\mathrm{ML}=\frac{1}{n}\sum_{i=1}^n (\bf{x}_i-\boldsymbol{\mu})^\top(\bf{x}_i-\boldsymbol{\mu})
+&f(\mathbf{x}|\boldsymbol{\mu}, \Sigma)=\frac{1}{\sqrt{(2\pi)^D|\Sigma|}}\exp\left(-\frac{1}{2}(\mathbf{x}-\boldsymbol{\mu})^\top \Sigma^{-1} (\mathbf{x}-\boldsymbol{\mu})\right) \\
+\text{Likelihood }&p(\mathcal{D}|\boldsymbol{\mu}, \Sigma)=\prod_{i=1}^n \frac{1}{\sqrt{(2\pi)^D|\Sigma|}}\exp\left(-\frac{1}{2}(\mathbf{x}_i-\boldsymbol{\mu})^\top \Sigma^{-1} (\mathbf{x}_i-\boldsymbol{\mu})\right) \\
+\Rightarrow &\boldsymbol{\mu}_{\mathrm{ML}}=\frac{1}{n}\sum_{i=1}^n \mathbf{x}_i, \Sigma_\mathrm{ML}=\frac{1}{n}\sum_{i=1}^n (\mathbf{x}_i-\boldsymbol{\mu})^\top(\mathbf{x}_i-\boldsymbol{\mu})
 \end{aligned}
 $$
 
@@ -151,9 +151,9 @@ $$
 - When $\rho\rightarrow 1$ , the variance $\rightarrow \sigma^2$
 
 ### Rouch´ e-Capelli Theorem
-For sytem $\mathrm{X}\bf{w}=\bf{y}$ where $\mathrm{X}\in \mathbb{R}^{m\times n}, \bf{w}\in \mathbb{R}^{n}, \bf{y}\in \mathbb{R}^m$ , where we need to find a solution of variable $\bf{w}$. 
+For sytem $\mathrm{X}\mathbf{w}=\mathbf{y}$ where $\mathrm{X}\in \mathbb{R}^{m\times n}, \mathbf{w}\in \mathbb{R}^{n}, \mathbf{y}\in \mathbb{R}^m$ , where we need to find a solution of variable $\mathbf{w}$. 
 
-let $\tilde{\mathrm{X}}=\begin{bmatrix}\mathrm{X}&\bf{y}\end{bmatrix}$ be an argumented matrix.
+let $\tilde{\mathrm{X}}=\begin{bmatrix}\mathrm{X}&\mathbf{y}\end{bmatrix}$ be an argumented matrix.
 
 - this system admits a **unique** solution $\Longleftrightarrow$ $\mathrm{rank}(\mathrm{X})=\mathrm{rank}(\tilde{\mathrm{X}})=n$
 - this system has **no** solution $\Longleftrightarrow$ $\mathrm{rank}(\mathrm{X})<\mathrm{rank}(\tilde{\mathrm{X}})$
@@ -166,10 +166,10 @@ $$
 
 ### Least Square Solution
 
-For a linearly system $\mathrm{X}\bf{w}=\bf{y}$ , where $\mathrm{X}\in \mathbb{R}^{m\times n}, \bf{w}\in \mathbb{R}^n, \bf{y}\in\mathbb{R}^m$, the least square solution is :
+For a linearly system $\mathrm{X}\mathbf{w}=\mathbf{y}$ , where $\mathrm{X}\in \mathbb{R}^{m\times n}, \mathbf{w}\in \mathbb{R}^n, \mathbf{y}\in\mathbb{R}^m$, the least square solution is :
 
 $$
-\tilde{\bf{w}}=\left(\mathrm{X}^\top\mathrm{X}\right)^{-1}\mathrm{X}^\top\bf{y}
+\tilde{\mathbf{w}}=\left(\mathrm{X}^\top\mathrm{X}\right)^{-1}\mathrm{X}^\top\mathbf{y}
 $$
 
 ### Hoeffding's Inequality
@@ -188,12 +188,24 @@ $$
 ### Norm of Vector
 
 $$
-\lVert\bf{w}\rVert _p=\left(\sum_{i=1}^p |\bf{w}|^p\right)^{\frac{1}{p}}
+\lVert\mathbf{w}\rVert _p=\left(\sum_{i=1}^p |\mathbf{w}|^p\right)^{\frac{1}{p}}
 $$
 
-when $p=0$: not actually a norm, $\lVert\bf{w}\rVert _0=\sum_{i=1}^d \mathbb{I}(w_i\ne 0)$
+when $p=0$: not actually a norm, $\lVert\mathbf{w}\rVert _0=\sum_{i=1}^d \mathbb{I}(w_i\ne 0)$
 
-when $p=\infty$: $\lVert\bf{w}\rVert _{\inf}=\max_i|w_i|$
+when $p=\infty$: $\lVert\mathbf{w}\rVert _{\inf}=\max_i|w_i|$
+
+### Maximization of Quadratic Forms for Points on the Unit Sphere 单位圆上的二次型的最大值 (Rayleigh quotient) 
+
+Let $\mathrm{B}$ be a positive semi-definite matrix with eigen values $\lambda_1\ge \lambda_2\ge \dots \lambda_n \ge 0$ and associated normalized eigenvectors $\mathbf{e}_1, \mathbf{e}_2, \dots, \mathbf{e}_n$, and $\mathbf{u}$ is a unit vector, then 
+
+$$
+\begin{aligned}
+&\max_{\mathbf{u}\ne \mathbf{0}} \mathbf{u}^\top \mathrm{B}\mathbf{u} = \lambda_1 \\
+&\min_{\mathbf{u}\ne \mathbf{0}} \mathbf{u}^\top \mathrm{B}\mathbf{u} = \lambda_n \\
+&\max_{\mathbf{u}\ne \mathbf{0}, \mathbf{u}\perp \mathbf{e}_1, \dots, \mathbf{e}_k} \mathbf{u}^\top \mathrm{B}\mathbf{u} = \lambda_{k+1} \\
+\end{aligned}
+$$
 
 ## Evaluation of Model
 
@@ -218,18 +230,18 @@ when $p=\infty$: $\lVert\bf{w}\rVert _{\inf}=\max_i|w_i|$
 let $y$ be the true answer, and $y'$ be the prediction.
 
 - **Regression**: 
-  - Square error: $\bf{error}_{\mathrm{sq}}(y,y')=(y-y')^2$
-  - Absolute error: $\bf{error}_{\mathrm{abs}}(y,y')=|y-y'|$
+  - Square error: $\mathbf{error}_{\mathrm{sq}}(y,y')=(y-y')^2$
+  - Absolute error: $\mathbf{error}_{\mathrm{abs}}(y,y')=|y-y'|$
 
 - **Classification**:
-  - Misclassification error: $\bf{error}_{\mathrm{mis}}(y,y')=\mathbb{I}\{y\ne y'\}$
-  - Weighted misclassification error: If false positive are $\beta$ times worse than false negatives: $\bf{error}_{\mathrm{beta}}(y,y')=\beta \mathbb{I}\{y'=1,y=-1\}+(1-\beta)\mathbb{I}\{y'=-1,y=1\}$
+  - Misclassification error: $\mathbf{error}_{\mathrm{mis}}(y,y')=\mathbb{I}\{y\ne y'\}$
+  - Weighted misclassification error: If false positive are $\beta$ times worse than false negatives: $\mathbf{error}_{\mathrm{beta}}(y,y')=\beta \mathbb{I}\{y'=1,y=-1\}+(1-\beta)\mathbb{I}\{y'=-1,y=1\}$
   - Balanced error rate: For data with $n_+$ postive samples and $n_-$ negative samples: 
 
 $$
 \begin{aligned}
 &\text{For one sample: }\\
-&\bf{error}_{\mathrm{bal}}(y,y')=\frac{\frac{1}{2}(n_++n_-)\cdot \mathbb{I}(y\ne y')}{n_+\mathbb{I}(y)} \\
+&\mathbf{error}_{\mathrm{bal}}(y,y')=\frac{\frac{1}{2}(n_++n_-)\cdot \mathbb{I}(y\ne y')}{n_+\mathbb{I}(y)} \\
 &\text{For a whole dataset: }\\
 &\mathrm{BER}=\frac{1}{2}\left(\frac{\mathrm{FN}}{\mathrm{TP}+\mathrm{FN}}+\frac{\mathrm{FP}}{\mathrm{FP}+\mathrm{TN}}\right)
 \end{aligned}

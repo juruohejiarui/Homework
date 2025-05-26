@@ -17,8 +17,8 @@ $$
 \text{Purity}=\frac{1}{n}\sum_{i=1}^k \max_{j}\left\vert C_i\cap L_j \right\vert
 $$
 
-- $C_i=\left\{(\bf{x}_a,y_a)~|~k(a)=i,a=1,2,\dots n\right\}$ 类 $i$ 的点集
-- $L_i=\left\{(\bf{x}_a,y_a)~|~y_a=i,a=1,2,\dots n\right\}$ 答案为 $i$ 的点集
+- $C_i=\left\{(\mathbf{x}_a,y_a)~|~k(a)=i,a=1,2,\dots n\right\}$ 类 $i$ 的点集
+- $L_i=\left\{(\mathbf{x}_a,y_a)~|~y_a=i,a=1,2,\dots n\right\}$ 答案为 $i$ 的点集
 
 **Rand Index (RI)** : measure pairs of point. 计算点对
 
@@ -95,21 +95,21 @@ $$
 
 $$
 \begin{aligned}
-\text{CH} &= \frac{\frac{1}{K-1}\sum_{i=1}^K |C_i|\left\Vert\bf{c}_i-\bf{c}\right\Vert^2}{\frac{1}{n-K}\sum_{i=1}^K \sum_{x\in C_i}\left\Vert\bf{x}-\bf{c}_i\right\Vert^2} \\
+\text{CH} &= \frac{\frac{1}{K-1}\sum_{i=1}^K |C_i|\left\Vert\mathbf{c}_i-\mathbf{c}\right\Vert^2}{\frac{1}{n-K}\sum_{i=1}^K \sum_{x\in C_i}\left\Vert\mathbf{x}-\mathbf{c}_i\right\Vert^2} \\
 \end{aligned}
 $$
 
-$\bf{c}_i$ is the centroid of cluster $C_i$ 第 $i$ 类的中心点（一个数据点）, $\bf{c}$ is the centroid of all data points. 所有数据点的中点
+$\mathbf{c}_i$ is the centroid of cluster $C_i$ 第 $i$ 类的中心点（一个数据点）, $\mathbf{c}$ is the centroid of all data points. 所有数据点的中点
 
 **Davies-Bouldin Index (DB)**: average similarity between each cluster and its most similar cluster
 
 $$
 \begin{aligned}
 \text{DB} &= \frac{1}{K}\sum_{i=1}^K \max_{j\ne i}\left\{\frac{S_i+S_j}{d(c_i,c_j)}\right\} \\
-S_i &= \frac{1}{|C_i|}\sum_{x\in C_i}\left\Vert\bf{x}-\bf{c}_i\right\Vert^2 \\
-&\text{ the average distance of points in cluster } C_i \text{ to its centroid } \bf{c}_i \\
+S_i &= \frac{1}{|C_i|}\sum_{x\in C_i}\left\Vert\mathbf{x}-\mathbf{c}_i\right\Vert^2 \\
+&\text{ the average distance of points in cluster } C_i \text{ to its centroid } \mathbf{c}_i \\
 &\text{类} i \text{中的点与其中心点的距离的平均距离}\\
-d(c_i,c_j) &= \left\Vert\bf{c}_i-\bf{c}_j\right\Vert \\
+d(c_i,c_j) &= \left\Vert\mathbf{c}_i-\mathbf{c}_j\right\Vert \\
 &\text{ the distance between centroids of clusters } C_i \text{ and } C_j \\
 &\text{类 }i \text{ 和类 } j \text{的中心点之间的距离} \\
 \end{aligned}
@@ -128,7 +128,7 @@ Aims to minimize the within-cluster sum of squares (WCSS) or the total distortio
 cost (quadratic distortion):
 
 $$
-\mathcal{L}(\Delta)=\sum_{i=1}^K \sum_{\bf{x}\in C_i}\left\Vert\bf{x}-\bf{c}_i\right\Vert^2
+\mathcal{L}(\Delta)=\sum_{i=1}^K \sum_{\mathbf{x}\in C_i}\left\Vert\mathbf{x}-\mathbf{c}_i\right\Vert^2
 $$
 
 Proposition: decreases at every step.
@@ -137,20 +137,20 @@ Algorithm:
 
 $$
 \begin{aligned}
-&\textbf{Input: } \mathcal{D}=\{\bf{x}_1,\bf{x}_2,\dots,\bf{x}_n\}, K \\
-1.& \text{Initialize } K \text{centers } \bf{c}_1, \bf{c}_2, \dots, \bf{c}_K \text{ randomly} \\
+&\textbf{Input: } \mathcal{D}=\{\mathbf{x}_1,\mathbf{x}_2,\dots,\mathbf{x}_n\}, K \\
+1.& \text{Initialize } K \text{centers } \mathbf{c}_1, \mathbf{c}_2, \dots, \mathbf{c}_K \text{ randomly} \\
 2.& \textbf{repeat} \\
 3.& \text{~~~~} \textbf{for } i=1 \text{ to } n \textbf{ do} \\
-4.& \text{~~~~~~~~} k(i)\leftarrow\arg\min_{k=1}^K \left\Vert\bf{x}_i-\bf{c}_k\right\Vert^2 \\
+4.& \text{~~~~~~~~} k(i)\leftarrow\arg\min_{k=1}^K \left\Vert\mathbf{x}_i-\mathbf{c}_k\right\Vert^2 \\
 5.& \text{~~~~} \textbf{end for} \\
 6.& \text{~~~~} \textbf{for } k=1 \text{ to } K \textbf{ do} \\
-7.& \text{~~~~~~~~} \bf{c}_k\leftarrow\frac{1}{|C_k|}\sum_{\bf{x}\in C_k}\bf{x} \text{ update the center of cluster } C_k \\
+7.& \text{~~~~~~~~} \mathbf{c}_k\leftarrow\frac{1}{|C_k|}\sum_{\mathbf{x}\in C_k}\mathbf{x} \text{ update the center of cluster } C_k \\
 8.& \text{~~~~} \textbf{end for} \\
 9.& \textbf{until} \text{ meet stop condition} 
 \end{aligned}
 $$
 
-PS: $\bf{c}_k$ in this algorithm is different from the centroid $\bf{c}_i$ in the metric section. The former is a center point of a cluster, while the latter is the average of all points in a cluster. 该算法中的中心点可能不是数据点。
+PS: $\mathbf{c}_k$ in this algorithm is different from the centroid $\mathbf{c}_i$ in the metric section. The former is a center point of a cluster, while the latter is the average of all points in a cluster. 该算法中的中心点可能不是数据点。
 
 人话来说就是首先随机生成 $K$ 个中心点，然后进行循环直到触发结束条件。每次循环将一个点归类到最近的中心点，然后更新中心点为该类所有点的平均值。
 
@@ -185,18 +185,18 @@ Reduce sensitivity to poor initialization. 减少对初始化的敏感性。
 
 $$
 \begin{aligned}
-\mathcal{L}(\Delta)&=\sum_{i=1}^k \sum_{\bf{x}\in C_i}\left\Vert \bf{x}-\bf{c}_i\right\Vert \\
-\text{where } \bf{c}_i &\in \mathcal{D} \quad \forall~ i=1,2,\dots,K
+\mathcal{L}(\Delta)&=\sum_{i=1}^k \sum_{\mathbf{x}\in C_i}\left\Vert \mathbf{x}-\mathbf{c}_i\right\Vert \\
+\text{where } \mathbf{c}_i &\in \mathcal{D} \quad \forall~ i=1,2,\dots,K
 \end{aligned}
 $$
 
 $$
 \begin{aligned}
-&\textbf{Input: } \mathcal{D}=\{\bf{x}_1,\bf{x}_2,\dots,\bf{x}_n\}, K \\
-1.& \text{Initialize } K \text{ medoids } \bf{c}_1, \bf{c}_2, \dots, \bf{c}_K \text{ randomly} \\
+&\textbf{Input: } \mathcal{D}=\{\mathbf{x}_1,\mathbf{x}_2,\dots,\mathbf{x}_n\}, K \\
+1.& \text{Initialize } K \text{ medoids } \mathbf{c}_1, \mathbf{c}_2, \dots, \mathbf{c}_K \text{ randomly} \\
 2.& \textbf{repeat} \\
 3.& \text{~~~~} \textbf{for } i=1 \text{ to } n \textbf{ do} \\
-4.& \text{~~~~~~~~} k(i)\leftarrow\arg\min_{k=1}^K \left\Vert\bf{x}_i-\bf{c}_k\right\Vert \\
+4.& \text{~~~~~~~~} k(i)\leftarrow\arg\min_{k=1}^K \left\Vert\mathbf{x}_i-\mathbf{c}_k\right\Vert \\
 5.& \text{~~~~} \textbf{end for} \\
 6.& \text{~~~~} \text{update medoids to minimize the total cost} \\
 7.& \textbf{until} \text{ cost converges}
@@ -252,8 +252,8 @@ $$
 
 $$
 \begin{aligned}
-&P\left(|\cos \theta_{\bf{x},\bf{y}}|\ge \sqrt{\frac{-\log \epsilon}{d}}\right)< \epsilon \\
-\text{let } \epsilon=\frac{1}{d} \quad \text{then } & P\left(|\cos \theta_{\bf{x},\bf{y}}|\ge \sqrt{\frac{\log d}{d}}\right)< \frac{1}{d}
+&P\left(|\cos \theta_{\mathbf{x},\mathbf{y}}|\ge \sqrt{\frac{-\log \epsilon}{d}}\right)< \epsilon \\
+\text{let } \epsilon=\frac{1}{d} \quad \text{then } & P\left(|\cos \theta_{\mathbf{x},\mathbf{y}}|\ge \sqrt{\frac{\log d}{d}}\right)< \frac{1}{d}
 \end{aligned}
 $$
 
@@ -267,33 +267,33 @@ $$
 
 **Key concepts** :
 
-- $\epsilon$-neighbors $\epsilon$-邻域: $N_\epsilon(\bf{x}_i)=\{\bf{x}_j~|~\mathrm{dist}(\bf{x}_i,\bf{x}_j)\leq \epsilon, \bf{x}_j \in \mathcal{D}\}$
-- **Corepoints** 核点: Points $\bf{x}$ with $|N_\epsilon(\bf{x})|\ge \mathrm{minPts}$ ($\mathrm{minPts}$ is a hyperparamter) 自身邻域大小大于 $\mathrm{minPts}$ .
-- **Boarder points** 边界点: Points $\bf{x}$ with $\bf{x}\in N_\epsilon(\bf{y}) \And \bf{x}\ne \bf{y}$ 是某个核点的$\epsilon$-邻域中的点
+- $\epsilon$-neighbors $\epsilon$-邻域: $N_\epsilon(\mathbf{x}_i)=\{\mathbf{x}_j~|~\mathrm{dist}(\mathbf{x}_i,\mathbf{x}_j)\leq \epsilon, \mathbf{x}_j \in \mathcal{D}\}$
+- **Corepoints** 核点: Points $\mathbf{x}$ with $|N_\epsilon(\mathbf{x})|\ge \mathrm{minPts}$ ($\mathrm{minPts}$ is a hyperparamter) 自身邻域大小大于 $\mathrm{minPts}$ .
+- **Boarder points** 边界点: Points $\mathbf{x}$ with $\mathbf{x}\in N_\epsilon(\mathbf{y}) \And \mathbf{x}\ne \mathbf{y}$ 是某个核点的$\epsilon$-邻域中的点
 - **Noise points** 噪声点: Points that are neither core nor border points, i.e., not reachable from any other points 既不是核点也不是边界点，不能由别的点到达的点。
 
-- $\bf{x}$ is **directly density-reachable** from $\bf{y}$ iff $\bf{x}\in N_\epsilon(\bf{y}) \And \bf{y} \text{ is core point}$ $\bf{x}$ 可直接从 $\bf{y}$ 到达，当且仅当 $\bf{x}$ 在 $\bf{y}$ 的 $\epsilon$ 邻域且 $\bf{y}$ 是核点
-- $\bf{x}$ is **density-reachable** from $\bf{y}$ iff $\exists \{\bf{p}_1, \bf{p}_2, \dots \bf{p}_m\}~\text{s.t.}~\bf{p}_1=\bf{y},\bf{p}_m=\bf{x} \And \bf{p}_{k+1} \text{ is directly density-reachable from } \bf{p}_k$. $\bf{x}$ 可从 $\bf{y}$ 到达当且仅当存在一条从 $\bf{y}$ 到 $\bf{x}$ 的由 "直接相连" 组成的路径。
-- $\bf{x}$ and $\bf{y}$ are **density-connected** iff $\exists~\bf{z}\quad\text{s.t. } \bf{x},\bf{y} \text{ are both density-reachable from }\bf{z}$. $\bf{x},\bf{y}$ 是连通的当且仅当存在一个点，两个点都可以由该点到达。
+- $\mathbf{x}$ is **directly density-reachable** from $\mathbf{y}$ iff $\mathbf{x}\in N_\epsilon(\mathbf{y}) \And \mathbf{y} \text{ is core point}$ $\mathbf{x}$ 可直接从 $\mathbf{y}$ 到达，当且仅当 $\mathbf{x}$ 在 $\mathbf{y}$ 的 $\epsilon$ 邻域且 $\mathbf{y}$ 是核点
+- $\mathbf{x}$ is **density-reachable** from $\mathbf{y}$ iff $\exists \{\mathbf{p}_1, \mathbf{p}_2, \dots \mathbf{p}_m\}~\text{s.t.}~\mathbf{p}_1=\mathbf{y},\mathbf{p}_m=\mathbf{x} \And \mathbf{p}_{k+1} \text{ is directly density-reachable from } \mathbf{p}_k$. $\mathbf{x}$ 可从 $\mathbf{y}$ 到达当且仅当存在一条从 $\mathbf{y}$ 到 $\mathbf{x}$ 的由 "直接相连" 组成的路径。
+- $\mathbf{x}$ and $\mathbf{y}$ are **density-connected** iff $\exists~\mathbf{z}\quad\text{s.t. } \mathbf{x},\mathbf{y} \text{ are both density-reachable from }\mathbf{z}$. $\mathbf{x},\mathbf{y}$ 是连通的当且仅当存在一个点，两个点都可以由该点到达。
 
 DBSCAN treated cluster as set of density-connected points which is maximal w.r.t.
 
-  - Connectivity: $\forall \bf{x},\bf{y}\in C_k$, $\bf{x},\bf{y}$ are density-connected. 类中点两两连通
-  - Maximality: $\forall \bf{x}\in C_k\And \bf{y} \text{ is density-reachable from } \bf{x}\Rightarrow \bf{y}\in C_k$, 如果一个点 $\bf{y}$ 可以由某个类中的点到达，那么这个点 $\bf{y}$ 在该类中。
+  - Connectivity: $\forall \mathbf{x},\mathbf{y}\in C_k$, $\mathbf{x},\mathbf{y}$ are density-connected. 类中点两两连通
+  - Maximality: $\forall \mathbf{x}\in C_k\And \mathbf{y} \text{ is density-reachable from } \mathbf{x}\Rightarrow \mathbf{y}\in C_k$, 如果一个点 $\mathbf{y}$ 可以由某个类中的点到达，那么这个点 $\mathbf{y}$ 在该类中。
   
 $$
 \begin{aligned}
 &\textbf{Algorithm } \text{DBSCAN} \\
 &\textbf{Input } \text{dataset }\mathcal{D}, \text{radius }\epsilon, \mathrm{minPts} \\
 1.& \text{initialize all points as unvisited} \\
-2.& \textbf{for } \text{each unvisited point } \bf{p}\in \mathcal{D} \textbf{ do} \\
-3.& \text{~~~~} \text{mark } \bf{p} \text{ as visited} \\
-4.& \text{~~~~} \text{calculate } N_\epsilon(\bf{p}) \\
-5.& \text{~~~~} \textbf{if } |N_\epsilon(\bf{p})|<\mathrm{minPts} \textbf{ then} \\
-6.& \text{~~~~~~~~} \text{label } \bf{p} \text{ as noise} \\
+2.& \textbf{for } \text{each unvisited point } \mathbf{p}\in \mathcal{D} \textbf{ do} \\
+3.& \text{~~~~} \text{mark } \mathbf{p} \text{ as visited} \\
+4.& \text{~~~~} \text{calculate } N_\epsilon(\mathbf{p}) \\
+5.& \text{~~~~} \textbf{if } |N_\epsilon(\mathbf{p})|<\mathrm{minPts} \textbf{ then} \\
+6.& \text{~~~~~~~~} \text{label } \mathbf{p} \text{ as noise} \\
 7.& \text{~~~~} \textbf{else} \\
 8.& \text{~~~~~~~~} \text{create new empty cluster } C \\
-9.& \text{~~~~~~~~} \text{add } \bf{p} \text{ to } C \\
+9.& \text{~~~~~~~~} \text{add } \mathbf{p} \text{ to } C \\
 10.& \text{~~~~~~~~} \text{Expand cluster }C \\
 11.& \text{~~~~} \textbf{end if} \\
 12.& \textbf{end for} 
@@ -301,17 +301,17 @@ $$
 ~~~~
 \begin{aligned}
 &\textbf{Algorithm } \text{Expand cluster } C \\
-&\textbf{Input } \text{cluster }C=\{\bf{p}\}, \text{radius }\epsilon, \mathrm{minPts} \\
-1. &\textbf{for } \text{each point } \bf{q}\in C \text{ do} \\
-2. &\text{~~~~} \textbf{if } \bf{q} \text{ is unvisited~} \textbf{then} \\
-3. &\text{~~~~~~~~} \text{mark } \bf{q} \text{ as visited} \\
-4. &\text{~~~~~~~~} \text{calculate } N_\epsilon(\bf{q})  \\
-5. &\text{~~~~~~~~} \textbf{if } |N_\epsilon(\bf{q})|\ge\mathrm{minPts} \textbf { then} \\
-6. &\text{~~~~~~~~~~~~} C\leftarrow C\cup N_\epsilon(\bf{q}) \\
+&\textbf{Input } \text{cluster }C=\{\mathbf{p}\}, \text{radius }\epsilon, \mathrm{minPts} \\
+1. &\textbf{for } \text{each point } \mathbf{q}\in C \text{ do} \\
+2. &\text{~~~~} \textbf{if } \mathbf{q} \text{ is unvisited~} \textbf{then} \\
+3. &\text{~~~~~~~~} \text{mark } \mathbf{q} \text{ as visited} \\
+4. &\text{~~~~~~~~} \text{calculate } N_\epsilon(\mathbf{q})  \\
+5. &\text{~~~~~~~~} \textbf{if } |N_\epsilon(\mathbf{q})|\ge\mathrm{minPts} \textbf { then} \\
+6. &\text{~~~~~~~~~~~~} C\leftarrow C\cup N_\epsilon(\mathbf{q}) \\
 7. &\text{~~~~~~~~} \textbf{end if} \\
 8. &\text{~~~~} \textbf{end if} \\
-9. &\text{~~~~} \textbf{if}~\bf{q} \text{ is not assigned to any cluster} \textbf{ then} \\
-10. &\text{~~~~~~~~} \text{add }\bf{q}\text{ to }C \\
+9. &\text{~~~~} \textbf{if}~\mathbf{q} \text{ is not assigned to any cluster} \textbf{ then} \\
+10. &\text{~~~~~~~~} \text{add }\mathbf{q}\text{ to }C \\
 11. &\text{~~~~} \textbf{end if} \\
 12. &\textbf{end for} 
 \end{aligned}
@@ -346,8 +346,8 @@ Hyperparamters:
 
 **Key concepts** :
 
-- **Core Distance** 核距离: $\mathrm{cd}(\bf{p})=\begin{cases} \text{UND} & \text{if } |N_\epsilon(\bf{p})|<\mathrm{minPts} \\ \mathrm{dis}\left(\bf{p}, N_\epsilon^\mathrm{minPts}(\bf{p})\right) & \text{if }|N_\epsilon(\bf{p})|\ge\mathrm{minPts}\end{cases}$ 一个点与其 $\epsilon$-邻域中第 $\mathrm{minPts}$ 近的点。作为局部密度使用 (local density)
-- **Reachability Distance** 可达距离: $\mathrm{rd}(\bf{p},\bf{q})=\begin{cases} \text{UND} & \text{if } |N_\epsilon(\bf{p})|<\mathrm{minPts} \\ \max\left\{\mathrm{cd}(\bf{p}), \mathrm{dis}(\bf{p},\bf{q})\right\} & \text{if }|N_\epsilon(\bf{p})|\ge\mathrm{minPts}\end{cases}$ 两点距离和核距离的较大值。
+- **Core Distance** 核距离: $\mathrm{cd}(\mathbf{p})=\begin{cases} \text{UND} & \text{if } |N_\epsilon(\mathbf{p})|<\mathrm{minPts} \\ \mathrm{dis}\left(\mathbf{p}, N_\epsilon^\mathrm{minPts}(\mathbf{p})\right) & \text{if }|N_\epsilon(\mathbf{p})|\ge\mathrm{minPts}\end{cases}$ 一个点与其 $\epsilon$-邻域中第 $\mathrm{minPts}$ 近的点。作为局部密度使用 (local density)
+- **Reachability Distance** 可达距离: $\mathrm{rd}(\mathbf{p},\mathbf{q})=\begin{cases} \text{UND} & \text{if } |N_\epsilon(\mathbf{p})|<\mathrm{minPts} \\ \max\left\{\mathrm{cd}(\mathbf{p}), \mathrm{dis}(\mathbf{p},\mathbf{q})\right\} & \text{if }|N_\epsilon(\mathbf{p})|\ge\mathrm{minPts}\end{cases}$ 两点距离和核距离的较大值。
 
 Lecture slides 里面的数组 $p$ 的作用：可能是用于记录当前完成计算的点的顺序
 
@@ -360,19 +360,19 @@ $$
 2. &\textbf{while } l \text{ is not empty } \textbf{do} \\
 3. &\text{~~~~} \text{get an element } i \text{ from } l \\
 4. &\text{~~~~} l\leftarrow l \backslash \{i\} \\
-5. &\text{~~~~} \textbf{if } \bf{x}_i \text{ is unvisited } \textbf{then} \\
-6. &\text{~~~~~~~~} \text{add } \bf{x}_i \text{ to } p \\
-7. &\text{~~~~~~~~} \text{mark } \bf{x}_i \text{ as visited} \\
-8. &\text{~~~~~~~~} \text{calculate } N_\epsilon(\bf{x}_i) \\  
-9. &\text{~~~~~~~~} \textbf{if } |N_\epsilon(\bf{x}_i)|\ge\mathrm{minPts} \textbf{ then} \\
+5. &\text{~~~~} \textbf{if } \mathbf{x}_i \text{ is unvisited } \textbf{then} \\
+6. &\text{~~~~~~~~} \text{add } \mathbf{x}_i \text{ to } p \\
+7. &\text{~~~~~~~~} \text{mark } \mathbf{x}_i \text{ as visited} \\
+8. &\text{~~~~~~~~} \text{calculate } N_\epsilon(\mathbf{x}_i) \\  
+9. &\text{~~~~~~~~} \textbf{if } |N_\epsilon(\mathbf{x}_i)|\ge\mathrm{minPts} \textbf{ then} \\
 10. &\text{~~~~~~~~~~~~} \text{set } S \text{ as an empty priority queue} \\
-11. &\text{~~~~~~~~~~~~} \mathrm{update}(N_\epsilon(\bf{x}_i), \bf{x}_i, S, \epsilon, \mathrm{minPts}) \\
+11. &\text{~~~~~~~~~~~~} \mathrm{update}(N_\epsilon(\mathbf{x}_i), \mathbf{x}_i, S, \epsilon, \mathrm{minPts}) \\
 12. &\text{~~~~~~~~~~~~} \textbf{while } S \text{ is not empty } \textbf{do} \\
 13. &\text{~~~~~~~~~~~~~~~~} \text{remove element } j \text{ from } S \\
-14. &\text{~~~~~~~~~~~~~~~~} \text{mark } \bf{x}_j \text{ as visited } \\
+14. &\text{~~~~~~~~~~~~~~~~} \text{mark } \mathbf{x}_j \text{ as visited } \\
 15. &\text{~~~~~~~~~~~~~~~~} \text{add } \mathrm{x}_j \text{ to } p \\
-16. &\text{~~~~~~~~~~~~~~~~} \textbf{if } |N_\epsilon(\bf{x}_j)|\ge \mathrm{minPts} \textbf{ then } \\
-17. &\text{~~~~~~~~~~~~~~~~~~~~} \mathrm{update}(N_\epsilon(\bf{x}_j), \bf{x}_j, S, \epsilon, \mathrm{minPts}) \\
+16. &\text{~~~~~~~~~~~~~~~~} \textbf{if } |N_\epsilon(\mathbf{x}_j)|\ge \mathrm{minPts} \textbf{ then } \\
+17. &\text{~~~~~~~~~~~~~~~~~~~~} \mathrm{update}(N_\epsilon(\mathbf{x}_j), \mathbf{x}_j, S, \epsilon, \mathrm{minPts}) \\
 18. &\text{~~~~~~~~~~~~~~~~} \textbf{end if} \\
 19. &\text{~~~~~~~~~} \textbf{end while} \\
 20. &\text{~~~~} \textbf{end if} \\
@@ -380,12 +380,12 @@ $$
 \end{aligned}
 \begin{aligned}
 &\textbf{Function } \text{update} \\
-&\textbf{Input } N_\epsilon(\bf{x}_i), \bf{x}_i, \text{priority queue } S, \epsilon, \mathrm{minPts} \\
-1. &\textbf{for } \text{each unvisisted point } \bf{x}_j\in N_\epsilon(\bf{x}_i) \textbf{ do}\\
-2. &\text{~~~~} r_j^\mathrm{new}\leftarrow \mathrm{rd}(\bf{x}_i, \bf{x}_j) \\
+&\textbf{Input } N_\epsilon(\mathbf{x}_i), \mathbf{x}_i, \text{priority queue } S, \epsilon, \mathrm{minPts} \\
+1. &\textbf{for } \text{each unvisisted point } \mathbf{x}_j\in N_\epsilon(\mathbf{x}_i) \textbf{ do}\\
+2. &\text{~~~~} r_j^\mathrm{new}\leftarrow \mathrm{rd}(\mathbf{x}_i, \mathbf{x}_j) \\
 3. &\text{~~~~} \textbf{if } r_j=\mathrm{UND} \text{ or } r_j>r_j^\mathrm{new} \textbf{ then } \\
 4. &\text{~~~~~~~~} r_j\leftarrow r_j^\mathrm{new} \\
-5. &\text{~~~~~~~~} \text{insert or update } (\bf{x}_j, r_j) \text{ to } S \\
+5. &\text{~~~~~~~~} \text{insert or update } (\mathbf{x}_j, r_j) \text{ to } S \\
 6. &\text{~~~~} \textbf{end if } \\
 7. &\textbf{end for}
 \end{aligned}
@@ -447,7 +447,7 @@ diagram shows the arrangement of clusters. Heights represents the distances betw
 **Ward's Method** :
 
 $$
-\Delta(A,B)=\sum_{\bf{x}\in A\cup B}\left\Vert \bf{x}-\bf{c}_{A\cup B}\right\Vert^2-\sum_{\bf{x}\in A}\left\Vert\bf{x}-\bf{c}_A\right\Vert^2-\sum_{\bf{x}\in B}\left\Vert\bf{x}-\bf{c}_B\right\Vert^2=\frac{2|A||B|}{|A|+|B|}\left\Vert\bf{c}_A-\bf{c}_B\right\Vert^2
+\Delta(A,B)=\sum_{\mathbf{x}\in A\cup B}\left\Vert \mathbf{x}-\mathbf{c}_{A\cup B}\right\Vert^2-\sum_{\mathbf{x}\in A}\left\Vert\mathbf{x}-\mathbf{c}_A\right\Vert^2-\sum_{\mathbf{x}\in B}\left\Vert\mathbf{x}-\mathbf{c}_B\right\Vert^2=\frac{2|A||B|}{|A|+|B|}\left\Vert\mathbf{c}_A-\mathbf{c}_B\right\Vert^2
 $$
 
 #### Hierarchical Density-Based Clustering (HDBSCAN) 
@@ -455,7 +455,7 @@ $$
 和 OPTICS 类似。But mutual reachability distance is 
 
 $$
-\mathrm{rd}(\bf{p}, \bf{q})=\max\{\mathrm{cd}(\bf{p}), \mathrm{cd}(\bf{p}), \mathrm{dis}(\bf{p},\bf{q})\}
+\mathrm{rd}(\mathbf{p}, \mathbf{q})=\max\{\mathrm{cd}(\mathbf{p}), \mathrm{cd}(\mathbf{p}), \mathrm{dis}(\mathbf{p},\mathbf{q})\}
 $$
 
 建立一颗最小伸展树 (BST) 使总的 Mutual reachability distances 最小。
@@ -464,7 +464,7 @@ $$
 
 Extracting the Final Clusters :
 
-- 计算每个聚类的 cluster stability （聚类稳定性）: $S(C)=\sum_{\bf{p}\in C}\lambda^\mathrm{death}_{\bf{p}}-\lambda^\mathrm{birth}_{\bf{p}}, \lambda=\frac{1}{d}$ death & birth 表示该聚类出现和消失的时候的 $\lambda$
+- 计算每个聚类的 cluster stability （聚类稳定性）: $S(C)=\sum_{\mathbf{p}\in C}\lambda^\mathrm{death}_{\mathbf{p}}-\lambda^\mathrm{birth}_{\mathbf{p}}, \lambda=\frac{1}{d}$ death & birth 表示该聚类出现和消失的时候的 $\lambda$
 - 从高到低遍历 Dengrogram, 如果子聚类的稳定性和大于父聚类，那么分裂，否则直接使用父聚类
 
 - **Pros**:
@@ -492,8 +492,8 @@ $$
 
 $$
 \begin{aligned}
-&p(\bf{x})=\sum_{i=1}^K \pi_i f_i(\bf{x}) \\
-\text{where }&f_i(\bf{x})=\mathcal{N}(\bf{x}~|~\boldsymbol{\mu}_i, \Sigma_i)
+&p(\mathbf{x})=\sum_{i=1}^K \pi_i f_i(\mathbf{x}) \\
+\text{where }&f_i(\mathbf{x})=\mathcal{N}(\mathbf{x}~|~\boldsymbol{\mu}_i, \Sigma_i)
 \end{aligned}
 $$
 
@@ -505,13 +505,13 @@ $$
 - **E-Step**: Compute responsibilities 对加权概率求一个比例
 
 $$
-r_{i,k}=\frac{\pi_k \mathcal{N}(\bf{x}_i~|~\boldsymbol{\mu}_k,\Sigma_k)}{\sum_{j=1}^K \pi_j \mathcal{N}(\bf{x}_i~|~\boldsymbol{\mu}_j, \Sigma_j)}
+r_{i,k}=\frac{\pi_k \mathcal{N}(\mathbf{x}_i~|~\boldsymbol{\mu}_k,\Sigma_k)}{\sum_{j=1}^K \pi_j \mathcal{N}(\mathbf{x}_i~|~\boldsymbol{\mu}_j, \Sigma_j)}
 $$
 
 - **M-Step**: Update paramteres. 对期望求个加权平均，对方差也求个加权平均，对权值求个 $r$ 的平均值
 
 $$
-\boldsymbol{\mu}_k=\frac{\sum_{i=1}^n r_{i,k}\bf{x}}{\sum_{i=1}^n r_{i,k}}, \Sigma = \frac{\sum_{i=1}^n r_{i,k}(\bf{x}_i-\boldsymbol{\mu}_k)^\top(\bf{x}_i-\boldsymbol{\mu}_k)}{\sum_{i=1}^n r_{i,k}}, \pi_k =\frac{\sum_{i=1}^n r_{i,k}}{n}
+\boldsymbol{\mu}_k=\frac{\sum_{i=1}^n r_{i,k}\mathbf{x}}{\sum_{i=1}^n r_{i,k}}, \Sigma = \frac{\sum_{i=1}^n r_{i,k}(\mathbf{x}_i-\boldsymbol{\mu}_k)^\top(\mathbf{x}_i-\boldsymbol{\mu}_k)}{\sum_{i=1}^n r_{i,k}}, \pi_k =\frac{\sum_{i=1}^n r_{i,k}}{n}
 $$
 
 - **Check**: Stop if log-likelihood converges or max iterations reached.
