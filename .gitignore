@@ -29,7 +29,7 @@ DSAA2011/Proj/*.zip
 DSAA2011/*/*-sol.ipynb
 DSAA2011/*-sol.ipynb
 DSAA2011/Lab04/output.csv
-*.zip
+
 *.stash
 *.log
 *.out

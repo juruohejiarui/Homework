@@ -223,7 +223,7 @@ Handle arbitrary cluster shapes. Clusters are regions of high density separated 
 
 Identify noise/outliers naturally as low-density points 将噪声和离群点看成低密度点 
 
-#### Density-Based Spatial Cllustering of Applications iwth Noise (DBSCAN)
+#### Density-Based Spatial Clustering of Applications iwth Noise (DBSCAN)
 
 不知道是啥
 
@@ -234,6 +234,15 @@ Identify noise/outliers naturally as low-density points 将噪声和离群点看
 - **Boarder points** 边界点: Points $\mathbf{x}$ with $\mathbf{x}\in N_\epsilon(\mathbf{y}) \And \mathbf{x}\ne \mathbf{y}$ 是某个核点的$\epsilon$-邻域中的点
 - **Noise points** 噪声点: Points that are neither core nor border points, i.e., not reachable from any other points 既不是核点也不是边界点，不能由别的点到达的点。
 
+- $\mathbf{x}$ is **directly density-reachable** from $\mathbf{y}$ iff $\mathbf{x}\in N_\epsilon(\mathbf{y}) \And \mathbf{y} \text{ is core point}$ $\mathbf{x}$ 可直接从 $\mathbf{y}$ 到达，当且仅当 $\mathbf{x}$ 在 $\mathbf{y}$ 的 $\epsilon$ 邻域且 $\mathbf{y}$ 是核点
+- $\mathbf{x}$ is **density-reachable** from $\mathbf{y}$ iff $\exists \{\mathbf{p}_1, \mathbf{p}_2, \dots \mathbf{p}_m\}~\text{s.t.}~\mathbf{p}_1=\mathbf{y},\mathbf{p}_m=\mathbf{x} \And \mathbf{p}_{k+1} \text{ is directly density-reachable from } \mathbf{p}_k$. $\mathbf{x}$ 可从 $\mathbf{y}$ 到达当且仅当存在一条从 $\mathbf{y}$ 到 $\mathbf{x}$ 的由 "直接相连" 组成的路径。
+- $\mathbf{x}$ and $\mathbf{y}$ are **density-connected** iff $\exists~\mathbf{z}\quad\text{s.t. } \mathbf{x},\mathbf{y} \text{ are both density-reachable from }\mathbf{z}$. $\mathbf{x},\mathbf{y}$ 是连通的当且仅当存在一个点，两个点都可以由该点到达。
+
+DBSCAN treated cluster as set of density-connected points which is maximal w.r.t.
+
+  - Connectivity: $\forall \mathbf{x},\mathbf{y}\in C_k$, $\mathbf{x},\mathbf{y}$ are density-connected. 类中点两两连通
+  - Maximality: $\forall \mathbf{x}\in C_k\And \mathbf{y} \text{ is density-reachable from } \mathbf{x}\Rightarrow \mathbf{y}\in C_k$, 如果一个点 $\mathbf{y}$ 可以由某个类中的点到达，那么这个点 $\mathbf{y}$ 在该类中。
+  
 
 
 ### Soft Partitioning Clustering
