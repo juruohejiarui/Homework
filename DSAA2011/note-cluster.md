@@ -123,6 +123,8 @@ A data point belongs to only one cluster. 每个数据点只能属于一个类�
 
 #### K-Means
 
+Aims to minimize the within-cluster sum of squares (WCSS) or the total distortion. 目标是最小化类内平方和（WCSS）或总失真。
+
 cost (quadratic distortion):
 
 $$
@@ -137,14 +139,14 @@ $$
 \begin{aligned}
 &\textbf{Input: } \mathcal{D}=\{\mathbf{x}_1,\mathbf{x}_2,\dots,\mathbf{x}_n\}, K \\
 &1. \text{Initialize } K \text{centers } \mathbf{c}_1, \mathbf{c}_2, \dots, \mathbf{c}_K \text{ randomly} \\
-&2. \textbf{Repeat} \\
+&2. \textbf{repeat} \\
 &3. \text{~~} \textbf{for } i=1 \text{ to } n \textbf{ do} \\
 &4. \text{~~~~} k(i)\leftarrow\arg\min_{k=1}^K \left\Vert\mathbf{x}_i-\mathbf{c}_k\right\Vert^2 \\
 &5. \text{~~} \textbf{end for} \\
 &6. \text{~~} \textbf{for } k=1 \text{ to } K \textbf{ do} \\
 &7. \text{~~~~} \mathbf{c}_k\leftarrow\frac{1}{|C_k|}\sum_{\mathbf{x}\in C_k}\mathbf{x} \text{ update the center of cluster } C_k \\
 &8. \text{~~} \textbf{end for} \\
-&9. \textbf{Until} \text{ meet stop condition} 
+&9. \textbf{until} \text{ meet stop condition} 
 \end{aligned}
 $$
 
@@ -158,9 +160,53 @@ Stop conditions:
 2. Assignments no longer change $k(i)$ 不再变化
 3. convergence to loca loptimum of cost function $\mathcal{L}(\Delta)$ 成本函数不再变化
 
-PS: 初始化的时候不能随机选取 $K$ 个“数据点” The probability of hitting all $K$ clusters with $K$ samples approaches $0$ as $n$ increases. 选择 $K$ 个数据点的概率随着 $n$ 的增加而趋近于 $0$。
+PS: 初始化的时候不能随机选取 $K$ 个“数据点” The probability of hitting all $K$ clusters with $K$ samples approaches $0$ as $n$ increases. 选择 $K$ 个数据点的概率随着 $n$ 的增加而趋近于 $0$ 。
 
+- Start with $K$ data points  using Fastest First Traveral (FFT) algorithm. 使用快速遍历算法
+- Start with K-Means++ algorithm. 使用 K-Means++ 算法
+- K-logK initialization: start with enough centers to hit all clusters, then prune down to K. 使用 K-logK 初始化：先生成足够的中心点，然后再修剪到 $K$ 个。
 
+#### K-Means++
+
+A smarter way to initialize the centers. 通过更聪明的方式初始化中心点。
+
+- Choose first center randomly from the data points. 从数据点中随机选择第一个中心点。
+- For each remaining point, compute its **squared** distance to the nearest center. 对于剩余的每个点，计算它到最近中心点的平方距离。
+- Select the next center with probability proportional to that distance. 以与该距离成正比的概率选择下一个中心点。
+- repeat until $K$ centers are selected. 重复直到选择了 $K$ 个中心点。
+
+人话来说：开局随便选一个点，然后进行迭代。迭代的时候计算每个剩余的点到最近的中心点距离的**平方**，以此为概率选取下一个中心点。（选取尽可能远的点）
+
+Reduce sensitivity to poor initialization. 减少对初始化的敏感性。
+
+#### K-Medoids
+
+使用数据点作为中点
+
+$$
+\begin{aligned}
+\mathcal{L}(\Delta)&=\sum_{i=1}^k \sum_{\mathbf{x}\in C_i}\left\Vert \mathbf{x}-\mathbf{c}_i\right\Vert \\
+\text{where } \mathbf{c}_i &\in \mathcal{D} \quad \forall~ i=1,2,\dots,K
+\end{aligned}
+$$
+
+$$
+\begin{aligned}
+&\textbf{Input: } \mathcal{D}=\{\mathbf{x}_1,\mathbf{x}_2,\dots,\mathbf{x}_n\}, K \\
+&1. \text{Initialize } K \text{ medoids } \mathbf{c}_1, \mathbf{c}_2, \dots, \mathbf{c}_K \text{ randomly} \\
+&2. \textbf{repeat} \\
+&3. \text{~~} \textbf{for } i=1 \text{ to } n \textbf{ do} \\
+&4. \text{~~~~} k(i)\leftarrow\arg\min_{k=1}^K \left\Vert\mathbf{x}_i-\mathbf{c}_k\right\Vert \\
+&5. \text{~~} \textbf{end for} \\
+&6. \text{~~} \text{update medoids to minimize the total cost} \\
+&7. \textbf{until} \text{ cost converges}
+\end{aligned}
+$$
+
+- **Pros**: Robuest to noise and outliuers & works with any distance metric. 对噪声和离群点鲁棒，对任何距离度量都有效。
+- **Cons**: Computationally expensive, especially for large datasets. 计算开销大，尤其是对于大数据集。
+
+Optimizing the cost function is NP-hard. 优化成本函数是 NP-hard 问题。
 
 ### Soft Partitioning Clustering
 

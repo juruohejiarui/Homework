@@ -6,6 +6,7 @@ pandoc \
     note-decisiontree.md \
     note-ensemble.md \
     note-cluster.md \
+    note-kernel.md \
     -o note.pdf \
     --pdf-engine=xelatex \
     --toc \

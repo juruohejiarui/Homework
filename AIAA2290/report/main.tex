@@ -24,6 +24,7 @@
 \usepackage{lipsum}
 \usepackage{longtable}
 \usepackage{multirow}
+\usepackage{graphicx}
 
 \makeatletter
 \newenvironment{breakablealgorithm}
@@ -358,6 +359,33 @@ And here is the training result, where std represents the instance of training o
     FreeLB-40 & 94.96\% & 98.29\% & 94.90\% & 61.38 
   \end{tabular}
 \end{table}
+
+The record of training process is also provided :
+
+\begin{figure}[H]
+\centering
+\caption{Test With Original Samples}
+\includegraphics[width=0.45\textwidth]{figures/plot-Original.png}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\caption{Test With PGD-10}
+\includegraphics[width=0.45\textwidth]{figures/plot-PGD-10 Attack.png}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\caption{Test With PGD-40}
+\includegraphics[width=0.45\textwidth]{figures/plot-PGD-40 Attack.png}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\caption{On Training set}
+\includegraphics[width=0.45\textwidth]{figures/plot-Training.png}
+\end{figure}
+
 
 The results reveal several key insights into adversarial training:
 
