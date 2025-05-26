@@ -7,6 +7,7 @@ pandoc \
     note-ensemble.md \
     note-cluster.md \
     note-kernel.md \
+    note-dimreduce.md \
     -o note.pdf \
     --pdf-engine=xelatex \
     --toc \

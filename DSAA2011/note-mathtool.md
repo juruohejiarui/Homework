@@ -85,6 +85,30 @@ Probability density function (PDF): $f(x)=\frac{1}{\sqrt{2\pi}} \exp\left(-\frac
 
 Cumulative distributionm function (CDF): $\Phi(x)=\int_{-\infty}^x f(x) \mathrm{d} x$
 
+### Gaussian Distributions
+
+Univariate :
+
+$$
+\begin{aligned}
+&f(x|\mu, \sigma^2)=\frac{1}{\sqrt{2\pi \sigma^2}}\exp\left(-\frac{(x-\mu)^2}{2\sigma^2}\right) \\
+\text{Likelihood }&p(\mathcal{D}|\mu, \sigma^2)=\prod_{i=1}^n \frac{1}{\sqrt{2\pi \sigma^2}}\exp\left(-\frac{(x_i-\mu)^2}{2\sigma^2}\right) \\
+\Rightarrow & \mu_{\mathrm{ML}}=\frac{1}{n}\sum_{i=1}^n x_i, \sigma^2_{\mathrm{ML}}=\sum_{i=1}^n \frac{(x_i-\mu)^2}{n}
+\end{aligned}
+$$
+
+Multivariate :
+
+$$
+\begin{aligned}
+&f(\bf{x}|\boldsymbol{\mu}, \Sigma)=\frac{1}{\sqrt{(2\pi)^D|\Sigma|}}\exp\left(-\frac{1}{2}(\bf{x}-\boldsymbol{\mu})^\top \Sigma^{-1} (\bf{x}-\boldsymbol{\mu})\right) \\
+\text{Likelihood }&p(\mathcal{D}|\boldsymbol{\mu}, \Sigma)=\prod_{i=1}^n \frac{1}{\sqrt{(2\pi)^D|\Sigma|}}\exp\left(-\frac{1}{2}(\bf{x}_i-\boldsymbol{\mu})^\top \Sigma^{-1} (\bf{x}_i-\boldsymbol{\mu})\right) \\
+\Rightarrow &\boldsymbol{\mu}_{\mathrm{ML}}=\frac{1}{n}\sum_{i=1}^n \bf{x}_i, \Sigma_\mathrm{ML}=\frac{1}{n}\sum_{i=1}^n (\bf{x}_i-\boldsymbol{\mu})^\top(\bf{x}_i-\boldsymbol{\mu})
+\end{aligned}
+$$
+
+最大似然估计：平均值+方差
+
 ### Central Limit Theorem (CLT) 中心极限定理
 Suppose $X_1, X_2, X_3, \dots$ is a sequence of i.i.d random variables with $\mathbb{E}[X_i]=\mu$ and $\mathrm{var}[X_i]=\sigma<\infty$ . then as $n\rightarrow\infty$ , the distribution of $\sqrt{n}(\overline{X}_n-\mu)$ converges to $\mathcal{N}(0, \sigma^2)$ . 
 
@@ -127,9 +151,9 @@ $$
 - When $\rho\rightarrow 1$ , the variance $\rightarrow \sigma^2$
 
 ### Rouch´ e-Capelli Theorem
-For sytem $\mathrm{X}\mathbf{w}=\mathbf{y}$ where $\mathrm{X}\in \mathbb{R}^{m\times n}, \mathbf{w}\in \mathbb{R}^{n}, \mathbf{y}\in \mathbb{R}^m$ , where we need to find a solution of variable $\mathbf{w}$. 
+For sytem $\mathrm{X}\bf{w}=\bf{y}$ where $\mathrm{X}\in \mathbb{R}^{m\times n}, \bf{w}\in \mathbb{R}^{n}, \bf{y}\in \mathbb{R}^m$ , where we need to find a solution of variable $\bf{w}$. 
 
-let $\tilde{\mathrm{X}}=\begin{bmatrix}\mathrm{X}&\mathbf{y}\end{bmatrix}$ be an argumented matrix.
+let $\tilde{\mathrm{X}}=\begin{bmatrix}\mathrm{X}&\bf{y}\end{bmatrix}$ be an argumented matrix.
 
 - this system admits a **unique** solution $\Longleftrightarrow$ $\mathrm{rank}(\mathrm{X})=\mathrm{rank}(\tilde{\mathrm{X}})=n$
 - this system has **no** solution $\Longleftrightarrow$ $\mathrm{rank}(\mathrm{X})<\mathrm{rank}(\tilde{\mathrm{X}})$
@@ -142,10 +166,10 @@ $$
 
 ### Least Square Solution
 
-For a linearly system $\mathrm{X}\mathbf{w}=\mathbf{y}$ , where $\mathrm{X}\in \mathbb{R}^{m\times n}, \mathbf{w}\in \mathbb{R}^n, \mathbf{y}\in\mathbb{R}^m$, the least square solution is :
+For a linearly system $\mathrm{X}\bf{w}=\bf{y}$ , where $\mathrm{X}\in \mathbb{R}^{m\times n}, \bf{w}\in \mathbb{R}^n, \bf{y}\in\mathbb{R}^m$, the least square solution is :
 
 $$
-\tilde{\mathbf{w}}=\left(\mathrm{X}^\top\mathrm{X}\right)^{-1}\mathrm{X}^\top\mathbf{y}
+\tilde{\bf{w}}=\left(\mathrm{X}^\top\mathrm{X}\right)^{-1}\mathrm{X}^\top\bf{y}
 $$
 
 ### Hoeffding's Inequality
@@ -164,12 +188,12 @@ $$
 ### Norm of Vector
 
 $$
-\lVert\mathbf{w}\rVert _p=\left(\sum_{i=1}^p |\mathbf{w}|^p\right)^{\frac{1}{p}}
+\lVert\bf{w}\rVert _p=\left(\sum_{i=1}^p |\bf{w}|^p\right)^{\frac{1}{p}}
 $$
 
-when $p=0$: not actually a norm, $\lVert\mathbf{w}\rVert _0=\sum_{i=1}^d \mathbb{I}(w_i\ne 0)$
+when $p=0$: not actually a norm, $\lVert\bf{w}\rVert _0=\sum_{i=1}^d \mathbb{I}(w_i\ne 0)$
 
-when $p=\infty$: $\lVert\mathbf{w}\rVert _{\inf}=\max_i|w_i|$
+when $p=\infty$: $\lVert\bf{w}\rVert _{\inf}=\max_i|w_i|$
 
 ## Evaluation of Model
 
@@ -194,18 +218,18 @@ when $p=\infty$: $\lVert\mathbf{w}\rVert _{\inf}=\max_i|w_i|$
 let $y$ be the true answer, and $y'$ be the prediction.
 
 - **Regression**: 
-  - Square error: $\mathbf{error}_{\mathrm{sq}}(y,y')=(y-y')^2$
-  - Absolute error: $\mathbf{error}_{\mathrm{abs}}(y,y')=|y-y'|$
+  - Square error: $\bf{error}_{\mathrm{sq}}(y,y')=(y-y')^2$
+  - Absolute error: $\bf{error}_{\mathrm{abs}}(y,y')=|y-y'|$
 
 - **Classification**:
-  - Misclassification error: $\mathbf{error}_{\mathrm{mis}}(y,y')=\mathbb{I}\{y\ne y'\}$
-  - Weighted misclassification error: If false positive are $\beta$ times worse than false negatives: $\mathbf{error}_{\mathrm{beta}}(y,y')=\beta \mathbb{I}\{y'=1,y=-1\}+(1-\beta)\mathbb{I}\{y'=-1,y=1\}$
+  - Misclassification error: $\bf{error}_{\mathrm{mis}}(y,y')=\mathbb{I}\{y\ne y'\}$
+  - Weighted misclassification error: If false positive are $\beta$ times worse than false negatives: $\bf{error}_{\mathrm{beta}}(y,y')=\beta \mathbb{I}\{y'=1,y=-1\}+(1-\beta)\mathbb{I}\{y'=-1,y=1\}$
   - Balanced error rate: For data with $n_+$ postive samples and $n_-$ negative samples: 
 
 $$
 \begin{aligned}
 &\text{For one sample: }\\
-&\mathbf{error}_{\mathrm{bal}}(y,y')=\frac{\frac{1}{2}(n_++n_-)\cdot \mathbb{I}(y\ne y')}{n_+\mathbb{I}(y)} \\
+&\bf{error}_{\mathrm{bal}}(y,y')=\frac{\frac{1}{2}(n_++n_-)\cdot \mathbb{I}(y\ne y')}{n_+\mathbb{I}(y)} \\
 &\text{For a whole dataset: }\\
 &\mathrm{BER}=\frac{1}{2}\left(\frac{\mathrm{FN}}{\mathrm{TP}+\mathrm{FN}}+\frac{\mathrm{FP}}{\mathrm{FP}+\mathrm{TN}}\right)
 \end{aligned}
