@@ -8,6 +8,7 @@ pandoc \
     note-cluster.md \
     note-kernel.md \
     note-dimreduce.md \
+    note-graphmodel.md \
     -o note.pdf \
     --pdf-engine=xelatex \
     --toc \

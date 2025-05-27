@@ -118,6 +118,22 @@ $$
 \lim_{n\rightarrow \infty} \mathrm{Pr}(\sqrt{n}(\overline{X}_n-\mu)\leq z)=\lim_{n\rightarrow \infty} \mathrm{Pr}\left(\frac{\sqrt{n}(\overline{X}_n-\mu)}{\sigma}\leq \frac{z}{\sigma}\right)=\Phi\left(\frac{z}{\sigma}\right)
 $$
 
+### Markov Chain
+
+A markov Chain is a mathematical model for systems that transition from one state to another. 
+
+**Markov Property**: The future state of the system depends only on the current state, not on the past states. 转移到某个状态的概率只和当前概率有关。
+
+$$
+P(X_{t+1}=s_j~|~X_t=s_i, X_{t-1}, \dots, X_0)=P(X_{t+1}=s_j~|~X_t=s_i)
+$$
+
+- **States**: 有限的或者可数的可能的状态
+- **Transition Probabilities**: 转移概率 $P(s_i\rightarrow s_j)=P(X_{t+1}=s_j~|~X_t=s_i)$
+- **Initial State Distribution**: 初始状态分布 $P(X_0=s_i)$
+- **Transition Matrix**: 转移矩阵 $\mathrm{P}=\begin{bmatrix}P(s_1\rightarrow s_1) & P(s_1\rightarrow s_2) & \dots \\ P(s_2\rightarrow s_1) & P(s_2\rightarrow s_2) & \dots \\ \vdots & \vdots & \ddots\end{bmatrix}$
+- **Stationary Distribution**: 稳态分布 $\pi$ 满足 $\pi \mathrm{P}=\pi$ 。
+
 ## Information Theory
 
 - **Entropy** 熵: $H(X)=-\sum_{x\in \mathcal{X}} p_X(x)\log p_X(x)$

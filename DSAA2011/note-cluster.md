@@ -511,7 +511,7 @@ $$
 - **M-Step**: Update paramteres. 对期望求个加权平均，对方差也求个加权平均，对权值求个 $r$ 的平均值
 
 $$
-\boldsymbol{\mu}_k=\frac{\sum_{i=1}^n r_{i,k}\mathbf{x}}{\sum_{i=1}^n r_{i,k}}, \Sigma = \frac{\sum_{i=1}^n r_{i,k}(\mathbf{x}_i-\boldsymbol{\mu}_k)^\top(\mathbf{x}_i-\boldsymbol{\mu}_k)}{\sum_{i=1}^n r_{i,k}}, \pi_k =\frac{\sum_{i=1}^n r_{i,k}}{n}
+\boldsymbol{\mu}_k=\frac{\sum_{i=1}^n r_{i,k}\mathbf{x}}{\sum_{i=1}^n r_{i,k}}, \Sigma_k = \frac{\sum_{i=1}^n r_{i,k}(\mathbf{x}_i-\boldsymbol{\mu}_k)^\top(\mathbf{x}_i-\boldsymbol{\mu}_k)}{\sum_{i=1}^n r_{i,k}}, \pi_k =\frac{\sum_{i=1}^n r_{i,k}}{n}
 $$
 
 - **Check**: Stop if log-likelihood converges or max iterations reached.
