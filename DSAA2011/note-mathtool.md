@@ -257,7 +257,7 @@ let $y$ be the true answer, and $y'$ be the prediction.
 $$
 \begin{aligned}
 &\text{For one sample: }\\
-&\mathbf{error}_{\mathrm{bal}}(y,y')=\frac{\frac{1}{2}(n_++n_-)\cdot \mathbb{I}(y\ne y')}{n_+\mathbb{I}(y)} \\
+&\mathbf{error}_{\mathrm{bal}}(y,y')=\frac{\frac{1}{2}(n_++n_-)\cdot \mathbb{I}(y\ne y')}{n_+\mathbb{I}(y) + n_-(1 - \mathbb{I}(y))} \\
 &\text{For a whole dataset: }\\
 &\mathrm{BER}=\frac{1}{2}\left(\frac{\mathrm{FN}}{\mathrm{TP}+\mathrm{FN}}+\frac{\mathrm{FP}}{\mathrm{FP}+\mathrm{TN}}\right)
 \end{aligned}

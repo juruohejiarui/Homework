@@ -229,9 +229,6 @@ $$
         \log \mathrm{Pr}\left(y=y_i|\mathbf{x}=\mathbf{x}_i,\vec\theta,\theta_0\right) \\
 &=\arg\min_{\vec\theta, \theta_0}
     \sum_{i=1}^m 
-        \log \mathrm{Pr}\left(y=y_i|\mathbf{x}=\mathbf{x}_i,\vec\theta,\theta_0\right) \\
-&=\arg\min_{\vec\theta, \theta_0}
-    \sum_{i=1}^m 
         \log \left[1+\exp\left(-y_i\left(\left<\vec\theta,\mathbf{x}\right>+\theta_0\right)\right)\right]
 \end{aligned}
 $$
@@ -260,12 +257,14 @@ $$
 Then 
 
 $$
-\frac{\mathrm{d}l(\vec\theta, \theta_0|\mathcal{D})}{\mathrm{d}\theta_0}
+\begin{aligned}
+&\frac{\mathrm{d}l(\vec\theta, \theta_0|\mathcal{D})}{\mathrm{d}\theta_0}
 = \sum_{i=1}^n 
     -y_i\left[1-\mathrm{Pr}\left(y=y_i|\mathbf{x}=\mathbf{x}_i,\vec\theta,\theta_0\right)\right] \\
-\frac{\mathrm{d}l(\vec\theta, \theta_0|\mathcal{D})}{\mathrm{d}\vec\theta}
+&\frac{\mathrm{d}l(\vec\theta, \theta_0|\mathcal{D})}{\mathrm{d}\vec\theta}
 = \sum_{i=1}^n
     -y_i\mathbf{x}_i\left[1-\mathrm{Pr}\left(y=y_i|\mathbf{x}=\mathbf{x}_i,\vec\theta,\theta_0\right)\right]
+\end{aligned}
 $$
 
 SGD leads to **no** significant change on average when the gradient of the full objective equals zero.

@@ -39,7 +39,7 @@ higher $\text{RI}\rightarrow$ better match.
 $$
 \begin{aligned}
 \text{ARI} &= \frac{\text{RI}-\mathbb{E}[\text{RI}]}{\max(\text{RI})-\mathbb{E}[\text{RI}]} \\
-&=\frac{\sum_{i,j}\binom{n_{i,j}}{2}-\frac{1}{2}\left(\sum_i \binom{|L_i|}{2}\sum_j\binom{|C_j|}{2}\right)}{\frac{1}{2}\left(\sum_i \binom{|L_i|}{2}+\sum_j \binom{|C_i|}{j}\right)-\frac{1}{2}\left(\sum_i \binom{|L_i|}{2}\sum_j\binom{|C_j|}{2}\right)} \\
+&=\frac{\sum_{i,j}\binom{n_{i,j}}{2}-\frac{1}{\binom{n}{2  }}\left(\sum_i \binom{|L_i|}{2}\sum_j\binom{|C_j|}{2}\right)}{\frac{1}{2}\left(\sum_i \binom{|L_i|}{2}+\sum_j \binom{|C_i|}{j}\right)-\frac{1}{\binom{n}{2}}\left(\sum_i \binom{|L_i|}{2}\sum_j\binom{|C_j|}{2}\right)} \\
 \text{where } n_{i,j} &= \left\vert L_i\cap C_j \right\vert
 \end{aligned}
 $$
@@ -301,19 +301,20 @@ $$
 ~~~~
 \begin{aligned}
 &\textbf{Algorithm } \text{Expand cluster } C \\
-&\textbf{Input } \text{cluster }C=\{\mathbf{p}\}, \text{radius }\epsilon, \mathrm{minPts} \\
-1. &\textbf{for } \text{each point } \mathbf{q}\in C \text{ do} \\
-2. &\text{~~~~} \textbf{if } \mathbf{q} \text{ is unvisited~} \textbf{then} \\
-3. &\text{~~~~~~~~} \text{mark } \mathbf{q} \text{ as visited} \\
-4. &\text{~~~~~~~~} \text{calculate } N_\epsilon(\mathbf{q})  \\
-5. &\text{~~~~~~~~} \textbf{if } |N_\epsilon(\mathbf{q})|\ge\mathrm{minPts} \textbf { then} \\
-6. &\text{~~~~~~~~~~~~} C\leftarrow C\cup N_\epsilon(\mathbf{q}) \\
-7. &\text{~~~~~~~~} \textbf{end if} \\
-8. &\text{~~~~} \textbf{end if} \\
-9. &\text{~~~~} \textbf{if}~\mathbf{q} \text{ is not assigned to any cluster} \textbf{ then} \\
-10. &\text{~~~~~~~~} \text{add }\mathbf{q}\text{ to }C \\
-11. &\text{~~~~} \textbf{end if} \\
-12. &\textbf{end for} 
+&\textbf{Input } \text{cluster }C=\{\mathbf{p}\}, \text{radius }\epsilon, \mathrm{minPts} \\\
+1. &N\leftarrow C \\
+2. &\textbf{for } \text{each point } \mathbf{q}\in N \text{ do} \\
+3. &\text{~~~~} \textbf{if } \mathbf{q} \text{ is unvisited~} \textbf{then} \\
+4. &\text{~~~~~~~~} \text{mark } \mathbf{q} \text{ as visited} \\
+5. &\text{~~~~~~~~} \text{calculate } N_\epsilon(\mathbf{q})  \\
+6. &\text{~~~~~~~~} \textbf{if } |N_\epsilon(\mathbf{q})|\ge\mathrm{minPts} \textbf { then} \\
+7. &\text{~~~~~~~~~~~~} N\leftarrow N\cup N_\epsilon(\mathbf{q}) \\
+8. &\text{~~~~~~~~} \textbf{end if} \\
+9. &\text{~~~~} \textbf{end if} \\
+10. &\text{~~~~} \textbf{if}~\mathbf{q} \text{ is not assigned to any cluster} \textbf{ then} \\
+11. &\text{~~~~~~~~} \text{add }\mathbf{q}\text{ to }C \\
+12. &\text{~~~~} \textbf{end if} \\
+13. &\textbf{end for} 
 \end{aligned}
 $$
 
@@ -328,7 +329,7 @@ A Non-deterministic algorithm 不完全决定性的算法:
 - **Pros** : 
   - Does not require the number of clusters to be specified 不需要设定聚类的数量
   - Can identify clusters of arbitrary shape 可以处理畸形的类
-  - Handles noise effectively by identifying outliers 可以通过处理类群点很好地处理噪声点
+  - Handles noise effectively by identifying outliers 可以通过处理离群点很好地处理噪声点
 - **Cons** :
   - Not entirely deterministic 不完全确定
   - Performance degrades with high-dimensional data: curse of dimensionality 对高维数据的效果较差
@@ -511,7 +512,7 @@ $$
 - **M-Step**: Update paramteres. 对期望求个加权平均，对方差也求个加权平均，对权值求个 $r$ 的平均值
 
 $$
-\boldsymbol{\mu}_k=\frac{\sum_{i=1}^n r_{i,k}\mathbf{x}}{\sum_{i=1}^n r_{i,k}}, \Sigma_k = \frac{\sum_{i=1}^n r_{i,k}(\mathbf{x}_i-\boldsymbol{\mu}_k)^\top(\mathbf{x}_i-\boldsymbol{\mu}_k)}{\sum_{i=1}^n r_{i,k}}, \pi_k =\frac{\sum_{i=1}^n r_{i,k}}{n}
+\boldsymbol{\mu}_k=\frac{\sum_{i=1}^n r_{i,k}\mathbf{x}}{\sum_{i=1}^n r_{i,k}}, \Sigma_k = \frac{\sum_{i=1}^n r_{i,k}(\mathbf{x}_i-\boldsymbol{\mu}_k)(\mathbf{x}_i-\boldsymbol{\mu}_k)^\top}{\sum_{i=1}^n r_{i,k}}, \pi_k =\frac{\sum_{i=1}^n r_{i,k}}{n}
 $$
 
 - **Check**: Stop if log-likelihood converges or max iterations reached.

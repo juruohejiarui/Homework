@@ -254,8 +254,10 @@ $$
 需要通过计算确定 $\sigma_i$ ，使得
 
 $$
-H(P_i)=-\sum_{j=1}^n p_{j|i}\log p_{j|i}
+H(P_i)=-\sum_{j=1}^n p_{j|i}\log p_{j|i} = \log \mathrm{Perplexity}
 $$
+
+Perplexity 是一个衡量分布复杂度的超参数，较小的 Perplexity 表示分布更简单，较大的 Perplexity 表示分布更复杂。
 
 定义低维的概率：
 
@@ -360,6 +362,7 @@ $$
 - $k$-Nearest neighborhood: $N_k(\mathbf{x})$
 - similarity $p_{i|j}=\exp\left(-\frac{d(\mathbf{x}_i,\mathbf{x}_j)-\rho_i}{\sigma_i}\right)$, where $\rho_i=\min_{\mathbf{x}_j \in N_k(\mathbf{x}_i)}\{d(\mathbf{x}_i,\mathbf{x}_j)\}$
 - $p_{i,j}=p_{i|j}+p_{j|i}-p_{i|j}p_{j|i}$
+- $q_{i,j}=\left(1+\left\Vert\hat{\mathbf{x}}_i-\hat{\mathbf{x}}_j\right\Vert_2^{2b}\right)^{-1}$
 - Cross-entropy loss:
 
 $$
