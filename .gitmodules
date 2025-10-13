@@ -1,3 +1,6 @@
 [submodule "DSAA2012"]
 	path = DSAA2012
 	url = https://github.com/juruohejiarui/Homework-DSAA2012
+[submodule "UCUG1800"]
+	path = UCUG1800
+	url = https://github.com/juruohejiarui/Homework-UCUG1800-UnityApp
