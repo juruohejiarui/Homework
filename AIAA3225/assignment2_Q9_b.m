@@ -6,19 +6,20 @@ I = eye(2)
 a = [0, 1, 1, 1];
 c = [1, 0, 0, 0];
 
-cvx_begin sdp
+cvx_begin sdp quiet
     variable x(4)
     
     target = c * x;
     minimize target;
     subject to
         x(1) * I - x(2) * M_1 - x(3) * M_2 - x(4) * M_3 >= 0;
-        c * x == 1;
+        a * x == 1;
         x(2) >= 0;
         x(3) >= 0;
         x(4) >= 0;
 cvx_end
 
+fprintf("cvx status: %s\n", cvx_status)
 fprintf("optimal value: %.4f\n", cvx_optval)
 fprintf("optimal solution: " )
 x
