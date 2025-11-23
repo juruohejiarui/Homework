@@ -39,6 +39,7 @@ DSAA2011/Lab04/output.csv
 *.blg
 *.brf
 
+
 .vscode/c_cpp_properties.json
 a.log
 AIAA2205/hw1/backups
@@ -47,3 +48,4 @@ a.out.dSYM
 /AIAA3225/cvx
 
 UCUG1702/project/data
+UCUG1077/*.pdf

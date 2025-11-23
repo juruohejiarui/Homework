@@ -1,0 +1,124 @@
+\documentclass{article}
+
+% if you need to pass options to natbib, use, e.g.:
+%     \PassOptionsToPackage{numbers, compress}{natbib}
+% before loading neurips_2025
+
+% The authors should use one of these tracks.
+% Before accepting by the NeurIPS conference, select one of the options below.
+% 0. "default" for submission
+\usepackage[position, final]{neurips_2025}
+\usepackage{ctex}
+\usepackage{natbib}
+\setcitestyle{numbers,square}
+% the "default" option is equal to the "main" option, which is used for the Main Track with double-blind reviewing.
+% 1. "main" option is used for the Main Track
+%  \usepackage[main]{neurips_2025}
+% 2. "position" option is used for the Position Paper Track
+%  \usepackage[position]{neurips_2025}
+% 3. "dandb" option is used for the Datasets & Benchmarks Track
+ % \usepackage[dandb]{neurips_2025}
+% 4. "creativeai" option is used for the Creative AI Track
+%  \usepackage[creativeai]{neurips_2025}
+% 5. "sglblindworkshop" option is used for the Workshop with single-blind reviewing
+ % \usepackage[sglblindworkshop]{neurips_2025}
+% 6. "dblblindworkshop" option is used for the Workshop with double-blind reviewing
+%  \usepackage[dblblindworkshop]{neurips_2025}
+
+% After being accepted, the authors should add "final" behind the track to compile a camera-ready version.
+% 1. Main Track
+ % \usepackage[main, final]{neurips_2025}
+% 2. Position Paper Track
+%  \usepackage[position, final]{neurips_2025}
+% 3. Datasets & Benchmarks Track
+ % \usepackage[dandb, final]{neurips_2025}
+% 4. Creative AI Track
+%  \usepackage[creativeai, final]{neurips_2025}
+% 5. Workshop with single-blind reviewing
+%  \usepackage[sglblindworkshop, final]{neurips_2025}
+% 6. Workshop with double-blind reviewing
+%  \usepackage[dblblindworkshop, final]{neurips_2025}
+% Note. For the workshop paper template, both \title{} and \workshoptitle{} are required, with the former indicating the paper title shown in the title and the latter indicating the workshop title displayed in the footnote.
+% For workshops (5., 6.), the authors should add the name of the workshop, "\workshoptitle" command is used to set the workshop title.
+% \workshoptitle{WORKSHOP TITLE}
+
+% "preprint" option is used for arXiv or other preprint submissions
+ % \usepackage[preprint]{neurips_2025}
+
+% to avoid loading the natbib package, add option nonatbib:
+%    \usepackage[nonatbib]{neurips_2025}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{xcolor}         % colors
+
+% Note. For the workshop paper template, both \title{} and \workshoptitle{} are required, with the former indicating the paper title shown in the title and the latter indicating the workshop title displayed in the footnote. 
+\title{自然语言处理模型的发展现状和前景}
+
+% The \author macro works with any number of authors. There are two commands
+% used to separate the names and addresses of multiple authors: \And and \AND.
+%
+% Using \And between authors leaves it to LaTeX to determine where to break the
+% lines. Using \AND forces a line break at that point. So, if LaTeX puts 3 of 4
+% authors names on the first line, and the last on the second line, try using
+% \AND instead of \And before the third author name.
+
+
+\author{%
+    何家睿 \\
+    BEng (AI) \\
+    香港科技大学（广州） \\
+    广东，中国 \\
+    \texttt{jhe218@connect.hkust-gz.edu.cn} \\
+}
+
+
+\begin{document}
+
+\section{大纲}
+\subsection{引言}
+本节介绍自然语言处理的重要性与背景，阐述综述的动机与目标，并说明本文的范围与结构安排。
+
+\subsection{技术演进与体系结构}
+本节回顾自然语言处理模型从统计方法到深度学习的发展历程，重点介绍 CNN, RNN 到 Transformer 的架构演进，以及预训练—微调范式的形成与影响。
+
+\subsection{现状：能力、应用与生态}
+本节总结当前 NLP 模型在理解、生成、推理等方面的能力特点，概述其在翻译、问答、摘要等任务中的应用，并讨论开源生态、工具链与应用层现状。
+
+\subsection{评估与基准问题}
+本节介绍现有评测基准及其局限，讨论对抗性评测、事实性验证、多模态评估等新需求。
+
+\subsection{主要挑战与限制}
+本节从数据、计算成本、可靠性、可解释性、伦理与安全等方面分析当前 NLP 技术面临的关键问题。
+
+\subsection{未来方向与潜力}
+本节探讨未来的发展趋势，包括模型高效化、多模态融合、知识增强、可解释性、安全控制及个性化适配等方向。
+
+\subsection{结论}
+本节对全文进行总结，概括自然语言处理模型的主要进展、现存挑战，并对未来发展做出简要展望。
+
+\newpage
+
+\maketitle
+\setcounter{section}{0}
+\begin{abstract}
+随着深度学习技术的快速发展，自然语言处理（NLP）在理解与生成语言的能力上取得了前所未有的突破。从早期依赖特征工程的统计模型，到基于深度神经网络的表示学习，再到以 Transformer 为核心的大规模预训练模型，NLP 的研究范式在过去十年间发生了显著转变。当前的大语言模型在翻译、问答、摘要、对话等任务中展现出强大的泛化能力，并推动了应用生态的快速扩张。然而，模型规模的不断增长也带来了计算成本高、数据偏差难以控制、输出可靠性有限等新的挑战。本文在系统回顾 NLP 模型技术演进的基础上，总结其当前能力、典型应用与生态特征，讨论现有评估体系及其局限，分析面临的关键问题，并进一步展望未来的发展方向，以期为相关研究与应用提供参考。
+\end{abstract}
+
+\section{引言}
+自然语言处理（Natural Language Processing, NLP）\cite{liddy2001natural} 是人工智能领域最具活力和影响力的研究方向之一，其目标是使机器能够理解、生成并有效使用自然语言。随着互联网内容规模的爆炸式增长以及智能交互需求的不断提高，NLP 在搜索引擎、智能问答、机器翻译、文本分析与对话系统等应用场景中发挥着愈发重要的作用。尤其是近年来大规模预训练语言模型的兴起，使得模型能够在少量甚至零样本条件下完成复杂语言任务，进一步提升了 NLP 技术的实用性与影响力。
+
+尽管取得了显著进展，NLP 的研究仍处于快速演化之中。从基于规则和统计的早期方法，到 RNN、CNN 等深度神经网络的兴起，再到 Transformer \cite{vaswani2017attention} 体系结构的广泛成功，NLP 的技术基础不断演进；同时，新的应用需求、评估方式与工程生态也在持续成形。然而，随着模型规模与应用范围的扩大，训练与推理成本、数据与模型偏差、可解释性与安全性等问题愈加凸显，亟需系统化的分析与讨论。
+
+基于上述背景，本文旨在对自然语言处理模型的发展现状与未来潜力进行综述。本文的综述范围主要覆盖语言模型的体系结构演进、典型任务能力、应用生态、评估方法，以及当前面临的主要挑战。全文结构如下：第二节回顾 NLP 技术的发展路径，从统计方法到深度学习与预训练模型；第三节总结当前模型的能力与应用生态；第四节介绍常用评估基准及其局限；第五节分析主要挑战，包括数据质量、成本、可靠性与伦理问题；第六节讨论未来的潜在发展方向；第七节对全文进行总结。
+
+\bibliographystyle{IEEEtran}
+\bibliography{draft}
+
+\end{document}
