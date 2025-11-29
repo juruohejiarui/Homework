@@ -4,3 +4,6 @@
 [submodule "UCUG1800"]
 	path = UCUG1800
 	url = https://github.com/juruohejiarui/Homework-UCUG1800-UnityApp
+[submodule "AIAA3111/project"]
+	path = AIAA3111/project
+	url = https://github.com/juruohejiarui/Homework-AIAA3111-Project
