@@ -38,6 +38,7 @@ DSAA2011/Lab04/output.csv
 *.bbl
 *.blg
 *.brf
+*.pdf
 
 
 .vscode/c_cpp_properties.json
