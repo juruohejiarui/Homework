@@ -1,6 +1,27 @@
 \documentclass{article}
+\usepackage{unicode-math}  % <- 使 math 支持 Unicode
+\usepackage{amsmath}
+\usepackage{fontspec}
+\usepackage{geometry}
+\setmainfont{Times New Roman}
+\linespread{1.12}
+\usepackage{graphicx}
+\usepackage[backend=biber,style=nature,sorting=none]{biblatex}
+\addbibresource{report.bib} % 你的 bib 文件
 
-\usepackage[a4paper, total={6in, 9in}]{geometry}
+\setlength{\parindent}{0pt} % 取消所有段落的首行缩进
+\geometry{
+	a4paper,
+	includehead=true,
+	includefoot=true,
+	top=1in,
+	bottom=1in,
+	left=1in,
+	right=1in
+}
+\setlength{\parskip}{0.5\baselineskip}
+
+
 
 \title{Molecular Dynamics Study of Water Using the TIP4P/2005 Model}
 \author{Jiarui HE \\ UCUG1702}
@@ -9,13 +30,159 @@
 \maketitle
 
 \section{Introduction}
-The liquid water present at the air–water interface plays a crucial role in atmospheric chemistry,environmental processes, and a wide range of technologies.1–5 The structure of this interface governs phenomena such as aerosol reactivity, droplet stability, and wettability. In the bulk liquid phase, each water molecule generally forms approximately four hydrogen bonds, giving rise to a tetrahedral network. At the interface, however, this network is disrupted on the vapor side, which reduces the average number of hydrogen bonds and induces a preferential orientation of molecular dipoles and O–H bonds relative to the surface normal. A characteristic feature of this interfacial region is the presence of dangling hydrogens, which do not participate in hydrogen bonding and typically point toward the vapor phase.
+The air–water interface plays a key role in atmospheric chemistry, environmental processes, and various technologies.\cite{bonn2009wetting}\cite{butt2023interfaces}\cite{delapuente2023acidity}\cite{israelachvili2011intermolecular} Its structure governs aerosol reactivity, droplet stability, and wettability. In bulk water, each molecule typically forms about four hydrogen bonds, creating a tetrahedral network. At the interface, this network is disrupted toward the vapor side, reducing hydrogen-bond counts and inducing preferential orientation of molecular dipoles and O–H bonds. A notable feature is the presence of dangling hydrogens that point toward the vapor phase.
 
-Despite the apparent simplicity of the water molecule, liquid water exhibits remarkable properties at its free surface, including high surface tension and complex temperature-dependent changes in interfacial structure. These macroscopic properties are ultimately governed by temperature induced rearrangements of the hydrogenbond network and the orientational structure of interfacial molecules. In this work, we investigate (i) the distribution of hydrogen bonds formed by water molecules, (ii) the corresponding OH angles and dangling-hydrogen distributions relative to the surface normal and (iii) analyze of micro-structure form by water moleculars. By analyzing the temperature dependence of hydrogen bonding and OH orientational ordering at the interface, we aim to provide a microscopic understanding of the molecular structure of water at the airwater interface
+Despite water's simple molecular structure, its free surface exhibits remarkable properties such as high surface tension and temperature-dependent structural changes. These macroscopic behaviors stem from temperature-induced rearrangements of the hydrogen-bond network and interfacial molecular orientation. In this work, we investigate (i) the distribution of hydrogen bonds, (ii) OH angles and dangling-hydrogen profiles relative to the surface normal, and (iii) the local microstructure formed by water molecules. By analyzing temperature effects, we aim to provide a microscopic understanding of water's interfacial structure.
 \section{Methodology}
 
-Molecular dynamics (MD) simulations with realistic water models can resolve interfacial structure at molecular length scales. Here, we use classical MD of a TIP4P/2005 water slab, a model that reproduces key thermodynamic and interfacial properties over a broad temperature range to examine how the hydrogen-bond network evolves at $T= 280,300,320 \rm{K}$
+Molecular dynamics (MD) simulations with realistic water models can resolve interfacial structure at molecular scales. Here, we use classical MD of a TIP4P/2005 water slab—a model that reproduces key thermodynamic and interfacial properties across a broad temperature range—to examine hydrogen-bond network evolution at $T = 280,\;300,\;320\;\rm{K}$. 
 
-\bibliographystyle{nature}
+From trajectories of 2000 configurations at each temperature, we compute the time-averaged number of hydrogen bonds per molecule along the surface normal ($z$-axis). We also calculate the dipole–normal angle and identify non‑hydrogen‑bonded (dangling) hydrogens to obtain $\langle\cos\theta_{\mathrm{OH}}(z)\rangle$ and the dangling-hydrogen fraction. These allow comparisons between bulk and interfacial regions and clarify how temperature modulates hydrogen-bond connectivity and dangling-hydrogen populations. Additionally, we analyze the angle distribution between molecules that share hydrogen bonds with a common molecule to probe interfacial microstructure.
+
+\subsection{Simulation setup}
+
+We simulated a slab of liquid water surrounded by vapor in a rectangular box with periodic boundary conditions in all three dimensions. The system contained 1056 TIP4P/2005 water molecules\cite{abascal2005tip4p2005}, arranged in a slab geometry at the box center. Box lengths were $L_x = L_y \approx 28.3\;\text{\AA},\; L_z \approx 80.0\;\text{\AA}$. The liquid occupied the central region along $z$, while the top and bottom regions remained empty. The slab geometry at the three temperatures is shown in Figure \ref{fig:slab}.
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[scale=0.2]{slab.png}
+	\caption{Slab geometry of the TIP4P/2005 water model. Red spheres: oxygen atoms; blue spheres: hydrogen atoms.}
+	\label{fig:slab}
+\end{figure}
+
+\subsection{Reconstruction of water molecules}
+
+We reconstruct water molecules by fixing oxygen positions and adjusting hydrogen positions to recover ideal geometry from periodic simulation data. To correct for atoms that may map to the opposite side, components of $\overrightarrow{OH}$ vectors are compared with half the box lengths to determine proper hydrogen positions.
+
+\subsection{Hydrogen-bond analysis along $z$-axis}
+\label{sec:hb_analysis}
+
+Let $v_{\text{AB}}$ be the vector from atom A to atom B. 
+
+Hydrogen bonds are identified using a geometric criterion: For a donor molecule D and an acceptor A (with atoms $\mathrm{O}_A, \mathrm{H}_{A_1}, \mathrm{H}_{A_2}$ and $\mathrm{O}_D$), a hydrogen bond exists if both conditions are satisfied:
+$$
+\begin{aligned}
+\left\Vert v_{\mathrm{O}_D \mathrm{O}_A} \right\Vert &< 3.5 \;\text{\AA} \\
+\min_{i=1,2}\left\{\left\langle v_{\mathrm{O}_D \mathrm{H}_{D,i}}, v_{\mathrm{H}_{D,i}\mathrm{O}_A}\right\rangle\right\} &\leq 30^{\circ}
+\end{aligned}
+$$
+To compute the average number of hydrogen bonds per molecule, the simulation box is divided uniformly into $40$ bins along $z$. Each molecule is assigned to a bin based on its oxygen atom’s $z$-coordinate. For each frame $f$, we calculate
+$$
+n^f_{\mathrm{HB}}(i)=\frac{\sum_{m \in \text{bin}_i} n_{\mathrm{HB}}(m)}{\left|\{m \in \text{bin}_i\}\right|},
+$$
+the average number of hydrogen bonds per molecule in bin $i$. Averaging over all frames gives $n_{\mathrm{HB}}(z_i)$, the position-dependent hydrogen-bond count.
+
+\subsection{O-H orientation and dangling hydrogen analysis}
+
+The orientation of O–H bonds relative to the surface normal is characterized by the angle $\theta_{\mathrm{OH}}$ between the O–H vector and the $z$-axis. For each water molecule, $\cos\theta_{\mathrm{OH}}$ is computed for both O–H bonds:
+$$
+\cos \theta_{\mathrm{OH}}=\frac{v_{\text{OH}}\cdot (0,0,1)^\top}{\left\Vert v_{\text{OH}}\right\Vert}.
+$$
+A hydrogen is considered dangling if no acceptor satisfies the hydrogen-bond criteria in Section~\ref{sec:hb_analysis}.
+
+The dipole angle $\theta_{\text{dipole}}$ between the molecular dipole vector and the $z$-axis is also computed. The dipole vector points from oxygen to the midpoint between the two hydrogens, with
+$$
+\cos \theta_{\text{dipole}}=\frac{v_{\text{dipole}}\cdot (0,0,1)^\top}{\left\Vert v_{\text{dipole}}\right\Vert},
+\qquad v_{\text{dipole}} = \frac{1}{2}\left(v_{\text{OH}_1} + v_{\text{OH}_2}\right).
+$$
+
+These values are binned according to the oxygen’s $z$-coordinate (using $500$ bins). For each bin $i$ in frame $f$:
+$$
+\begin{aligned}
+\theta_{\text{dipole}}^f(i) &= \frac{\sum_{m \in \text{bin}_i} \theta_{\text{dipole}}(m)}{|\{m \in \text{bin}_i\}|} \\
+\theta_{\text{dangling}}^f(i) &= \frac{\sum_{\substack{\text{OH} \in \text{bin}_i \\ \text{H dangling}}} \theta_{\text{OH}}}{\sum_{\substack{\text{OH} \in \text{bin}_i \\ \text{H dangling}}} 1} \\
+\theta_{\text{all}}^f(i) &= \frac{\sum_{\text{OH} \in \text{bin}_i} \theta_{\text{OH}}}{\sum_{\text{OH} \in \text{bin}_i} 1} \\
+\text{frac}^f_{\text{dangling}}(i) &= \frac{\sum_{\substack{\text{OH} \in \text{bin}_i \\ \text{H dangling}}} 1}{\sum_{\text{OH} \in \text{bin}_i} 1}
+\end{aligned}
+$$
+Averaging over all frames yields final profiles as functions of position.
+
+\subsection{Micro-structure analysis}
+
+For each molecule C, let $\{A_i\}$ be the set of molecules hydrogen‑bonded to C. For each unique pair $(A_i, A_j)$ in this set, compute the angle $\phi_{ij}$ between vectors $v_{\mathrm{O}_C \mathrm{O}_{A_i}}$ and $v_{\mathrm{O}_C \mathrm{O}_{A_j}}$. The average angle for molecule C is
+$$
+\phi_C = \frac{2}{N(N-1)} \sum_{i<j} \phi_{ij},
+$$
+where $N$ is the number of acceptors in $\{A_i\}$. These $\phi_C$ values are binned by the oxygen’s $z$-coordinate (40 bins) and scattered to visualize the angular distribution, revealing interfacial microstructure.
+
+\section{Results and Discussion}
+
+\subsection{Results}
+
+\subsubsection{Hydrogen-bond profile along $z$-axis}
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[scale=0.3]{output-1.png}
+	\caption{Average number of hydrogen bonds per molecule along $z$ at different temperatures.}
+	\label{fig:nhb}
+\end{figure}
+
+Figure \ref{fig:nhb} shows the average number of hydrogen bonds per molecule along $z$. In the bulk (slab center), each molecule forms about 3.4 hydrogen bonds at 280 K; higher temperatures reduce this number.
+
+\subsubsection{Orientational distributions and dangling hydrogens}
+
+\begin{figure}[htbp]
+\centering
+\begin{minipage}{0.4\linewidth}
+\centering
+\includegraphics[width=0.9\linewidth]{output-2.png}
+\caption{Dipole angle relative to the $z$-axis at different temperatures.}
+\label{fig:dipole}
+\end{minipage}
+\begin{minipage}{0.4\linewidth}
+\centering
+\includegraphics[width=0.9\linewidth]{output-4.png}
+\caption{Dangling O–H angles at 280 K.}
+\label{fig:dang_280K}
+\end{minipage}
+% 换行后继续插入
+\begin{minipage}{0.4\linewidth}
+\centering
+\includegraphics[width=0.9\linewidth]{output-5.png}
+\caption{Dangling O–H angles at 300 K.}
+\label{fig:dang_300K}
+\end{minipage}
+\begin{minipage}{0.4\linewidth}
+\centering
+\includegraphics[width=0.9\linewidth]{output-6.png}
+\caption{Dangling O–H angles at 320 K.}
+\label{fig:dang_320K}
+\end{minipage}
+\end{figure}
+
+Figures \ref{fig:dipole}–\ref{fig:dang_320K} show the average dipole angle and O–H angles for dangling and all hydrogens. The fraction of dangling hydrogens rises near the interface and with increasing temperature. Dipole and O–H orientations show pronounced interfacial alignment but remain statistically similar across temperatures.
+
+\subsubsection{Micro-structure analysis}
+
+\begin{figure}[htbp]
+	\centering
+	\includegraphics[scale=0.3]{output-7.png}
+	\caption{Distribution of angles between molecules sharing a common hydrogen-bond acceptor at 300 K.}
+	\label{fig:micro_300K}
+\end{figure}
+
+Figure \ref{fig:micro_300K} shows the scatter plot of angles between molecules that hydrogen‑bond to the same molecule, using uniformly selected configurations at 300 K. In the bulk, a peak appears near $109.5^\circ$, while a weaker peak around $120^\circ$ emerges near the interface.
+
+\subsection{Discussion}
+
+At 280 K, the bulk hydrogen-bond count is about 3.4, indicating a well-connected network. As temperature rises to 300 K and 320 K, the average decreases to ~3.2 and ~3.1, respectively, reflecting thermal disruption of hydrogen bonds.
+
+Dipole orientations, dangling O–H angles, and dangling‑hydrogen fractions change markedly near the interface compared to the bulk. O–H bonds and molecular dipoles tend to point toward the vapor phase at all temperatures. However, these orientational profiles show little temperature dependence, suggesting thermal effects have limited influence on interfacial alignment.
+
+The angle distribution between hydrogen‑bonded molecules shows a strong peak near $109.5^\circ$ in the bulk, consistent with tetrahedral coordination. Near the interface, a secondary peak around $120^\circ$ appears, indicating equilateral‑triangle arrangements formed by hydrogen bonds.
+
+\section{Conclusion}
+
+This study used molecular dynamics simulations with the TIP4P/2005 model to investigate water structure at the air–water interface. We analyzed hydrogen-bond distributions, orientational profiles of O–H bonds and molecular dipoles, and local microstructure. Results show that hydrogen bonding decreases with temperature, while the fraction of dangling hydrogens increases near the interface. Orientational profiles remain largely temperature‑independent. Microstructure analysis reveals tetrahedral coordination in the bulk and equilateral‑triangle arrangements near the interface. These findings advance the microscopic understanding of interfacial water structure and its thermal response.
+
+\section{Team Contribution}
+
+\begin{itemize}
+	\item Jiarui HE : Hydrogen-bond analysis, O-H orientation and dangling hydrogen analysis, Micro-structure analysis.
+	\item Zhiyuan WANG: Dipole angle analysis, Simulation setup, Data processing scripts.
+\end{itemize}
+
+\printbibliography[title=References]
 
 \end{document}
