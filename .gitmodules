@@ -7,3 +7,6 @@
 [submodule "AIAA3111/project"]
 	path = AIAA3111/project
 	url = https://github.com/juruohejiarui/Homework-AIAA3111-Project
+[submodule "UCUG1077/review/template"]
+	path = UCUG1077/review/template
+	url = https://github.com/WheaterW/latex-CCF-double.git

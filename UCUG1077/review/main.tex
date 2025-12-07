@@ -1,0 +1,123 @@
+% !TeX encoding = UTF-8
+% !TeX program = xelatex
+% !TeX spellcheck = en_US
+
+\documentclass{template/cjc}
+
+\usepackage{booktabs}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{siunitx}
+
+\classsetup{
+  % 配置里面不要出现空行
+  title        = {自然语言处理模型的发展现状和未来展望},
+  title*       = {The Development Status and Future Prospects of Natural Language Models},
+  authors      = {
+    author1 = {
+      name         = {何家睿},
+      name*        = {Jiarui HE},
+      affiliations = {aff1},
+      biography    = {男，2005年生，BEng(AI)，学生，主要研究领域为自然语言处理模型},
+      % 英文作者介绍内容包括：出生年, 学位(或目前学历), 职称, 主要研究领域(与中文作者介绍中的研究方向一致).
+      biography*   = {Undergraduate. His research interests include natural language processing},
+      email        = {jhe218@connect.hkust-gz.edu.cn},
+      phone-number = {13620853161},  % 第1作者手机号码(投稿时必须提供，以便紧急联系，发表时会删除)
+    },
+  },
+  % 论文定稿后，作者署名、单位无特殊情况不能变更。若变更，须提交签章申请，
+  % 国家名为中国可以不写，省会城市不写省的名称，其他国家必须写国家名。
+  affiliations = {
+    aff1 = {
+      name  = {香港科技大学（广州）\ AI Thrust, 广州市 中国\ 511400},
+      name* = {Hong Kong University of Science and Technology (Guangzhou), University, Guangzhou 511400, China},
+    }
+  },
+  abstract     = {无. },
+  abstract*    = {None},
+  % 中文关键字与英文关键字对应且一致，应有5-7个关键词，不要用英文缩写
+  keywords     = {综述，自然语言处理，大语言模型},
+  keywords*    = {Survey, Natural Language Processing, Large Language Models},
+  grants       = {},
+  % clc           = {TP393},
+  % doi           = {10.11897/SP.J.1016.2020.00001},  % 投稿时不提供DOI号
+  % received-date = {2019-08-10},  % 收稿日期
+  % revised-date  = {2019-10-19},  % 最终修改稿收到日期，投稿时不填写此项
+  % publish-date  = {2020-03-16},  % 出版日期
+  % page          = 512,
+}
+
+\newcommand\dif{\mathop{}\!\mathrm{d}}
+
+% hyperref 总是在导言区的最后加载
+\usepackage{hyperref}
+
+\begin{document}
+
+\maketitle
+
+\section{引言}
+
+自然语言处理（Natural Language Processing，NLP）\cite{jm3} 是研究计算机如何理解、生成和利用人类语言的一门交叉学科，横跨计算语言学、机器学习与人工智能。传统上，NLP 包含文本/语音的表示、句法与语义分析、信息抽取、机器翻译、问答与对话系统等任务。近年来，神经网络与大规模预训练语料的出现，为 NLP 带来了效果的质的飞跃，也促发了架构系统性变革。
+
+本文梳理了主要模型与架构设计，并介绍用于扩展模型容量与效率的技术路线代表。同时，我们将讨论当前模型面临的幻觉现象。最后，在未来展望部分对研究与工程最有影响的路线。
+
+\section{主要模型和架构发展}
+
+\subsection{早期神经网络在NLP中的应用}
+
+神经概率网络模型 \cite{bengio_neural_nodate} 使用多层神经网络学习并推理句子中出现的每个词的概率。具体而言，它处理的是，对于一个给定的上下文 $C$, 预测句子 $w_1, w_2, \dots w_T$ 中每个位置 $t$ 是词 $i$ 的概率 $P(w_t = i | C)$。此方法取得了较为优异的效果，但只能处理固定长度的上下文。
+
+为了解决上下文长度的限制, 循环神经网络 (RNN) 被应用到自然语言处理中 \cite{mikolov_recurrent_2010} 。它天然利用了其 RNN 对序列数据的建模能力。然而，RNN 在处理长距离依赖关系时性能较差，这限制了其在复杂语言任务中的表现。
+
+此后，Word2Seq \cite{mikolov_efficient_2013} 中提出了一种可以高效训练词向量的方法，通过跳字模型 (Skip-gram) 和连续词袋模型 (CBOW) 来捕捉词语之间的语义关系。这种方法极大地提升了词向量的质量，可以在大规模训练数据上表现良好且效率很高，并在多个 NLP 任务中取得了显著的效果。
+
+\subsection{Transformer 架构}
+
+Transformer \cite{vaswani_attention_2017} 引入了自注意力机制，允许模型在处理输入序列时动态地关注不同位置的信息，从而更好地捕捉长距离依赖关系。其架构由编码器和解码器组成，编码器负责将输入序列转换为隐藏表示，解码器则根据隐藏表示生成输出序列。与传统的模型相比，Transformer 具有更高的并行计算能力和更强的表达能力，并成为至今的大语言模型的基础架构。但其完全的注意力矩阵计算复杂度为 $O\left(n^2\right)$，对存储资源和计算资源要求较高。图片 \ref{fig:transformer} 展示了 Transformer 的基本结构。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth]{transformer.png}
+  \caption{Transformer 架构示意图 \cite{vaswani_attention_2017}。}
+  \label{fig:transformer}
+\end{figure}
+
+\section{大语言模型的改进和拓展}
+
+\subsection{稀疏注意力机制}
+
+为了解决自注意力机制计算和存储复杂度过大的问题，研究人员提出了稀疏注意力机制。 Cluster-Former \cite{wang_cluster-former_2021} 使用滑动窗口来分割序列，并使用聚类方法聚合片段信息。交替进行分割和聚类能够既保留局部细节，又允许长距离信息整合。原生稀疏注意力 \cite{yuan_native_2025} 则通过动态分层稀疏策略，以及硬件对齐和特化的算法实现，显著加速了超长序列的处理。本方法还允许模型动态学习稀疏方式以适应不同任务。
+
+\subsection{低秩适配器}
+
+为获得针对特定任务的模型，研究人员往往需要对模型进行微调。然而，直接微调整个大模型会带来高昂的计算和存储成本。低秩适配器（Low-Rank Adapter, LoRA） \cite{hu_lora_2021} 是一种高效的微调方法，通过在预训练模型的权重矩阵上添加低秩矩阵来实现调整。具体而言，LoRA 训练两个低秩矩阵 $A\in\mathbb{R}^{d\times r}$，$B\times \mathbb{R}^{r\times k}$，然后将权重更新为 $W'=W+AB\in\mathbb{R}^{d\times k}$ 。其中 $r$ 远小于 $d$ 和 $k$。这种方法显著减少了需要更新的参数数量，从而降低了微调成本。利用了预训练模型的知识的同时，适应了特定任务的需求。
+
+\subsection{量化技术}
+
+为了解决现代模型参数量过大的问题，量化技术，即用较低精度的数据类型来压缩模型实际体积的技术，被广泛运用。
+
+GPTQ \cite{frantar_gptq_2023} 使用了高效的后训练量化。它利用二阶信息，对预训练模型的权重进行量化，同时优化量化误差。使得一部分原本只能在大型服务器上运行的模型，可以在单个 GPU 上高效推理，且几乎无性能损失。Deepseek-V3 \cite{deepseek-ai_deepseek-v3_2025} 则在训练和部署中使用了混合精度量化技术，部分敏感操作保留较高精度，其余部分使用较低精度，大幅提高了训练和推理的效率。
+
+\section{幻觉现象}
+
+大模型在生成文本时，可能会出现幻觉现象，即生成与事实不符或完全虚构的信息，严重影响了模型的可靠性。
+
+为解决这个问题，HalluLens \cite{bang_hallulens_2025} 提出了一个用于评估大语言模型生成文本中的幻觉现象的评分系统，帮助研究人员更好地理解和量化幻觉现象的严重程度。此外，哈尔滨工业大学和华为共著的综述 \cite{huang_survey_2025} 系统梳理了当前大语言模型幻觉的分类，成因，检测和缓解方法。
+
+\section{未来展望}
+
+NLP 模型的其中一个发展方向将会是提升模型的推理和训练效率，以更好地适应大规模数据和复杂任务的需求。同时，针对不同任务特化的模型设计也将成为未来的研究重点。
+
+目前幻觉现象没有得到根本解决，需要进一步探索模型架构、训练数据和优化方法，以减少幻觉现象的发生，提高模型生成文本的准确性和可靠性。
+
+\section{总结}
+
+本文总结了自然语言处理模型的发展现状和未来展望。我们回顾了早期神经网络在 NLP 中的应用，介绍了 Transformer 架构及其改进方法，如低秩适配器，稀疏注意力机制和量化技术。可以发现 NLP 模型的发展经历从追求模型能力到提升模型效率的变化。
+
+此外，我们讨论了大模型中常见的幻觉现象及其潜在解决方案。最后，我们展望了未来 NLP 领域的发展方向，强调了提升模型效率，针对性特化和减少幻觉现象的重要性。随着技术的不断进步，NLP 模型有望在更多实际应用中发挥更大的作用。
+
+\bibliographystyle{template/cjc}
+\bibliography{main}
+
+\end{document}
